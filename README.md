@@ -119,3 +119,96 @@ The LoadKaar website aims to organize and utilize unorganized labor for profitab
 - **One-to-many** between users and `payments`.
 - **One-to-many** between jobs and routes.
 - **One-to-one** between jobs and `ai_suggestions`.
+
+# Setup Instructions:
+
+## Clone the repository:
+
+```bash
+git clone https://github.com/Janakrish1/Loadkaar.git
+cd Loadkaar
+```
+
+## Backend Setup (Express server):
+
+1. Navigate to the backend directory (assuming the backend is in a separate folder, otherwise run in the root):
+
+```bash
+cd backend
+```
+
+2. Install the required dependencies:
+
+```bash
+npm install
+```
+
+3. Make sure to create a `.env` file (if you haven’t done so already) for environment variables (e.g., database credentials). A sample `.env` file might look like:
+
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=password
+DB_NAME=loadkaar_db
+PORT=5000
+```
+
+4. To run the backend with nodemon, you can use the following command:
+
+```bash
+npx nodemon app.js
+```
+
+## Frontend Setup (React app):
+
+1. Navigate to the frontend directory:
+
+```bash
+cd frontend
+```
+
+2. Install the required dependencies:
+
+```bash
+npm install
+```
+
+3. Ensure that any environment variables for the frontend (such as API endpoints) are configured in a `.env` file in the frontend folder. For example:
+
+```env
+REACT_APP_API_URL=http://localhost:5000/api
+```
+
+4. To start the frontend app, run:
+
+```bash
+npm start
+```
+
+## Additional Notes
+
+### CORS:
+If the backend and frontend are running on different ports locally (e.g., backend on port 5000 and frontend on port 3000), ensure CORS (Cross-Origin Resource Sharing) is properly handled on the backend. You already have `cors` set up in the backend.
+
+### Port Conflicts:
+If any of the ports (e.g., 5000 for backend or 3000 for frontend) are in use, you may need to change the port numbers in the configuration or `.env` files.
+
+## Example `.env` files:
+
+### Backend (`.env`):
+
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=password
+DB_NAME=loadkaar_db
+PORT=5000
+```
+
+### Frontend (`.env`):
+
+```env
+REACT_APP_API_URL=http://localhost:5000/api
+```
+
+By following these instructions, you should be able to set up the environment and run both the backend and frontend locally. You can add these instructions to your repository's `README.md` file for easy access.
