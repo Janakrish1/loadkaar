@@ -12,7 +12,7 @@ function HomePage() {
 
     return (
         <div className="text-center margin-top">
-            <h1>{message || "Welcome to LoadKaar!"}</h1>
+            <h1>{message || "Welcome to LoadKaar!, Hurray"}</h1>
         </div>
     );
 }
