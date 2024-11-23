@@ -40,7 +40,7 @@ function LandingPage() {
             </main>
 
             <footer>
-                <p>&copy; 2024 LoadKaar. All rights reserved.</p>
+                <p>&copy; 2024 LoadKaar @ All rights reserved.</p>
             </footer>
         </div>
     );
