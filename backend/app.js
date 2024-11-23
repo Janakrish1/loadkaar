@@ -13,16 +13,18 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Test the database connection
+/*
+* Start server
+* Test the database connection
+*/
+
 sequelize.authenticate()
     .then(() => console.log("Database connected"))
     .catch((err) => console.log("Error: " + err));
 
-// Routes
-const userRoutes = require("./routes/userRoutes");
-app.use("/api/users", userRoutes);
+const dbRoute = require("./routes/connectDB")
+app.use("/", dbRoute);
 
-// Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
