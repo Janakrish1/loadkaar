@@ -3,6 +3,8 @@ import '../styles/Login.css'; // Add CSS for styling the popup
 import { setUser } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import validation from '../middleware/signupValidation';
+import axios from 'axios'; //To post or get data
 
 function Login({ category, onClose }) {
     const [userData, setUserData] = useState({email: "", password: "", category: category});
@@ -16,10 +18,17 @@ function Login({ category, onClose }) {
 
     const handleLogin = (event) => {
         event.preventDefault(); // Prevents default form submission behavior
-        if (userData.email && userData.password) {
-            dispatch(setUser(userData)); // Updates Redux state
-            navigate('/home'); // Redirects to /home
-        } else {
+        dispatch(setUser(userData)); // Updates Redux state
+        setErrors(validation(userData));
+        if(errors.email === "" && errors.password === "")
+        {
+          axios.post("http://localhost:5000/api/login", userData)
+          .then(res => {
+              navigate('/home');
+          })
+          .catch(err => console.log(err));
+        }
+        else {
             alert("Please fill in both fields!");
         }
     };

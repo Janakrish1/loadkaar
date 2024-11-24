@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import '../styles/LandingPage.css'; // Import the CSS for styling
 import logo from '../assets/logo.jpeg';
 import Login from './Login.js';
+import validation from '../middleware/signupValidation.js';
+import axios from 'axios';
 
 function LandingPage() {
     const [category, setCategory] = useState(null);
