@@ -1,52 +1,52 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import validation from '../middleware/signupValidation';
-import axios from 'axios'
+import React, { useState } from "react";
+import '../styles/Login.css'; // Add CSS for styling the popup
+import { setUser } from "../redux/userSlice";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
-function Login() {
-    const [values, setValues] = useState({
-      email : '',
-      password : ''
-    })
-    const [errors, setErrors] = useState({})
+function Login({ category, onClose }) {
+    const [userData, setUserData] = useState({email: "", password: "", category: category});
     const navigate = useNavigate();
-    const handleInput =(event) => {
-      setValues(prev => ({...prev, [event.target.name]: [event.target.value]}))
-    }
+    const dispatch = useDispatch();
 
-    const handleSubmit =(event) => {
-      event.preventDefault();
-      setErrors(validation(values));
-      if(errors.email === "" && errors.password === "")
-        {
-            axios.post("http://localhost:5000/api/login", values)
-            .then(res => {
-                navigate('/');
-            })
-            .catch(err => console.log(err));
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setUserData((prevData) => ({ ...prevData, [name]: value }));
+    };
+
+    const handleLogin = (event) => {
+        event.preventDefault(); // Prevents default form submission behavior
+        if (userData.email && userData.password) {
+            dispatch(setUser(userData)); // Updates Redux state
+            navigate('/home'); // Redirects to /home
+        } else {
+            alert("Please fill in both fields!");
         }
-    }
-  return (
-    <div className='d-flex justify-content-center align-items-center bg-primary vh-100'>
-      <div className='bg-white p-3 rounded w-25'>
-        <form action = "" onSubmit={handleSubmit}>
-          <h2>Login</h2>
-          <div className='mb-3'>
-            <label htmlFor="email"><strong>Email</strong></label>
-            <input type="email" placeholder="Enter Email" name='email' onChange={handleInput} className='form-control rounded-0'></input>
-            {errors.email && <span className='text-danger'> {errors.email} </span>}
-          </div>
-          <div className='mb-3'>
-            <label htmlFor="password"><strong>Password</strong></label>
-            <input type="password" placeholder="Enter Password" name='password'  onChange={handleInput}className='form-control rounded-0'></input>
-            {errors.password && <span className='text-danger'> {errors.password} </span>}
-          </div>
-          <button type='submit' className='btn btn-success w-100 rounded-0'> <strong>Log-in</strong></button>
-          <Link to="/signup" className='btn btn-default border w-100 bg-light rounded-0'><strong>Register</strong></Link>
-        </form>
-      </div>
-    </div>
-  )
+    };
+
+    return (
+        <div className="popup-overlay">
+            <div className="popup-content">
+                <h2>{category} Login</h2>
+                <form>
+                    <label>
+                        email:
+                        <input type="text" name="email" value={userData.email}
+                            onChange={handleInputChange}
+                            required />
+                    </label>
+                    <label>
+                        Password:
+                        <input  type="password" name="password" value={userData.password}
+                            onChange={handleInputChange}
+                            required />
+                    </label>
+                    <button onClick={handleLogin} type="submit">Login</button>
+                </form>
+                <button onClick={onClose} className="close-button">Close</button>
+            </div>
+        </div>
+    );
 }
 
-export default Login
+export default Login;

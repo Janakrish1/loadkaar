@@ -1,19 +1,38 @@
 /* General Styling */
 .landing-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures the container stretches to the viewport height */
     font-family: Arial, sans-serif;
     background-color: #f5f5f5;
     color: #333;
   }
   
-  /* Navbar Styling */
-  .navbar {
+  /* Header */
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
     background-color: #004aad;
     color: white;
+    
+}
+
+.website-name {
+    flex: 1; /* Ensures it takes the center space */
+    text-align: center;
+    font-size: 1.8rem; /* Adjust font size */
+    font-weight: bold;
+    color: #ebeff7; /* Matches your theme */
+    margin: 0; /* Removes default margin */
+}
+
+  /* Main Content Section */
+  .main-content {
+    flex: 1; /* Ensures this section expands to fill the available space */
   }
+ 
   
   .logo {
     height: 50px;
@@ -45,7 +64,7 @@
   .services {
     display: flex;
     justify-content: space-around;
-    margin: 2rem 0;
+    margin: 3rem 0;
   }
   
   .service-box {
@@ -75,10 +94,12 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
   
-  footer {
+  /* Footer */
+  .footer {
     text-align: center;
     padding: 1rem;
     background-color: #004aad;
     color: white;
+    border-top: 2px solid #eef4ff;
   }
   
