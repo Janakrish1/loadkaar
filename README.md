@@ -150,7 +150,7 @@ DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=password
 DB_NAME=loadkaar_db
-PORT=5000
+PORT=5001
 ```
 
 4. To run the backend with nodemon, you can use the following command:
@@ -176,7 +176,7 @@ npm install
 3. Ensure that any environment variables for the frontend (such as API endpoints) are configured in a `.env` file in the frontend folder. For example:
 
 ```env
-REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_API_URL=http://localhost:5001/api
 ```
 
 4. To start the frontend app, run:
@@ -188,10 +188,10 @@ npm start
 ## Additional Notes
 
 ### CORS:
-If the backend and frontend are running on different ports locally (e.g., backend on port 5000 and frontend on port 3000), ensure CORS (Cross-Origin Resource Sharing) is properly handled on the backend. You already have `cors` set up in the backend.
+If the backend and frontend are running on different ports locally (e.g., backend on port 5001 and frontend on port 3000), ensure CORS (Cross-Origin Resource Sharing) is properly handled on the backend. You already have `cors` set up in the backend.
 
 ### Port Conflicts:
-If any of the ports (e.g., 5000 for backend or 3000 for frontend) are in use, you may need to change the port numbers in the configuration or `.env` files.
+If any of the ports (e.g., 5001 for backend or 3000 for frontend) are in use, you may need to change the port numbers in the configuration or `.env` files.
 
 ## Example `.env` files:
 
@@ -202,13 +202,13 @@ DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=password
 DB_NAME=loadkaar_db
-PORT=5000
+PORT=5001
 ```
 
 ### Frontend (`.env`):
 
 ```env
-REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_API_URL=http://localhost:5001/api
 ```
 
 By following these instructions, you should be able to set up the environment and run both the backend and frontend locally. You can add these instructions to your repository's `README.md` file for easy access.

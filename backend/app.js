@@ -21,6 +21,5 @@ app.use(bodyParser.json());
 const postData = require("./routes/serverRoutes");
 app.use("/api", postData);
 
-// Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
