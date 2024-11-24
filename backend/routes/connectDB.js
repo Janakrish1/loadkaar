@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/", (req, res) => {
+router.get("/connectDB", (req, res) => {
     res.json({ message: "Database Connected!" });
 });
 
