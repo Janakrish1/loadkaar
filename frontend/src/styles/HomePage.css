@@ -13,9 +13,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    background-color: #eef4ff;
-    border-bottom: 2px solid #004aad;
+    padding: 1rem 2rem;
+    background-color: #004aad;
+    color: white;
 }
 
 .header .logo {
@@ -117,7 +117,7 @@
     text-align: center;
     font-size: 1.8rem; /* Adjust font size */
     font-weight: bold;
-    color: #004aad; /* Matches your theme */
+    color: #ebeff7; /* Matches your theme */
     margin: 0; /* Removes default margin */
 }
 

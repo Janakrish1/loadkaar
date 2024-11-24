@@ -23,7 +23,7 @@ sequelize.authenticate()
     .catch((err) => console.log("Error: " + err));
 
 const dbRoute = require("./routes/connectDB")
-app.use("/", dbRoute);
+app.use("/api", dbRoute);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
