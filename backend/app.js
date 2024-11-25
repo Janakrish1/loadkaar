@@ -4,6 +4,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const sequelize = require("./config/db");
+const db = require('./models')
 
 
 
@@ -18,9 +19,13 @@ app.use(bodyParser.json());
 * Test the database connection
 */
 
-sequelize.authenticate()
+db.sequelize.authenticate()
     .then(() => console.log("Database connected"))
     .catch((err) => console.log("Error: " + err));
+
+// (async () => {
+//     await db.sequelize.sync();
+// })();
 
 const dbRoute = require("./routes/connectDB")
 app.use("/api", dbRoute);

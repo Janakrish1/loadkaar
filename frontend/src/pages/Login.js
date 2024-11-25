@@ -42,6 +42,7 @@ function Login({ category, onClose }) {
                             required />
                     </label>
                     <button onClick={handleLogin} type="submit">Login</button>
+                    <button onClick={handleLogin} type="submit">Register</button>
                 </form>
                 <button onClick={onClose} className="close-button">Close</button>
             </div>

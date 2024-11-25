@@ -85,6 +85,10 @@
     cursor: pointer;
   }
   
+  .sign-up-button:hover {
+    background-color: #25456e;
+}
+
   /* About Section */
   .about-section {
     margin: 2rem;
