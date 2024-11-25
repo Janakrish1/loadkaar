@@ -4,11 +4,11 @@ import logo from '../assets/logo.jpeg';
 import Login from './Login.js';
 
 function LandingPage() {
-    const [category, setCategory] = useState(null);
+    const [role, setrole] = useState(null);
     const [showLoginPopup, setLoginPopup] = useState(false);
 
     const handleLoginPopup = (event) => {
-        setCategory(event.target.value);
+        setrole(event.target.value);
         setLoginPopup(true);
     };
 
@@ -33,15 +33,15 @@ function LandingPage() {
                     <div className="services">
                         <div className="service-box">
                             <h2>User Account</h2>
-                            <button value="Employer" onClick={handleLoginPopup} className="sign-up-button">Sign Up</button>
+                            <button value="Employer" onClick={handleLoginPopup} className="sign-up-button">Login</button>
                         </div>
                         <div className="service-box">
                             <h2>Service Provider</h2>
-                            <button value="Employee" onClick={handleLoginPopup} className="sign-up-button">Sign Up</button>
+                            <button value="Employee" onClick={handleLoginPopup} className="sign-up-button">Login</button>
                         </div>
                         <div className="service-box">
                             <h2>Warehouse Rentals</h2>
-                            <button value="Owner" onClick={handleLoginPopup} className="sign-up-button">Sign Up</button>
+                            <button value="Owner" onClick={handleLoginPopup} className="sign-up-button">Login</button>
                         </div>
                     </div>
 
@@ -55,7 +55,7 @@ function LandingPage() {
                 </main>
             </div>
             {showLoginPopup && (
-                <Login category={category} onClose={closeLoginPopup} />
+                <Login role={role} onClose={closeLoginPopup} />
             )}
             <div className="footer">
                 <span>&copy; 2024 LoadKaar. All rights reserved.</span>

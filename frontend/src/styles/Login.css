@@ -67,6 +67,26 @@
     margin-top: 1rem;
 }
 
+.popup-content button[type="button"] {
+    background-color: #004aad;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 1rem;
+}
+
+.popup-content button[type="submit"]:hover {
+    background-color: #25456e;
+}
+
+.popup-content button[type="button"]:hover {
+    background-color: #25456e;
+}
+
 /* Close Button */
 .close-button {
     background-color: #f44336; /* Red for cancel/close */
@@ -78,4 +98,8 @@
     font-size: 0.9rem;
     margin-top: 1rem;
     font-weight: bold;
+}
+
+.close-button:hover {
+    background-color: #9e4740;
 }
