@@ -4,6 +4,7 @@ import { setUser } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Register from "./Register";
+import axios from "axios";
 
 function Login({ role, onClose }) {
     const [userData, setUserData] = useState({ email: "", password: "", role: role });
@@ -16,17 +17,33 @@ function Login({ role, onClose }) {
         setUserData((prevData) => ({ ...prevData, [name]: value }));
     };
 
-    const handleLogin = (event) => {
-        event.preventDefault(); // Prevents default form submission behavior
+    const handleLogin = async (event) => {
+        event.preventDefault(); // Prevent default form submission behavior
         if (userData.email && userData.password) {
-            // Dispatch the user data to Redux state
-            dispatch(setUser(userData));
-            // Navigate to the home page after login
-            navigate("/home");
+            try {
+                // Send a POST request to validate the login
+                const response = await axios.post("http://localhost:5001/api/login", {
+                    email: userData.email,
+                    password: userData.password,
+                    role: userData.role,
+                });
+
+                // Check if login is successful
+                if (response.data.message === "Login successful") {
+                    // Dispatch the user data to Redux state
+                    dispatch(setUser(userData));
+
+                    // Navigate to the home page after login
+                    navigate("/home");
+                }
+            } catch (error) {
+                alert(error.response?.data?.error || "An error occurred during login.");
+            }
         } else {
             alert("Please fill in both fields!");
         }
     };
+
 
     const openRegisterPopup = () => {
         setShowRegisterPopup(true);

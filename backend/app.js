@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
-const sequelize = require("./config/db");
 const db = require('./models')
 
 
@@ -27,8 +26,12 @@ db.sequelize.authenticate()
 //     await db.sequelize.sync();
 // })();
 
-const dbRoute = require("./routes/connectDB")
+const dbRoute = require("./routes/connectDB");
+const { registerUser, getUser } = require("./controllers/user");
+
 app.use("/api", dbRoute);
+app.use('/api/register', registerUser);
+app.use('/api/login', getUser);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

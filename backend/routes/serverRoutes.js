@@ -9,7 +9,7 @@ const router = express.Router();
 router.use(express.json());
 
 router.post('/register', user.registerUser);
-router.post('/api/login', user.getUser);
+router.post('/login', user.getUser);
 
 
 module.exports = router;

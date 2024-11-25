@@ -7,16 +7,16 @@ import { setUser } from "../redux/userSlice";
 
 function Register({ role, onClose }) {
     const [formData, setFormData] = useState({
-        firstName: "a",
-        lastName: "a",
-        houseNo: "12",
-        locality: "as",
-        city: "as",
-        state: "as",
-        pincode: "12342",
-        phoneNumber: "9999999999",
-        email: "abc@gmail.com",
-        password: "Abc123",
+        firstName: "",
+        lastName: "",
+        houseNo: "",
+        locality: "",
+        city: "",
+        state: "",
+        pincode: "",
+        phoneNumber: "",
+        email: "",
+        password: "",
         role: role
     });
 
@@ -36,12 +36,13 @@ function Register({ role, onClose }) {
           password: formData.password,
           role: role
         };
+
         axios.post("http://localhost:5001/api/register", formData)
         .then(res => {
             dispatch(setUser(userData));
             navigate('/home');
         })
-        .catch(err => console.log(err));
+        .catch (error => alert(error.response?.data?.error || "An error occurred during login."));
     };
 
     return (
