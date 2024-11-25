@@ -4,11 +4,11 @@ import logo from '../assets/logo.jpeg';
 import Login from './Login.js';
 
 function LandingPage() {
-    const [category, setCategory] = useState(null);
+    const [role, setrole] = useState(null);
     const [showLoginPopup, setLoginPopup] = useState(false);
 
     const handleLoginPopup = (event) => {
-        setCategory(event.target.value);
+        setrole(event.target.value);
         setLoginPopup(true);
     };
 
@@ -55,7 +55,7 @@ function LandingPage() {
                 </main>
             </div>
             {showLoginPopup && (
-                <Login category={category} onClose={closeLoginPopup} />
+                <Login role={role} onClose={closeLoginPopup} />
             )}
             <div className="footer">
                 <span>&copy; 2024 LoadKaar. All rights reserved.</span>

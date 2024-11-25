@@ -67,7 +67,23 @@
     margin-top: 1rem;
 }
 
+.popup-content button[type="button"] {
+    background-color: #004aad;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 1rem;
+}
+
 .popup-content button[type="submit"]:hover {
+    background-color: #25456e;
+}
+
+.popup-content button[type="button"]:hover {
     background-color: #25456e;
 }
 
