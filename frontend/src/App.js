@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
-import HomePage from "./pages/HomePage";
+import Employer_HomePage from "./pages/Employer_HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
                 {/* Protecting /home route */}
                 <Route
                     path="/home"
-                    element={<ProtectedRoute element={<HomePage />} />} 
+                    element={<ProtectedRoute element={<Employer_HomePage />} />} 
                 />
 
             </Routes>

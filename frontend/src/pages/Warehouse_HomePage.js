@@ -2,19 +2,8 @@ import React from "react";
 import "../styles/HomePage.css"; // Import the CSS file
 import logo from "../assets/logo.jpeg"; // Load your logo image here
 import profile_pic from "../assets/Icons/profile.jpg"
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { clearUser } from "../redux/userSlice";
 
-function HomePage() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    dispatch(clearUser());
-    navigate('/');
-  };
-
+function Service_HomePage() {
   return (
     <div className="homepage-container">
       {/* Header Section */}
@@ -29,10 +18,6 @@ function HomePage() {
         <img src={profile_pic} alt="profile_pic" className="profile-icon"/>
       <span>Profile</span>
     </div>
-    {/* Logout Button */}
-    <button className="logout-button" onClick={handleLogout}>
-            Logout
-    </button>
   </div>
 </header>
 
@@ -40,11 +25,11 @@ function HomePage() {
       <div style={{ display: "flex", flex: 1 }}>
         {/* Sidebar Section */}
         <aside className="sidebar">
-          <div className="menu-item">Vehicles</div>
-          <div className="menu-item">Current Tasks</div>
-          <div className="menu-item">Past Tasks</div>
+          <div className="menu-item">Add Warehouses</div>
+          <div className="menu-item">Current Holdings</div>
+          <div className="menu-item">Past Fullfillment</div>
           <div className="menu-item">Payments</div>
-          <div className="menu-item">Tasks Review</div>
+          <div className="menu-item">Storage Review</div>
 
           <div className="rating">
             <h3>Rating</h3>
@@ -67,4 +52,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default Service_HomePage;
