@@ -22,9 +22,9 @@ db.sequelize.authenticate()
     .then(() => console.log("Database connected"))
     .catch((err) => console.log("Error: " + err));
 
-// (async () => {
-//     await db.sequelize.sync();
-// })();
+(async () => {
+    await db.sequelize.sync();
+})();
 
 const dbRoute = require("./routes/connectDB");
 const { registerUser, getUser } = require("./controllers/user");
