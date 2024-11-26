@@ -1,12 +1,12 @@
 import React from "react";
-import "../styles/HomePage.css"; // Import the CSS file
+import "../styles/Employer_HomePage.css"; // Import the CSS file
 import logo from "../assets/logo.jpeg"; // Load your logo image here
 import profile_pic from "../assets/Icons/profile.jpg"
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearUser } from "../redux/userSlice";
 
-function HomePage() {
+function Employer_HomePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -67,4 +67,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default Employer_HomePage;
