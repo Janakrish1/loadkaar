@@ -1,14 +1,21 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
-import Service_HomePage from "./pages/Service_HomePage";
-import ProfileSettings from "./pages/Profile_Settings";
+import HomePage from "./pages/HomePage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<ProfileSettings />} />
+                <Route path="/" element={<LandingPage />} />
+
+                {/* Protecting /home route */}
+                <Route
+                    path="/home"
+                    element={<ProtectedRoute element={<HomePage />} />} 
+                />
+
             </Routes>
         </Router>
     );

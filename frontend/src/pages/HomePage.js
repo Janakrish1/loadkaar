@@ -2,8 +2,19 @@ import React from "react";
 import "../styles/HomePage.css"; // Import the CSS file
 import logo from "../assets/logo.jpeg"; // Load your logo image here
 import profile_pic from "../assets/Icons/profile.jpg"
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { clearUser } from "../redux/userSlice";
 
-function Service_HomePage() {
+function HomePage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(clearUser());
+    navigate('/');
+  };
+
   return (
     <div className="homepage-container">
       {/* Header Section */}
@@ -18,6 +29,10 @@ function Service_HomePage() {
         <img src={profile_pic} alt="profile_pic" className="profile-icon"/>
       <span>Profile</span>
     </div>
+    {/* Logout Button */}
+    <button className="logout-button" onClick={handleLogout}>
+            Logout
+    </button>
   </div>
 </header>
 
@@ -52,4 +67,4 @@ function Service_HomePage() {
   );
 }
 
-export default Service_HomePage;
+export default HomePage;

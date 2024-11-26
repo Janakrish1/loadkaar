@@ -13,9 +13,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    background-color: #eef4ff;
-    border-bottom: 2px solid #004aad;
+    padding: 1rem 2rem;
+    background-color: #004aad;
+    color: white;
 }
 
 .header .logo {
@@ -117,10 +117,26 @@
     text-align: center;
     font-size: 1.8rem; /* Adjust font size */
     font-weight: bold;
-    color: #004aad; /* Matches your theme */
+    color: #ebeff7; /* Matches your theme */
     margin: 0; /* Removes default margin */
 }
 
+.logout-button {
+    background-color: #ff4b5c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 16px;
+  }
+  
+  .logout-button:hover {
+    background-color: #d63e4b;
+  }
+
+  
 /* Main Content */
 .main-content {
     flex: 1;
