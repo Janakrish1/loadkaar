@@ -1,13 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
-import HomePage from "./pages/HomePage";
+import Service_HomePage from "./pages/Service_HomePage";
+import ProfileSettings from "./pages/Profile_Settings";
 
 function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<HomePage />} />
+                <Route path="/" element={<ProfileSettings />} />
             </Routes>
         </Router>
     );
