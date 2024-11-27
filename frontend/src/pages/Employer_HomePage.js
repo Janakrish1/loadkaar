@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import BookDeliveryPartner from "./BookDeliveryPartner";
 import { setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
-import FindDeliveryPartners from "./FindDeliveryPartner";
+import FindDeliveryPartners from "./FindDeliveryPartnerUsingMap";
 
 function Employer_HomePage() {
   const dispatch = useDispatch();

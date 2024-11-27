@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { GoogleMap, Marker, LoadScript, InfoWindow } from '@react-google-maps/api';
-import '../styles/MapWithDrivers.css';
+import React, { useState, useEffect } from "react";
+import { GoogleMap, Marker, LoadScript, InfoWindow } from "@react-google-maps/api";
+import "../styles/FindDeliveryPartnerUsingMap.css";
 
-const MapWithDrivers = () => {
+const FindDeliveryPartnerUsingMap = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drivers, setDrivers] = useState([]);
   const [activeDrivers, setActiveDrivers] = useState([]);
@@ -20,7 +20,7 @@ const MapWithDrivers = () => {
 
   useEffect(() => {
     if (currentLocation) {
-      // Set the static dummy drivers array with small offsets to simulate different locations
+      // Static dummy drivers data
       const dummyDrivers = [
         { id: 1, name: "Driver A", lat: 40.4615, lng: -79.9398, status: "active", vehicleType: "Bike", rating: 4.5 },
         { id: 2, name: "Driver B", lat: 40.4615 + 0.001, lng: -79.9398 + 0.001, status: "inactive", vehicleType: "Van", rating: 4.8 },
@@ -30,14 +30,13 @@ const MapWithDrivers = () => {
 
       // Filter drivers that are active
       const activeDrivers = dummyDrivers.filter(driver => driver.status === "active");
-
-      // Filter drivers within 5km radius of current location
+      
+      setDrivers(activeDrivers);
+      // Filter active drivers and those within 5km
       filterDriversByDistance(activeDrivers, currentLocation, 5).then(filteredDrivers => {
         setActiveDrivers(filteredDrivers);
-        console.log('Filtered Drivers:', filteredDrivers);  // Log the filtered drivers to debug
+        console.log('Filtered Drivers:', filteredDrivers); // Log the filtered drivers to debug
       });
-
-      setDrivers(dummyDrivers);  // Set the dummy drivers
     }
   }, [currentLocation]);
 
@@ -81,52 +80,63 @@ const MapWithDrivers = () => {
       );
     });
   };
-  
 
   return (
-    <div className="map-container">
-      <LoadScript googleMapsApiKey="AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y">
-        <GoogleMap
-          mapContainerStyle={{ width: '100%', height: '500px' }}
-          center={currentLocation || { lat: 0, lng: 0 }}
-          zoom={14}
-        >
-          {currentLocation && (
-            <Marker
-              position={currentLocation}
-              icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' }}
-            />
-          )}
-          {drivers.map(driver => (
-            <Marker
-              key={driver.id}
-              position={{ lat: driver.lat, lng: driver.lng }}
-              onClick={() => setSelectedDriver(driver)}
-            />
-          ))}
-          {selectedDriver && (
-            <InfoWindow
-              position={{ lat: selectedDriver.lat, lng: selectedDriver.lng }}
-              onCloseClick={() => setSelectedDriver(null)}
-            >
-              <div>
-                <h3>{selectedDriver.name}</h3>
-                <p>Vehicle: {selectedDriver.vehicleType}</p>
-                <p>Rating: {selectedDriver.rating}</p>
+    <div className="container">
+      <div className="left-pane">
+        <div className="delivery-partners-container">
+          {activeDrivers.length === 0 ? (
+            <p>Loading delivery partners...</p>
+          ) : (
+            activeDrivers.map((partner) => (
+              <div key={partner.id} className="card">
+                <h3>{partner.name}</h3>
+                <p>Vehicle: {partner.vehicleType}</p>
+                <p>Rating: {partner.rating} ⭐</p>
               </div>
-            </InfoWindow>
+            ))
           )}
-        </GoogleMap>
-      </LoadScript>
-
-      {activeDrivers && activeDrivers.length > 0 && (
-        <div className="active-drivers">
-          <h4>Active Drivers (Within 5km):</h4>
-          <pre>{JSON.stringify(activeDrivers, null, 2)}</pre>
         </div>
-      )}
+      </div>
+      <div className="right-pane">
+        <div className="map-container">
+          <LoadScript googleMapsApiKey="AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y">
+            <GoogleMap
+              mapContainerStyle={{ width: '100%', height: '500px' }}
+              center={currentLocation || { lat: 0, lng: 0 }}
+              zoom={14}
+            >
+              {currentLocation && (
+                <Marker
+                  position={currentLocation}
+                  icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' }}
+                />
+              )}
+              {drivers.map(driver => (
+                <Marker
+                  key={driver.id}
+                  position={{ lat: driver.lat, lng: driver.lng }}
+                  onClick={() => setSelectedDriver(driver)}
+                />
+              ))}
+              {selectedDriver && (
+                <InfoWindow
+                  position={{ lat: selectedDriver.lat, lng: selectedDriver.lng }}
+                  onCloseClick={() => setSelectedDriver(null)}
+                >
+                  <div>
+                    <h3>{selectedDriver.name}</h3>
+                    <p>Vehicle: {selectedDriver.vehicleType}</p>
+                    <p>Rating: {selectedDriver.rating}</p>
+                  </div>
+                </InfoWindow>
+              )}
+            </GoogleMap>
+          </LoadScript>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default MapWithDrivers;
+export default FindDeliveryPartnerUsingMap;
