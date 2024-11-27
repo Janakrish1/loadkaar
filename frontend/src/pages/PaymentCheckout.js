@@ -76,6 +76,23 @@ const PaymentCheckout = () => {
         });
     };
 
+    const renderPaymentDetails = () => {
+        return (
+            <div className="payment-details">
+                <h3>Form Details:</h3>
+                <p><strong>Payment ID:</strong> {paymentData.payment_id}</p>
+                <p><strong>Employer ID:</strong> {paymentData.employer_id}</p>
+                <p><strong>Employee ID:</strong> {paymentData.employee_id}</p>
+                <p><strong>Amount:</strong> ₹{paymentData.amount}</p>
+                <p><strong>Payment Method:</strong> {paymentData.payment_method}</p>
+                <p><strong>Status:</strong> {paymentData.status}</p>
+                <p><strong>Payment Date:</strong> {paymentData.payment_date}</p>
+                <p><strong>Task ID:</strong> {paymentData.task_id}</p>
+                <p><strong>Invoice Number:</strong> {paymentData.invoice_number}</p>
+            </div>
+        );
+    };
+
     if (transactionStatus === 'success' || transactionStatus === 'failure') {
         return (
             <div className="payment-checkout">
@@ -97,6 +114,7 @@ const PaymentCheckout = () => {
                         </>
                     )}
                 </div>
+                {renderPaymentDetails()}
                 <button onClick={() => setTransactionStatus(null)}>Back to Checkout</button>
             </div>
         );
