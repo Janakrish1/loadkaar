@@ -24,18 +24,21 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
         if ( formData.vehicleType && formData.itemDescription && formData.pickupLocation && formData.dropLocation && formData.contactDetails) {
             try {
                 
-                await axios.post("http://localhost:5001/api/save-tasks", {userID: userID, vehicleType: formData.vehicleType});
+                await axios.post("http://localhost:5001/api/save-tasks", {userID: userID, vehicleType: formData.vehicleType})
+                .then((response) => {
+                    const taskID = response.data.taskID;   
+                    const taskDetails = {
+                        task_id: taskID,
+                        itemDescription: formData.itemDescription,
+                        pickupLocation: formData.pickupLocation,
+                        dropLocation: formData.dropLocation,
+                        contactDetails: formData.contactDetails
+                    };
+                    axios.post("http://localhost:5001/api/save-task-details", taskDetails)
+                })
+                .catch((error) => alert(error.response?.data?.error || "An error occurred during saving task details."));
 
-                // const response = await axios.post("http://localhost:5001/api/saveTasks", {
-                //     email: email,
-                //     password: password,
-                //     vehicleType: formData.vehicleType,
-                //     itemDescription: formData.itemDescription,
-                //     pickupLocation: formData.pickupLocation,
-                //     dropLocation: formData.dropLocation,
-                //     contactDetails: formData.contactDetails,
-                // });
-                
+                handleFindDeliveryPartner();
             } catch (error) {
                 alert(error.response?.data?.error || "An error occurred during login.");
             }
@@ -47,8 +50,7 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
 
     }
 
-    const handleFindDeliveryPartner = (event) => {
-        event.preventDefault(); // Prevent form submission
+    const handleFindDeliveryPartner = () => {
         onClose(); // Close the popup
         onFindDeliveryPartner(); // Trigger the navigation or load another component
     };
