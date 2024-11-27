@@ -34,7 +34,7 @@ function Login({ role, onClose }) {
                     dispatch(setUser(userData));
 
                     // Navigate to the home page after login
-                    navigate("/home");
+                    navigate("/employer-home");
                 }
             } catch (error) {
                 alert(error.response?.data?.error || "An error occurred during login.");

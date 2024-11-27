@@ -10,9 +10,9 @@ function App() {
             <Routes>
                 <Route path="/" element={<LandingPage />} />
 
-                {/* Protecting /home route */}
+                {/* Protecting /employer-home route */}
                 <Route
-                    path="/home"
+                    path="/employer-home"
                     element={<ProtectedRoute element={<Employer_HomePage />} />} 
                 />
 
