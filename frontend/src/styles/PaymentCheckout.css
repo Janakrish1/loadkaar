@@ -1,0 +1,105 @@
+/* General Styling for Payment Checkout Page */
+.payment-checkout {
+    max-width: 600px;
+    margin: 50px auto; /* Center the form on the page */
+    padding: 20px;
+    background-color: #ffffff; /* White background for the form */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    font-family: Arial, sans-serif;
+    color: #333; /* Text color */
+}
+
+.payment-checkout h2 {
+    text-align: center;
+    color: #004aad; /* Theme primary color */
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+/* Form Styling */
+.payment-checkout form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between form fields */
+}
+
+.payment-checkout label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    color: #555; /* Subtle text color for labels */
+}
+
+.payment-checkout input,
+.payment-checkout select,
+.payment-checkout button {
+    padding: 10px;
+    font-size: 16px;
+    margin-top: 5px;
+    border: 1px solid #ddd; /* Light border for inputs */
+    border-radius: 5px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Input Focus Effects */
+.payment-checkout input:focus,
+.payment-checkout select:focus {
+    border-color: #004aad; /* Highlight on focus */
+    box-shadow: 0 0 5px rgba(0, 74, 173, 0.5);
+    outline: none;
+}
+
+/* Button Styling */
+.payment-checkout button {
+    background-color: #004aad; /* Primary theme color */
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.payment-checkout button:hover {
+    background-color: #00337a; /* Darker shade on hover */
+}
+
+/* Payment Response Section */
+.payment-response {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd; /* Border for response container */
+    border-radius: 5px;
+    background-color: #f9f9f9; /* Light background for distinction */
+}
+
+.payment-response p {
+    margin: 10px 0;
+    color: #333; /* Standard text color */
+    font-size: 14px;
+}
+
+.payment-checkout button + .payment-response {
+    margin-top: 15px;
+}
+
+/* Success Message Styling */
+.payment-checkout h2.success {
+    color: #28a745; /* Green for success */
+}
+
+/* Failure Message Styling */
+.payment-checkout h2.failure {
+    color: #dc3545; /* Red for failure */
+}
+
+/* Back Button */
+.payment-checkout button.back-button {
+    background-color: #ccc;
+    color: #333;
+    margin-top: 10px;
+}
+
+.payment-checkout button.back-button:hover {
+    background-color: #bbb;
+}
