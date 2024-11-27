@@ -6,7 +6,7 @@ import { clearUser } from "../redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import BookDeliveryPartner from "./BookDeliveryPartner";
-import { setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
+import { clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 import FindDeliveryPartners from "./FindDeliveryPartnerUsingMap";
 
 function Employer_HomePage() {
@@ -24,6 +24,7 @@ function Employer_HomePage() {
   // Logout Functionality
   const handleLogout = () => {
     dispatch(clearUser());
+    dispatch(clearDeliveryPartnerView());
     navigate("/");
   };
 
@@ -42,7 +43,7 @@ function Employer_HomePage() {
   const renderView = () => {
     switch (currentView) {
       case "default":
-        return currentOrders !== null ? <></> : <h1>No Current Orders!</h1>;
+        return currentOrders !== null ? <></> : <div><br/><h1>No Current Orders!</h1></div>;
       case "findDelivery":
         return <FindDeliveryPartners />;
       default:

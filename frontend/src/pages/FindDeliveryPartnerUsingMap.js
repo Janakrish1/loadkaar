@@ -42,44 +42,48 @@ const FindDeliveryPartnerUsingMap = () => {
 
   // Function to calculate distance between two points using Google Maps API
   const filterDriversByDistance = (drivers, currentLocation, maxDistanceKm) => {
-    const service = new window.google.maps.DistanceMatrixService();
-  
-    // Origins: drivers' locations
-    const origins = drivers.map(driver => new window.google.maps.LatLng(driver.lat, driver.lng));
-  
-    // Destinations: the user's current location
-    const destination = new window.google.maps.LatLng(currentLocation.lat, currentLocation.lng);
-  
     return new Promise((resolve) => {
-      service.getDistanceMatrix(
-        {
-          origins: origins,        // Multiple origins (drivers)
-          destinations: [destination], // Single destination (current location)
-          travelMode: window.google.maps.TravelMode.DRIVING,
-        },
-        (response, status) => {
-          if (status === 'OK') {
-            // Map through the response and calculate distances for each driver
-            const filteredDrivers = response.rows.map((row, index) => {
-              const distance = row.elements[0].distance.value / 1000; // Convert to km
-              console.log(`Driver ${drivers[index].name}: Distance = ${distance} km`);
-  
-              // Check if the driver is within the specified max distance
-              if (distance <= maxDistanceKm) {
-                return drivers[index];  // Include this driver
-              }
-              return null;  // Exclude this driver if they're too far
-            }).filter(driver => driver !== null); // Remove null entries
-  
-            resolve(filteredDrivers); // Resolve with the filtered drivers
-          } else {
-            console.error('Distance Matrix service failed:', status);
-            resolve([]); // Return an empty array if the API call fails
+      // Delay the execution by 2 seconds
+      setTimeout(() => {
+        const service = new window.google.maps.DistanceMatrixService();
+      
+        // Origins: drivers' locations
+        const origins = drivers.map(driver => new window.google.maps.LatLng(driver.lat, driver.lng));
+      
+        // Destinations: the user's current location
+        const destination = new window.google.maps.LatLng(currentLocation.lat, currentLocation.lng);
+      
+        service.getDistanceMatrix(
+          {
+            origins: origins,        // Multiple origins (drivers)
+            destinations: [destination], // Single destination (current location)
+            travelMode: window.google.maps.TravelMode.DRIVING,
+          },
+          (response, status) => {
+            if (status === 'OK') {
+              // Map through the response and calculate distances for each driver
+              const filteredDrivers = response.rows.map((row, index) => {
+                const distance = row.elements[0].distance.value / 1000; // Convert to km
+                console.log(`Driver ${drivers[index].name}: Distance = ${distance} km`);
+      
+                // Check if the driver is within the specified max distance
+                if (distance <= maxDistanceKm) {
+                  return drivers[index];  // Include this driver
+                }
+                return null;  // Exclude this driver if they're too far
+              }).filter(driver => driver !== null); // Remove null entries
+      
+              resolve(filteredDrivers); // Resolve with the filtered drivers
+            } else {
+              console.error('Distance Matrix service failed:', status);
+              resolve([]); // Return an empty array if the API call fails
+            }
           }
-        }
-      );
+        );
+      }, 2000);  // 2-second delay
     });
   };
+  
 
   return (
     <div className="container">
