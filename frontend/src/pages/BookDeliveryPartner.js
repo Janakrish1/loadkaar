@@ -4,7 +4,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 
 function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
-    const { email, password } = useSelector((state) => state.user);
+    const { userID } = useSelector((state) => state.user);
     const [formData, setFormData] = useState({
         vehicleType: "2wheeler",
         itemDescription: "",
@@ -21,17 +21,20 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        if (email && password && formData.vehicleType && formData.itemDescription && formData.pickupLocation && formData.dropLocation && formData.contactDetails) {
+        if ( formData.vehicleType && formData.itemDescription && formData.pickupLocation && formData.dropLocation && formData.contactDetails) {
             try {
-                const response = await axios.post("http://localhost:5001/api/saveTaskDetails", {
-                    email: email,
-                    password: password,
-                    vehicleType: formData.vehicleType,
-                    itemDescription: formData.itemDescription,
-                    pickupLocation: formData.pickupLocation,
-                    dropLocation: formData.dropLocation,
-                    contactDetails: formData.contactDetails,
-                });
+                
+                await axios.post("http://localhost:5001/api/save-tasks", {userID: userID, vehicleType: formData.vehicleType});
+
+                // const response = await axios.post("http://localhost:5001/api/saveTasks", {
+                //     email: email,
+                //     password: password,
+                //     vehicleType: formData.vehicleType,
+                //     itemDescription: formData.itemDescription,
+                //     pickupLocation: formData.pickupLocation,
+                //     dropLocation: formData.dropLocation,
+                //     contactDetails: formData.contactDetails,
+                // });
                 
             } catch (error) {
                 alert(error.response?.data?.error || "An error occurred during login.");

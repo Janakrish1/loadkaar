@@ -41,7 +41,7 @@ app.use('/api/login', getUser);
 app.use('/api/get-user-id', getUserID); 
 
 // Tasks
-app.use('/api/saveTasks', saveTasks);
+app.use('/api/save-tasks', saveTasks);
 
 // Task Details
 app.use('/api/saveTaskDetails', saveTaskDetails);
