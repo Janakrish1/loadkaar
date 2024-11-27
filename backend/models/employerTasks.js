@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
         taskStatus: {
             type: DataTypes.STRING,
             allowNull: false,
+            defaultValue: 'inprogress',
             validate: {
                 isIn: [['inprogress', 'completed']],
             },

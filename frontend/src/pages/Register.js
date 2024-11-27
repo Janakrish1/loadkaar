@@ -50,7 +50,7 @@ function Register({ role, onClose }) {
 
             navigate('/employer-home');
         })
-        .catch (error => alert(error.response?.data?.error || "An error occurred during login."));
+        .catch (error => alert(error.response?.data?.error || "An error occurred during register."));
 
 
     };
