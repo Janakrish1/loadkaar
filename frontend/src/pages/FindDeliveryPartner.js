@@ -10,6 +10,53 @@ const FindDeliveryPartners = () => {
     const fetchData = async () => {
       // Simulating delay
       setTimeout(() => {
+        
+        // const response = await axios.get("MAP_URL");
+
+        // Find employees with vehicle and status active
+        const dummyDrivers = [
+          {
+            id: 1,
+            name: "Driver A",
+            lat: 40.7278,  // Within 5 km radius of NYC
+            lng: -74.0024, // Adjusted longitude
+            status: "active",
+            vehicleType: "Bike",
+            rating: 4.5,
+          },
+          {
+            id: 2,
+            name: "Driver B",
+            lat: 40.7180,  // Within 5 km radius of NYC
+            lng: -74.0160, // Adjusted longitude
+            status: "inactive",
+            vehicleType: "Van",
+            rating: 4.8,
+          },
+          {
+            id: 3,
+            name: "Driver C",
+            lat: 40.7251,  // Within 5 km radius of NYC
+            lng: -73.9952, // Adjusted longitude
+            status: "active",
+            vehicleType: "Truck",
+            rating: 4.2,
+          },
+          {
+            id: 4,
+            name: "Driver D",
+            lat: 40.7355,  // Within 5 km radius of NYC
+            lng: -73.9915, // Adjusted longitude
+            status: "active",
+            vehicleType: "Bike",
+            rating: 4.0,
+          },
+        ];
+        
+
+        // Calculating 5 km
+
+
         setData([
           { id: 1, name: "John Doe", vehicleType: "Bike", rating: 4.5 },
           { id: 2, name: "Jane Smith", vehicleType: "Van", rating: 4.8 },
