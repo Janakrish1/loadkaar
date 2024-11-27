@@ -6,17 +6,19 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../redux/userSlice";
 
 function Register({ role, onClose }) {
+
+    // Hardcoded it for testing and easier registration for now
     const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        houseNo: "",
-        locality: "",
-        city: "",
-        state: "",
-        pincode: "",
-        phoneNumber: "",
-        email: "",
-        password: "",
+        firstName: "test",
+        lastName: "test",
+        houseNo: "124",
+        locality: "test",
+        city: "CBE",
+        state: "TN",
+        pincode: "12345",
+        phoneNumber: "876545677",
+        email: "test@gmail.com",
+        password: "1234",
         role: role
     });
 
@@ -28,7 +30,7 @@ function Register({ role, onClose }) {
         setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
-    const handleRegister = (event) => {
+    const handleRegister = async (event) => {
         event.preventDefault();
 
         const userData = {
@@ -37,12 +39,20 @@ function Register({ role, onClose }) {
           role: role
         };
 
-        axios.post("http://localhost:5001/api/register", formData)
-        .then(res => {
-            dispatch(setUser(userData));
+        await axios.post("http://localhost:5001/api/register", formData)
+        .then(() => {
+            return axios.post("http://localhost:5001/api/get-user-id", userData);
+        })
+        .then((response) => {
+            const userID = response.data.userID;
+
+            dispatch(setUser({...userData, userID}));
+
             navigate('/employer-home');
         })
         .catch (error => alert(error.response?.data?.error || "An error occurred during login."));
+
+
     };
 
     return (

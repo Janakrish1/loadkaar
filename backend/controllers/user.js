@@ -17,29 +17,29 @@ module.exports = {
                 password,
                 role
             } = req.body;
-    
+
             // Check if the necessary fields are provided
             if (!email || !password || !role) {
                 return res.status(400).json({ error: 'Email, password, and role are required' });
             }
-    
+
             // Step 1: Check if the user is already registered with the same email and role
             const findQuery = `
                 SELECT COUNT(*) AS count
                 FROM User
                 WHERE email = :email AND role = :role
             `;
-    
+
             const [results] = await sequelize.query(findQuery, {
                 replacements: { email, role },
                 type: sequelize.QueryTypes.SELECT
             });
-    
+
             // If the user already exists, send an error message
             if (results.count > 0) {
                 return res.status(400).json({ error: 'User already registered with this email and role. Please login.' });
             }
-    
+
             // Step 2: If user does not exist, insert the new user into the database
             const insertQuery = `
                 INSERT INTO User (
@@ -51,7 +51,7 @@ module.exports = {
                     :phoneNumber, :email, :password, :role, NOW(), NOW()
                 )
             `;
-    
+
             await sequelize.query(insertQuery, {
                 replacements: {
                     firstName,
@@ -68,13 +68,13 @@ module.exports = {
                 },
                 type: sequelize.QueryTypes.INSERT
             });
-    
+
             // Send a success response after inserting the user
             res.status(201).json({ message: 'User registered successfully. Please login.' });
         } catch (error) {
             res.status(500).json({ error: 'An error occurred while registering the user' });
         }
-    },    
+    },
 
     // Login and validate a user
     getUser: async (req, res) => {
@@ -88,15 +88,15 @@ module.exports = {
             const findQuery = `
                 SELECT COUNT(*) AS count
                 FROM User
-                WHERE email = :email AND role = :role
+                WHERE email = :email AND password = :password AND role = :role
             `;
-    
+
             const [queryResult] = await sequelize.query(findQuery, {
-                replacements: { email, role },
+                replacements: { email, password, role },
                 type: sequelize.QueryTypes.SELECT
             });
 
-            if(queryResult.count != 1) {
+            if (queryResult.count != 1) {
                 return res.status(400).json({ error: 'User not registered with this email and role. Please Register.' });
             }
 
@@ -120,5 +120,38 @@ module.exports = {
             console.error('Error logging in user:', error);
             res.status(500).json({ error: 'An error occurred while logging in the user' });
         }
-    }
+    },
+
+    getUserID: async (req, res) => {
+        const { email, password, role } = req.body;
+    
+        if (!email || !password || !role) {
+            return res.status(400).json({ error: 'Email, password, and role are required' });
+        }
+    
+        try {
+            const getUserIdQuery = `
+                SELECT user_id AS userID
+                FROM User
+                WHERE email = :email AND password = :password AND role = :role;
+            `;
+    
+            // Execute the query
+            const [results] = await sequelize.query(getUserIdQuery, {
+                replacements: { email, password, role },
+                type: sequelize.QueryTypes.SELECT,
+            });
+    
+            // Check if results are empty
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+    
+            // Return the userID
+            return res.status(200).json({ userID: results.userID });
+        } catch (error) {
+            console.error('Error fetching user ID:', error);
+            return res.status(500).json({ error: 'An error occurred while fetching user ID' });
+        }
+    }    
 };
