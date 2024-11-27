@@ -1,5 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
+        user_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            autoIncrement: true, // Automatically generates a unique task_id
+            primaryKey: true, // Set as the primary key
+        },
         email: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -56,10 +62,6 @@ module.exports = (sequelize, DataTypes) => {
         freezeTableName: true, // Prevents Sequelize from pluralizing the table name
         timestamps: true, // Enable createdAt and updatedAt fields
     });
-
-    // Define composite primary key on `email` and `role`
-    User.removeAttribute('id'); // Remove the default `id` field
-    User.primaryKeyAttributes = ['email', 'role'];
 
     return User;
 };

@@ -21,21 +21,19 @@ function Login({ role, onClose }) {
         event.preventDefault(); // Prevent default form submission behavior
         if (userData.email && userData.password) {
             try {
-                // Send a POST request to validate the login
-                const response = await axios.post("http://localhost:5001/api/login", {
-                    email: userData.email,
-                    password: userData.password,
-                    role: userData.role,
-                });
+                await axios.post("http://localhost:5001/api/login", userData)
+                .then(() => {
+                    return axios.post("http://localhost:5001/api/get-user-id", userData);
+                })
+                .then((response) => {
+                    const userID = response.data.userID;
 
-                // Check if login is successful
-                if (response.data.message === "Login successful") {
-                    // Dispatch the user data to Redux state
-                    dispatch(setUser(userData));
+                    dispatch(setUser({...userData, userID}));
 
-                    // Navigate to the home page after login
                     navigate("/employer-home");
-                }
+                })
+                .catch((error) => alert(error.response?.data?.error || "An error occurred during login."));
+
             } catch (error) {
                 alert(error.response?.data?.error || "An error occurred during login.");
             }

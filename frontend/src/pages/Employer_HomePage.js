@@ -3,17 +3,17 @@ import "../styles/Employer_HomePage.css"; // Import the CSS file
 import logo from "../assets/logo.jpeg"; // Load your logo image here
 import profile_pic from "../assets/Icons/profile.jpg"
 import { clearUser } from "../redux/userSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import BookDeliveryPartner from "./BookDeliveryPartner";
+import { setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 
 function Employer_HomePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentOrders, setcurrentOrders] = useState(null);
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
-
-  const [currentView, setCurrentView] = useState("default");
+  const { currentView } = useSelector((state) => state.deliveryPartnerView);
 
 
   const handleLogout = () => {
@@ -35,7 +35,7 @@ function Employer_HomePage() {
 
   const handleFindDeliveryPartner = () => {
     handleClose();
-    setCurrentView("findDelivery");
+    dispatch(setDeliveryPartnerView("findDelivery"));
   };
 
 
@@ -48,7 +48,6 @@ function Employer_HomePage() {
         </div>
         <h1 className="website-name">LoadKaar</h1>
         <div className="profile-container">
-          <div className="status active">ACTIVE</div>
           <div className="profile">
             <img src={profile_pic} alt="profile_pic" className="profile-icon" />
             <span>Profile</span>
@@ -99,6 +98,7 @@ function Employer_HomePage() {
             </div>
           )}
 
+          
           {
             currentView === "findDelivery" && (
               <></>

@@ -27,11 +27,24 @@ db.sequelize.authenticate()
 })();
 
 const dbRoute = require("./routes/connectDB");
-const { registerUser, getUser } = require("./controllers/user");
-
+const { registerUser, getUser, getUserID } = require("./controllers/user");
+const { saveTaskDetails } = require("./controllers/employerTaskDetails");
+const { saveTasks } = require("./controllers/employerTasks");
+ 
 app.use("/api", dbRoute);
+
+// Login & Register
 app.use('/api/register', registerUser);
 app.use('/api/login', getUser);
+
+// User 
+app.use('/api/get-user-id', getUserID); 
+
+// Tasks
+app.use('/api/save-tasks', saveTasks);
+
+// Task Details
+app.use('/api/save-task-details', saveTaskDetails);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
