@@ -40,7 +40,7 @@ function Register({ role, onClose }) {
         axios.post("http://localhost:5001/api/register", formData)
         .then(res => {
             dispatch(setUser(userData));
-            navigate('/home');
+            navigate('/employer-home');
         })
         .catch (error => alert(error.response?.data?.error || "An error occurred during login."));
     };
