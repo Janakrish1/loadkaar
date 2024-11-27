@@ -1,8 +1,9 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
-import HomePage from "./pages/HomePage";
+import Employer_HomePage from "./pages/Employer_HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PaymentCheckout from "./pages/PaymentCheckout";
 
 function App() {
     return (
@@ -10,10 +11,14 @@ function App() {
             <Routes>
                 <Route path="/" element={<LandingPage />} />
 
-                {/* Protecting /home route */}
+                {/* Protecting /employer-home route */}
                 <Route
-                    path="/home"
-                    element={<ProtectedRoute element={<HomePage />} />} 
+                    path="/employer-home"
+                    element={<ProtectedRoute element={<Employer_HomePage />} />}
+                />
+                <Route
+                    path="/payment"
+                    element={<PaymentCheckout />}
                 />
 
             </Routes>
