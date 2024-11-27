@@ -5,7 +5,8 @@ const userSlice = createSlice({
     initialState: {
         email: "",
         password: "",
-        role: ""
+        role: "",
+        userID: null,
     },
     reducers: {
         setUser: (state, action) => {
@@ -15,6 +16,7 @@ const userSlice = createSlice({
             state.email = "";
             state.password = "";
             state.role = "";
+            state.userID = null;
         },
     },
 });
