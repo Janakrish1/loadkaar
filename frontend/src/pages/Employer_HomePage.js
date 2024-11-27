@@ -10,7 +10,7 @@ import BookDeliveryPartner from "./BookDeliveryPartner";
 function Employer_HomePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [currentOrders, setcurrentOrders] = useState([]);
+  const [currentOrders, setcurrentOrders] = useState(null);
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
 
   const [currentView, setCurrentView] = useState("default");
@@ -90,7 +90,7 @@ function Employer_HomePage() {
 
               {/* Current Orders Section */}
               <div>
-                {currentOrders == null ? (
+                {currentOrders !== null ? (
                   <></> // Placeholder for when there are no orders
                 ) : (
                   <h1>No Current Orders!</h1>
