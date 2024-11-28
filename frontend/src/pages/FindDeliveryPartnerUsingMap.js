@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { GoogleMap, Marker, LoadScript, InfoWindow } from "@react-google-maps/api";
 import "../styles/FindDeliveryPartnerUsingMap.css";
-import PaymentCheckout from "./PaymentCheckout";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 const FindDeliveryPartnerUsingMap = () => {
   // const { ...deliveryFormData } = useSelector((state) => (state.deliveryPartnerView));

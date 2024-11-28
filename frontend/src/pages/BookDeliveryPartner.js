@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import "../styles/BookDeliveryPartner.css";
-import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setDeliveryFormData } from "../redux/deliveryPartnerViewSlice";
 
 function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
-    const { userID } = useSelector((state) => state.user);
     const dispatch = useDispatch();
 
     const [formData, setFormData] = useState({

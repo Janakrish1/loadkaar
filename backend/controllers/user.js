@@ -157,7 +157,6 @@ module.exports = {
 
     getUsername: async (req, res) => {
         const { userID } = req.body;
-        console.log("HERERHERHER - ", userID);
 
         if(!userID) {
             res.status(400).json({error: "User not found"});
@@ -165,7 +164,7 @@ module.exports = {
 
         try {
             findQuery = `
-                SELECT firstname AS FName, lastname AS LName
+                SELECT firstname AS FName, lastname AS LName, email AS Email
                 FROM User 
                 WHERE user_id = :userID
             `;
@@ -179,7 +178,7 @@ module.exports = {
                 return res.status(404).json({error: "User not found"});
             }
 
-            return res.status(200).json({message: "User found succesfully!", FName: results.FName, LName: results.LName});
+            return res.status(200).json({message: "User found succesfully!", FName: results.FName, LName: results.LName, Email: results.Email});
 
         } catch (error) {
             
