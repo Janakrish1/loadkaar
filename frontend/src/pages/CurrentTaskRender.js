@@ -23,9 +23,21 @@ const CurrentTaskRender = () => {
   const travelledPathRef = useRef([]); // Track the path that has been travelled
   const travelledDistance = useRef(0); // Track the traveled distance in meters
 
+  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false); // Track whether Google Maps is loaded
+
+  // Restore the state from localStorage on page reload
   useEffect(() => {
-    // Get user's current location only once
-    if (!userLocation) {
+    const savedState = JSON.parse(localStorage.getItem("taskState"));
+    if (savedState) {
+      setUserLocation(savedState.userLocation);
+      setEmployeePosition(savedState.employeePosition);
+      setEmployeePath(savedState.employeePath);
+      setInitialDistance(savedState.initialDistance);
+      setInitialDuration(savedState.initialDuration);
+      setRemainingDistance(savedState.remainingDistance);
+      setRemainingDuration(savedState.remainingDuration);
+    } else {
+      // Get user's current location only once if no saved state
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation({
@@ -38,11 +50,11 @@ const CurrentTaskRender = () => {
         }
       );
     }
-  }, [userLocation]);
+  }, []);
 
   // Initialize directions renderer and service
   useEffect(() => {
-    if (userLocation && directionsService.current && directionsRenderer.current && window.google) {
+    if (isGoogleLoaded && userLocation && directionsService.current && directionsRenderer.current) {
       const directionsRequest = {
         origin: userLocation,
         destination: employeeLocation,
@@ -66,17 +78,17 @@ const CurrentTaskRender = () => {
         }
       });
     }
-  }, [userLocation, employeeLocation]);
+  }, [userLocation, employeeLocation, isGoogleLoaded]);
 
   // Function to animate the employee's marker along the path in a fixed time and update distance/time
   useEffect(() => {
-    if (employeePath.length === 0 || initialDistance === null || initialDuration === null) return;
+    if (employeePath.length === 0 || initialDistance === null || initialDuration === null || !window.google) return;
 
     let progress = 0;
     const totalDuration = 15; // Fixed 15 seconds for the animation
     const intervalTime = 100; // Update every 100 milliseconds (0.1 seconds)
     const steps = totalDuration * 10; // Number of steps (10 updates per second)
-    const pathLength = google.maps.geometry.spherical.computeLength(employeePath); // Length of the polyline path
+    const pathLength = window.google.maps.geometry.spherical.computeLength(employeePath); // Length of the polyline path
 
     const pathInterval = setInterval(() => {
       progress += 1 / steps; // Move in small increments
@@ -90,7 +102,7 @@ const CurrentTaskRender = () => {
         // Find the segment where the current progress lies, but start from the employee location
         for (let i = employeePath.length - 1; i >= 1; i--) {
           const segment = [employeePath[i], employeePath[i - 1]]; // Reverse the segment direction
-          const segmentLength = google.maps.geometry.spherical.computeLength(segment);
+          const segmentLength = window.google.maps.geometry.spherical.computeLength(segment);
           totalLength += segmentLength;
           if (totalLength >= segmentProgress) {
             segmentIndex = i;
@@ -105,7 +117,7 @@ const CurrentTaskRender = () => {
         travelledPathRef.current.push(employeePath[segmentIndex]);
 
         // Update the traveled distance in meters
-        travelledDistance.current = google.maps.geometry.spherical.computeLength(travelledPathRef.current);
+        travelledDistance.current = window.google.maps.geometry.spherical.computeLength(travelledPathRef.current);
 
         // Calculate remaining distance and duration
         const remainingPathLength = initialDistance - travelledDistance.current;
@@ -116,17 +128,38 @@ const CurrentTaskRender = () => {
         setRemainingDuration(`${(remainingTime / 60).toFixed(0)} mins`);
       } else {
         clearInterval(pathInterval); // Stop once the employee reaches the end of the path
+        // Reset remaining distance and duration to 0 once the animation completes
+        setRemainingDistance("0 km");
+        setRemainingDuration("0 mins");
       }
+
+      // Save the current state to localStorage
+      localStorage.setItem(
+        "taskState",
+        JSON.stringify({
+          userLocation,
+          employeePosition,
+          employeePath,
+          initialDistance,
+          initialDuration,
+          remainingDistance,
+          remainingDuration,
+        })
+      );
     }, intervalTime);
 
     intervalRef.current = pathInterval;
 
     return () => clearInterval(pathInterval); // Clear the interval on cleanup
-  }, [employeePath, initialDistance, initialDuration]);
+  }, [employeePath, initialDistance, initialDuration, userLocation]);
 
   return (
     <div className="task-container">
-      <LoadScript googleMapsApiKey={API_KEY} libraries={['geometry']}>
+      <LoadScript
+        googleMapsApiKey={API_KEY}
+        libraries={['geometry']}
+        onLoad={() => setIsGoogleLoaded(true)} // Set state once Google Maps is loaded
+      >
         <GoogleMap
           mapContainerStyle={{ width: "100%", height: "500px" }}
           center={userLocation || { lat: 0, lng: 0 }}
