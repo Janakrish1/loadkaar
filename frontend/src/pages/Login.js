@@ -30,7 +30,7 @@ function Login({ role, onClose }) {
 
                     dispatch(setUser({...userData, userID}));
 
-                    navigate("/employer-home");
+                    navigate("/employee-home");
                 })
                 .catch((error) => alert(error.response?.data?.error || "An error occurred during login."));
 

@@ -45,10 +45,19 @@ function Register({ role, onClose }) {
         })
         .then((response) => {
             const userID = response.data.userID;
-
+            
             dispatch(setUser({...userData, userID}));
-
-            navigate('/employer-home');
+            if(role === "Employer")
+            {
+                navigate('/employer-home');
+            }
+            else if(role === "Employee")
+            {
+                navigate('/employee-home');
+            }
+            else{
+                navigate('/warehouse-home');
+            }
         })
         .catch (error => alert(error.response?.data?.error || "An error occurred during register."));
 
