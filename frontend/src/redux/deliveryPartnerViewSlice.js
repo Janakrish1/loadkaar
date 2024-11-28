@@ -8,7 +8,6 @@ const deliveryPartnerViewSlice = createSlice({
     },
     reducers: {
         setDeliveryPartnerView: (state, action) => {
-            console.log("HERERERE", action.payload);
             state.currentView = typeof action.payload === "string" ? action.payload : action.payload.currentView;
             state.activeMenu = typeof action.payload === "string" ? action.payload : action.payload.activeMenu;
         },

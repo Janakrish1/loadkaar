@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { GoogleMap, Marker, LoadScript, InfoWindow } from "@react-google-maps/api";
 import "../styles/FindDeliveryPartnerUsingMap.css";
+import PaymentCheckout from "./PaymentCheckout";
+import { useNavigate } from "react-router-dom";
 
 const FindDeliveryPartnerUsingMap = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -8,6 +10,7 @@ const FindDeliveryPartnerUsingMap = () => {
   const [activeDrivers, setActiveDrivers] = useState([]);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [showDriverPopup, setShowDriverPopup] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch current location using the browser's geolocation API
@@ -73,7 +76,7 @@ const FindDeliveryPartnerUsingMap = () => {
             }
           }
         );
-      }, 2000);
+      }, 1000);
     });
   };
 
@@ -88,8 +91,8 @@ const FindDeliveryPartnerUsingMap = () => {
   };
 
   const handleAssignTask = () => {
-    alert(`Task assigned to ${selectedDriver.name}`);
     closeDriverPopup();
+    navigate("/payment", {state: {selectedDriver}});
   };
 
   return (
