@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 import "../styles/BookDeliveryPartner.css";
-import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setDeliveryFormData } from "../redux/deliveryPartnerViewSlice";
 
 function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
-    const { userID } = useSelector((state) => state.user);
+    const dispatch = useDispatch();
+
     const [formData, setFormData] = useState({
         vehicleType: "2wheeler",
         itemDescription: "",
         pickupLocation: "",
         dropLocation: "",
-        contactDetails: ""
+        contactPerson: "",
+        contactAddress: "",
+        contactPhoneNumber: ""
     });
 
     const handleInputChange = (event) => {
@@ -21,27 +24,43 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        if ( formData.vehicleType && formData.itemDescription && formData.pickupLocation && formData.dropLocation && formData.contactDetails) {
-            try {
-                
-                await axios.post("http://localhost:5001/api/save-tasks", {userID: userID, vehicleType: formData.vehicleType})
-                .then((response) => {
-                    const taskID = response.data.taskID;   
-                    const taskDetails = {
-                        task_id: taskID,
-                        itemDescription: formData.itemDescription,
-                        pickupLocation: formData.pickupLocation,
-                        dropLocation: formData.dropLocation,
-                        contactDetails: formData.contactDetails
-                    };
-                    axios.post("http://localhost:5001/api/save-task-details", taskDetails)
-                })
-                .catch((error) => alert(error.response?.data?.error || "An error occurred during saving task details."));
+        if (formData.vehicleType && formData.itemDescription && formData.pickupLocation && formData.dropLocation && formData.contactPerson && formData.contactAddress && formData.contactPhoneNumber) {
+            // try {
 
-                handleFindDeliveryPartner();
-            } catch (error) {
-                alert(error.response?.data?.error || "An error occurred during login.");
-            }
+            // await axios
+            // .post("http://localhost:5001/api/save-tasks", { userID: userID, vehicleType: formData.vehicleType })
+            // .then((response) => {
+            //     const taskID = response.data.taskID;
+        
+            //     // Prepare taskDetails object with updated fields
+            //     const taskDetails = {
+            //         task_id: taskID,
+            //         itemDescription: formData.itemDescription,
+            //         pickupLocation: formData.pickupLocation,
+            //         dropLocation: formData.dropLocation,
+            //         contactPerson: formData.contactPerson,
+            //         contactAddress: formData.contactAddress,
+            //         contactPhoneNumber: formData.contactPhoneNumber,
+            //     };
+        
+            //     // Post the taskDetails to save-task-details endpoint
+            //     axios
+            //         .post("http://localhost:5001/api/save-task-details", taskDetails)
+            //         .then(() => {
+            //             handleFindDeliveryPartner();
+            //         })
+            //         .catch((error) => {
+            //             alert(error.response?.data?.error || "An error occurred while saving task details.");
+            //         });
+            // })
+            // .catch((error) => {
+            //     alert(error.response?.data?.error || "An error occurred while saving the task.");
+            // });
+        
+
+            dispatch(setDeliveryFormData({...formData}));
+            onClose();
+            onFindDeliveryPartner();
         }
         else {
             alert("Please fill all the details!");
@@ -50,11 +69,6 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
 
     }
 
-    const handleFindDeliveryPartner = () => {
-        onClose(); // Close the popup
-        onFindDeliveryPartner(); // Trigger the navigation or load another component
-    };
-
     return (
         <div className="popup-overlay">
             <div className="popup-content">
@@ -62,46 +76,87 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
                 <form>
                     <label>
                         Vehicle Requested Type:
-                        <select onChange={handleInputChange} name="vehicleType" required >
+                        <select onChange={handleInputChange} name="vehicleType" required>
                             <option value="2wheeler">2 Wheeler</option>
                             <option value="3wheeler">3 Wheeler</option>
                             <option value="4wheeler">4 Wheeler</option>
                             <option value="truck">Truck</option>
                         </select>
                     </label>
-
+    
                     <label>
                         Item to be Delivered:
-                        <textarea onChange={handleInputChange}
+                        <textarea
+                            onChange={handleInputChange}
                             name="itemDescription"
                             maxLength="500"
                             placeholder="Enter item description (max 500 characters)"
                             required
                         />
                     </label>
-
+    
                     <label>
                         Pickup Location:
-                        <input onChange={handleInputChange} type="text" name="pickupLocation" placeholder="Enter pickup location" required />
+                        <input
+                            onChange={handleInputChange}
+                            type="text"
+                            name="pickupLocation"
+                            placeholder="Enter pickup location"
+                            required
+                        />
                     </label>
-
+    
                     <label>
                         Drop Location:
-                        <input onChange={handleInputChange} type="text" name="dropLocation" placeholder="Enter drop location" required />
+                        <input
+                            onChange={handleInputChange}
+                            type="text"
+                            name="dropLocation"
+                            placeholder="Enter drop location"
+                            required
+                        />
                     </label>
-
+    
+                    <h3>Receiver Contact Details</h3>
                     <label>
-                        Receiver Contact Details:
-                        <input onChange={handleInputChange} type="text" name="contactDetails" placeholder="Enter contact details" required />
+                        Contact Person:
+                        <input
+                            onChange={handleInputChange}
+                            type="text"
+                            name="contactPerson"
+                            placeholder="Enter contact person's name"
+                            required
+                        />
                     </label>
-
-                    <button onClick={handleSubmit} type="submit"> Find Delivery Partner</button>
+    
+                    <label>
+                        Contact Address:
+                        <input
+                            onChange={handleInputChange}
+                            type="text"
+                            name="contactAddress"
+                            placeholder="Enter contact address"
+                            required
+                        />
+                    </label>
+    
+                    <label>
+                        Contact Phone Number:
+                        <input
+                            onChange={handleInputChange}
+                            type="text"
+                            name="contactPhoneNumber"
+                            placeholder="Enter contact phone number"
+                            required
+                        />
+                    </label>
+    
+                    <button onClick={handleSubmit} type="submit">Find Delivery Partner</button>
                 </form>
-
+    
                 <button onClick={onClose} className="close-button">Close</button>
             </div>
         </div>
     );
 }
-
 export default BookDeliveryPartner;

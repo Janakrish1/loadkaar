@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Register from "./Register";
 import axios from "axios";
+import { clearDeliveryFormData, clearDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 
 function Login({ role, onClose }) {
     const [userData, setUserData] = useState({ email: "", password: "", role: role });
@@ -29,6 +30,8 @@ function Login({ role, onClose }) {
                     const userID = response.data.userID;
 
                     dispatch(setUser({...userData, userID}));
+                    dispatch(clearDeliveryFormData());
+                    dispatch(clearDeliveryPartnerView());
 
                     navigate("/employer-home");
                 })
