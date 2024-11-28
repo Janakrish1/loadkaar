@@ -10,9 +10,22 @@ const VehiclesPage = ({ updateToggleStatus }) => {
     vehicle_type: "2wheeler",
     vehicle_name: "",
     status: "Inactive",
-    benchmark_price: 0,
-    capacity: 0,
+    benchmark_price: "",
+    capacity: "",
   });
+
+  const isActiveStatusAllowed = (vehicles, newStatusVehicleId = null) => {
+    if (newStatusVehicleId) {
+      const activeVehicle = vehicles.find(
+        (vehicle) => vehicle.status === "Active" && vehicle.vehicle_id !== newStatusVehicleId
+      );
+      return activeVehicle ? false : true;
+    } else {
+      const activeVehicle = vehicles.find((vehicle) => vehicle.status === "Active");
+      return activeVehicle ? false : true;
+    }
+  };
+  
 
   const fetchVehicles = async () => {
     try {
@@ -22,6 +35,7 @@ const VehiclesPage = ({ updateToggleStatus }) => {
       if(response.data.message === "No vehicles found for this user") 
       {
         setVehicles([]);
+        updateToggleStatus([]);
       }
       else{
       if (Array.isArray(response.data)) {
@@ -39,12 +53,34 @@ const VehiclesPage = ({ updateToggleStatus }) => {
   }, [userID]);
 
   const handleAddVehicle = async () => {
+    // Validate mandatory fields
+  if (
+    !newVehicle.vehicle_name.trim() || // Check if vehicle_name is empty
+    newVehicle.benchmark_price <= 0 || // Check if benchmark_price is valid
+    newVehicle.capacity <= 0 // Check if capacity is valid
+  ) {
+    alert("Please fill out all fields with valid values.");
+    return;
+  }
+  // Check if the new vehicle has status "Active" and another vehicle is already active
+  if (newVehicle.status === "Active" && !isActiveStatusAllowed(vehicles)) {
+    alert("Only one vehicle can be set to Active at a time.");
+    return; // Stop further execution
+  }
     try {
       const vehicleData = {...newVehicle, user_id: userID};
 
       await axios.post("http://localhost:5001/api/addVehicle", vehicleData);
       alert("Vehicle added successfully");
       fetchVehicles();
+      // Clear the input fields by resetting newVehicle
+      setNewVehicle({
+        vehicle_type: "2wheeler",
+        vehicle_name: "",
+        status: "Inactive",
+        benchmark_price: "",
+        capacity: "",
+      });
     } catch (error) {
       console.error("Error adding vehicle:", error);
       alert("Failed to add vehicle");
@@ -64,6 +100,11 @@ const VehiclesPage = ({ updateToggleStatus }) => {
   };
 
   const handleStatusUpdate = async (vehicle_id, status) => {
+    // Check if the new status is "Active" and another vehicle is already active
+    if (status === "Active" && !isActiveStatusAllowed(vehicles, vehicle_id)) {
+      alert("Only one vehicle can be set to Active at a time.");
+      return; // Stop further execution
+    }
     try {
       const vehicleStatus = {vehicle_id: vehicle_id, status: status};
       await axios.put("http://localhost:5001/api/vehicles/update-status", vehicleStatus);
@@ -95,6 +136,7 @@ const VehiclesPage = ({ updateToggleStatus }) => {
           placeholder="Vehicle Name"
           value={newVehicle.vehicle_name}
           onChange={(e) => setNewVehicle({ ...newVehicle, vehicle_name: e.target.value })}
+          
         />
         <select
           value={newVehicle.status}
