@@ -66,13 +66,34 @@ const PaymentCheckout = () => {
         console.log("Delivery Form Data:", deliveryFormData);
         console.log("User Details:", userDetails);
         console.log("Payment Data:", paymentData);
+
+        /*
+        Payment Success: Objectrazorpay_payment_id: "pay_PQovf8IDlMepiT"[[Prototype]]: Object
         
+
+        
+        */
+
+
+        axios.post("http://localhost:5001/api/save-payment-details", {
+            paymentResponse: paymentResponse,
+            deliveryFormData: deliveryFormData,
+            userDetails: userDetails,
+            paymentData: paymentData
+        })
+            .then(response => {
+                console.log(response.data);  // Check the API response here
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
+
 
         dispatch(clearDeliveryFormData());
         dispatch(clearDeliveryPartnerView());
         setTimeout(() => {
-        }, 2000); // 2000 milliseconds = 2 seconds
-        navigate('/employer-home');
+        }, 2000);
+        // navigate('/employer-home');
     };
 
     const handlePayment = async () => {
