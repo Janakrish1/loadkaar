@@ -33,7 +33,17 @@ function Login({ role, onClose }) {
                     dispatch(clearDeliveryFormData());
                     dispatch(clearDeliveryPartnerView());
 
-                    navigate("/employer-home");
+                        if(role === "Employer")
+                        {
+                            navigate('/employer-home');
+                        }
+                        else if(role === "Employee")
+                        {
+                            navigate('/employee-home');
+                        }
+                        else{
+                            navigate('/warehouse-home');
+                        }
                 })
                 .catch((error) => alert(error.response?.data?.error || "An error occurred during login."));
 
