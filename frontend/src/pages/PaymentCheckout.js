@@ -62,39 +62,6 @@ const PaymentCheckout = () => {
     };
 
     const handlePaymentSuccess = () => {
-
-        // try {
-
-        // await axios
-        //     .post("http://localhost:5001/api/save-tasks", { userID: userID, vehicleType: formData.vehicleType })
-        //     .then((response) => {
-        //         const taskID = response.data.taskID;
-
-        //         // Prepare taskDetails object with updated fields
-        //         const taskDetails = {
-        //             task_id: taskID,
-        //             itemDescription: formData.itemDescription,
-        //             pickupLocation: formData.pickupLocation,
-        //             dropLocation: formData.dropLocation,
-        //             contactPerson: formData.contactPerson,
-        //             contactAddress: formData.contactAddress,
-        //             contactPhoneNumber: formData.contactPhoneNumber,
-        //         };
-
-        //         // Post the taskDetails to save-task-details endpoint
-        //         axios
-        //             .post("http://localhost:5001/api/save-task-details", taskDetails)
-        //             .then(() => {
-        //                 handleFindDeliveryPartner();
-        //             })
-        //             .catch((error) => {
-        //                 alert(error.response?.data?.error || "An error occurred while saving task details.");
-        //             });
-        //     })
-        //     .catch((error) => {
-        //         alert(error.response?.data?.error || "An error occurred while saving the task.");
-        //     });
-
         try {
             axios.post("http://localhost:5001/api/save-payment-details", {
                 paymentResponse: paymentResponse,
@@ -122,7 +89,7 @@ const PaymentCheckout = () => {
                     console.error('There was an error!', error);
                 });
         } catch (error) {
-
+            alert(error);
         }
 
         dispatch(clearDeliveryFormData());
