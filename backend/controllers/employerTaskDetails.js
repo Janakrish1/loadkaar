@@ -4,17 +4,15 @@ module.exports = {
     saveTaskDetails: async (req, res) => {
         const {
             task_id,
-            itemDescription,
-            pickupLocation,
-            dropLocation,
-            contactPerson,
-            contactAddress,
-            contactPhoneNumber,
+            deliveryFormData
         } = req.body;
+
+        const { vehicleType, itemDescription, pickupLocation, dropLocation, contactPerson, contactAddress, contactPhoneNumber } = deliveryFormData;
 
         // Validate required fields
         if (
             !task_id ||
+            !vehicleType ||
             !itemDescription ||
             !pickupLocation ||
             !dropLocation ||

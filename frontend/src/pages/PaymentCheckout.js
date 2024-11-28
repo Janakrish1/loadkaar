@@ -102,12 +102,19 @@ const PaymentCheckout = () => {
                 status: transactionStatus
             })
                 .then(response => {
-                    
+
                     axios.post("http://localhost:5001/api/save-tasks", {
                         paymentResponse: paymentResponse
                     })
                     .then(response => {
-                        console.log(response.data.message);
+                        const task_id = response.data.taskID;
+                        axios.post("http://localhost:5001/api/save-task-details", { 
+                            task_id: task_id,
+                            deliveryFormData: deliveryFormData
+                        })
+                        .then(response => {
+                            console.log(response.data.message);
+                        })
                     })
 
                 })
@@ -118,12 +125,11 @@ const PaymentCheckout = () => {
 
         }
 
-
         dispatch(clearDeliveryFormData());
         dispatch(clearDeliveryPartnerView());
         setTimeout(() => {
         }, 2000);
-        // navigate('/employer-home');
+        navigate('/employer-home');
     };
 
     const handlePayment = async () => {
