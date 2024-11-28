@@ -62,27 +62,14 @@ const PaymentCheckout = () => {
     };
 
     const handlePaymentSuccess = () => {
-        console.log("Payment Success:", paymentResponse);
-        console.log("Delivery Form Data:", deliveryFormData);
-        console.log("User Details:", userDetails);
-        console.log("Payment Data:", paymentData);
-
-        /*
-        Payment Success: Objectrazorpay_payment_id: "pay_PQovf8IDlMepiT"[[Prototype]]: Object
         
-
-        
-        */
-
-
         axios.post("http://localhost:5001/api/save-payment-details", {
             paymentResponse: paymentResponse,
-            deliveryFormData: deliveryFormData,
-            userDetails: userDetails,
-            paymentData: paymentData
+            paymentData: paymentData,
+            status: transactionStatus
         })
             .then(response => {
-                console.log(response.data);  // Check the API response here
+                console.log(response.data);  
             })
             .catch(error => {
                 console.error('There was an error!', error);

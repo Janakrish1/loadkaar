@@ -30,7 +30,7 @@ const dbRoute = require("./routes/connectDB");
 const { registerUser, getUser, getUserID, getUsername } = require("./controllers/user");
 const { saveTaskDetails } = require("./controllers/employerTaskDetails");
 const { saveTasks } = require("./controllers/employerTasks");
-const { savePayment } = require("./controllers/employerPayment");
+const { savePaymentSuccess } = require("./controllers/employerPayment");
  
 app.use("/api", dbRoute);
 
@@ -49,7 +49,7 @@ app.use('/api/save-tasks', saveTasks);
 app.use('/api/save-task-details', saveTaskDetails);
 
 // Payment
-app.use('/api/save-payment-details', savePayment);
+app.use('/api/save-payment-details', savePaymentSuccess);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
