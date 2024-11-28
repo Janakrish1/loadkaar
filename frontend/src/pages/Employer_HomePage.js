@@ -1,42 +1,58 @@
 import React, { useState } from "react";
 import "../styles/Employer_HomePage.css"; // Import the CSS file
 import logo from "../assets/logo.jpeg"; // Load your logo image here
-import profile_pic from "../assets/Icons/profile.jpg"
+import profile_pic from "../assets/Icons/profile.jpg";
 import { clearUser } from "../redux/userSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import BookDeliveryPartner from "./BookDeliveryPartner";
+import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
+import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
 
 function Employer_HomePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [currentOrders, setcurrentOrders] = useState(null);
+  const [currentOrders, setCurrentOrders] = useState(null);
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
-  const [currentView, setCurrentView] = useState("default");
+  const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
 
-
-  const handleLogout = () => {
-    dispatch(clearUser());
-    navigate('/');
+  // Handle Menu Click
+  const handleMenuClick = (menuItem, view = "default") => {
+    dispatch(setDeliveryPartnerView({ activeMenu: menuItem, currentView: view }));
+    if(view === "default") {
+      dispatch(clearDeliveryFormData());
+    }
   };
 
+  // Logout Functionality
+  const handleLogout = () => {
+    dispatch(clearUser());
+    dispatch(clearDeliveryPartnerView());
+    navigate("/");
+  };
+
+  // Book Delivery Partner
   const handleDeliveryBooking = () => {
     setBookDeliveryPartner(true);
   };
 
-  const handleWarehouseBooking = () => {
-
-  };
-
-  const handleClose = () => {
-    setBookDeliveryPartner(false);
-  }
-
+  // Find Delivery Partner
   const handleFindDeliveryPartner = () => {
-    handleClose();
-    setCurrentView("findDelivery");
+    setBookDeliveryPartner(false);
+    handleMenuClick("", "findDelivery");
   };
 
+  // Render View Based on State
+  const renderView = () => {
+    switch (currentView) {
+      case "default": 
+        return currentOrders !== null ? <></> : <div><br/><h1>No Current Orders!</h1></div>;
+      case "findDelivery":
+        return <FindDeliveryPartnerUsingMap />;
+      default:
+        return <div>Select a menu item to view details</div>;
+    }
+  };
 
   return (
     <div className="homepage-container">
@@ -51,7 +67,6 @@ function Employer_HomePage() {
             <img src={profile_pic} alt="profile_pic" className="profile-icon" />
             <span>Profile</span>
           </div>
-          {/* Logout Button */}
           <button className="logout-button" onClick={handleLogout}>
             Logout
           </button>
@@ -62,14 +77,29 @@ function Employer_HomePage() {
       <div style={{ display: "flex", flex: 1 }}>
         {/* Sidebar Section */}
         <aside className="sidebar">
-          <div className="menu-item">Past Orders</div>
-          <div className="menu-item">Payments</div>
-          <div className="menu-item">Tasks Review</div>
-
-          <div className="rating">
-            <h3>Rating</h3>
-            <div className="stars">⭐⭐⭐⭐</div>
-            <div>4.0</div>
+          <div
+            className={`menu-item ${activeMenu === "Current Orders" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Current Orders")}
+          >
+            Current Orders
+          </div>
+          <div
+            className={`menu-item ${activeMenu === "Past Orders" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Past Orders")}
+          >
+            Past Orders
+          </div>
+          <div
+            className={`menu-item ${activeMenu === "Payments" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Payments")}
+          >
+            Payments
+          </div>
+          <div
+            className={`menu-item ${activeMenu === "Tasks Review" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Tasks Review")}
+          >
+            Tasks Review
           </div>
         </aside>
 
@@ -78,43 +108,25 @@ function Employer_HomePage() {
           {/* Action Buttons */}
           <div className="action-buttons">
             <button onClick={handleDeliveryBooking} className="theme-button">Book Delivery Partner</button>
-            <button onClick={handleWarehouseBooking} className="theme-button">Book Warehouse</button>
+            <button className="theme-button">Book Warehouse</button>
           </div>
 
-          {currentView === "default" && (
-            <div>
+          {/* Dynamic View Rendering */}
+          {renderView()}
 
-              <br />
-
-              {/* Current Orders Section */}
-              <div>
-                {currentOrders !== null ? (
-                  <></> // Placeholder for when there are no orders
-                ) : (
-                  <h1>No Current Orders!</h1>
-                )}
-              </div>
-            </div>
+          {/* Book Delivery Partner Component */}
+          {showBookDeliveryPartner && (
+            <BookDeliveryPartner
+              onFindDeliveryPartner={handleFindDeliveryPartner}
+              onClose={() => setBookDeliveryPartner(false)}
+            />
           )}
-
-          
-          {
-            currentView === "findDelivery" && (
-              <></>
-            )
-          }
-
         </main>
-
-
-        {showBookDeliveryPartner && <BookDeliveryPartner onFindDeliveryPartner={handleFindDeliveryPartner} onClose={handleClose} />
-        }
       </div>
-
 
       {/* Footer Section */}
       <footer className="footer">
-        <span> 2024 LoadKaar @ All rights reserved.</span>
+        <span>2024 LoadKaar @ All rights reserved.</span>
       </footer>
     </div>
   );

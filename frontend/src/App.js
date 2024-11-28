@@ -5,6 +5,7 @@ import Employee_HomePage from "./pages/Employee_HomePage";
 import Employer_HomePage from "./pages/Employer_HomePage";
 import Warehouse_HomePage from "./pages/Employer_HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PaymentCheckout from "./pages/PaymentCheckout";
 import Vehicles from "./pages/Vehicles"
 
 function App() {
@@ -21,7 +22,11 @@ function App() {
 
                 <Route
                     path="/employer-home"
-                    element={<ProtectedRoute element={<Employer_HomePage />} />} 
+                    element={<ProtectedRoute element={<Employer_HomePage />} />}
+                />
+                <Route
+                    path="/payment"
+                    element={<ProtectedRoute element={<PaymentCheckout />} />}
                 />
 
                 <Route
