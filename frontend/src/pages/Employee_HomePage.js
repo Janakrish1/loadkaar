@@ -13,7 +13,6 @@ function Employee_HomePage() {
 
   const [currentView, setCurrentView] = useState("default"); // Manage different views (default or vehicles)
   const [isActive, setIsActive] = useState(true); // State to manage active/inactive status
-  const [vehicles, setVehicles] = useState([]); // Shared vehicle list
   const [vehiclesActive, setVehiclesActive] = useState(false); // Initially assume vehicles are not active
 
   // Logout function
@@ -135,8 +134,6 @@ function Employee_HomePage() {
           {currentView === "default" && <h1>No Current Tasks!</h1>}
           {currentView === "vehicles" && (
             <VehiclesPage
-              vehicles={vehicles}
-              setVehicles={setVehicles}
               updateToggleStatus={updateToggleStatus}
             />
             )} {/* Display VehiclesPage here */}

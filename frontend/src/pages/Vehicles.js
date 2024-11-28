@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const VehiclesPage = ({ vehicles, setVehicles, updateToggleStatus }) => {
+const VehiclesPage = ({ updateToggleStatus }) => {
   const { userID } = useSelector((state) => state.user);
-  // const [vehicles, setVehicles] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
   const [newVehicle, setNewVehicle] = useState({
     vehicle_type: "2wheeler",
     vehicle_name: "",
@@ -18,11 +18,17 @@ const VehiclesPage = ({ vehicles, setVehicles, updateToggleStatus }) => {
     try {
       const vehicleDetails = {user_id: userID};
       const response = await axios.post("http://localhost:5001/api/vehicles/user", vehicleDetails);
-      console.log(response.data);
+      console.log("The response data is:",response.data);
+      if(response.data.message === "No vehicles found for this user") 
+      {
+        setVehicles([]);
+      }
+      else{
       if (Array.isArray(response.data)) {
         setVehicles(response.data);
         updateToggleStatus(response.data); // Check if any vehicle is active
       }
+    }      
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     }
