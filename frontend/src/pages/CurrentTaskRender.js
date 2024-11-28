@@ -1,177 +1,7 @@
 /* global google */
 
-// import React, { useEffect, useState, useRef, useMemo } from "react";
-// import { GoogleMap, Marker, LoadScript, InfoWindow } from "@react-google-maps/api";
-// import "../styles/CurrentTaskRender.css";
-
-// const API_KEY = "AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y"; // Replace with your actual API key
-
-// const CurrentTaskRender = () => {
-//   const employeeLocation = useMemo(() => ({ lat: 40.73061, lng: -79.00000 }), []); // Example employee location
-//   const [userLocation, setUserLocation] = useState(null); // User's initial location
-//   const [selectedMarker, setSelectedMarker] = useState(null);
-//   const [employeePosition, setEmployeePosition] = useState(employeeLocation); // Current position of employee
-//   const [employeePath, setEmployeePath] = useState([]); // Employee's route path
-//   const [remainingDistance, setRemainingDistance] = useState(null);
-//   const [remainingTime, setRemainingTime] = useState(null);
-
-//   const directionsRenderer = useRef(null); // To render the directions on the map
-//   const directionsService = useRef(null); // To calculate the directions
-
-//   // Store the interval ID for clearing later
-//   const intervalRef = useRef(null);
-
-//   useEffect(() => {
-//     // Get user's current location only once
-//     if (!userLocation) {
-//       navigator.geolocation.getCurrentPosition(
-//         (position) => {
-//           setUserLocation({
-//             lat: position.coords.latitude,
-//             lng: position.coords.longitude,
-//           });
-//         },
-//         (error) => {
-//           console.error("Error fetching user location: ", error);
-//         }
-//       );
-//     }
-//   }, [userLocation]); // Dependency is `userLocation` to ensure it runs only once
-
-//   // Fetch distance and ETA using Google Distance Matrix API
-//   useEffect(() => {
-//     if (userLocation && window.google) {
-//       const distanceMatrixService = new window.google.maps.DistanceMatrixService();
-//       distanceMatrixService.getDistanceMatrix(
-//         {
-//           origins: [employeeLocation],
-//           destinations: [userLocation],
-//           travelMode: window.google.maps.TravelMode.DRIVING,
-//         },
-//         (response, status) => {
-//           if (status === "OK") {
-//             const result = response.rows[0].elements[0];
-//             setRemainingDistance(result.distance.value); // in meters
-//             setRemainingTime(result.duration.value); // in seconds
-//           } else {
-//             console.error("Distance Matrix request failed:", status);
-//           }
-//         }
-//       );
-//     }
-//   }, [userLocation, employeeLocation]);
-
-//   // Initialize directions renderer and service
-//   useEffect(() => {
-//     if (userLocation && directionsService.current && directionsRenderer.current && window.google) {
-//       const directionsRequest = {
-//         origin: userLocation,
-//         destination: employeeLocation,
-//         travelMode: window.google.maps.TravelMode.DRIVING,
-//       };
-
-//       directionsService.current.route(directionsRequest, (response, status) => {
-//         if (status === "OK") {
-//           directionsRenderer.current.setDirections(response);
-//           const path = response.routes[0].overview_path;
-//           setEmployeePath(path); // Store the path
-//         } else {
-//           console.error("Directions request failed:", status);
-//         }
-//       });
-//     }
-//   }, [userLocation, employeeLocation]);
-
-//   // Function to animate the employee's marker along the path
-//   useEffect(() => {
-//     if (employeePath.length === 0 || remainingDistance <= 0) return;
-
-//     const totalPathLength = google.maps.geometry.spherical.computeLength(employeePath);
-//     const totalDuration = remainingTime;
-//     const intervalTime = Math.min(20000, (totalDuration * 1000) / totalPathLength);
-
-//     let progress = 0;
-//     const pathInterval = setInterval(() => {
-//       progress += 0.01; // Move 1% of the path every interval
-//       if (progress <= 1) {
-//         const index = Math.floor(progress * (employeePath.length - 1));
-//         const latLng = employeePath[index];
-//         setEmployeePosition(latLng);
-
-//         // Update remaining distance and time
-//         const progressDistance = progress * remainingDistance;
-//         const newRemainingTime = (totalDuration * (1 - progress)).toFixed(0);
-//         setRemainingDistance(remainingDistance - progressDistance);
-//         setRemainingTime(newRemainingTime);
-//       } else {
-//         clearInterval(pathInterval); // Stop once the employee reaches the end of the path
-//       }
-//     }, intervalTime);
-
-//     intervalRef.current = pathInterval;
-
-//     return () => clearInterval(pathInterval); // Clear the interval on cleanup
-//   }, [employeePath, remainingDistance, remainingTime]);
-
-//   return (
-//     <div className="task-container">
-//       <LoadScript googleMapsApiKey={API_KEY} libraries={['geometry']}>
-//         <GoogleMap
-//           mapContainerStyle={{ width: "100%", height: "500px" }}
-//           center={userLocation || { lat: 0, lng: 0 }}
-//           zoom={14}
-//           onLoad={(map) => {
-//             directionsService.current = new window.google.maps.DirectionsService();
-//             directionsRenderer.current = new window.google.maps.DirectionsRenderer();
-//             directionsRenderer.current.setMap(map);
-//           }}
-//         >
-//           {userLocation && (
-//             <Marker
-//               position={userLocation}
-//               icon={{ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" }}
-//               onClick={() => setSelectedMarker("User")}
-//             />
-//           )}
-//           <Marker
-//             position={employeePosition}
-//             icon={{ url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }}
-//             onClick={() => setSelectedMarker("Employee")}
-//           />
-//           {selectedMarker === "User" && userLocation && (
-//             <InfoWindow position={userLocation} onCloseClick={() => setSelectedMarker(null)}>
-//               <div>
-//                 <h3>Your Location</h3>
-//               </div>
-//             </InfoWindow>
-//           )}
-//           {selectedMarker === "Employee" && (
-//             <InfoWindow
-//               position={employeePosition}
-//               onCloseClick={() => setSelectedMarker(null)}
-//             >
-//               <div>
-//                 <h3>Employee Location</h3>
-//               </div>
-//             </InfoWindow>
-//           )}
-//         </GoogleMap>
-//       </LoadScript>
-//       {remainingDistance && remainingTime && (
-//         <div className="info-panel">
-//           <h2>Employee Arrival Info</h2>
-//           <p><strong>Remaining Distance:</strong> {(remainingDistance / 1000).toFixed(2)} km</p>
-//           <p><strong>Remaining Time:</strong> {Math.floor(remainingTime / 60)} minutes</p>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default CurrentTaskRender;
-
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import { GoogleMap, Marker, LoadScript, InfoWindow, Polyline } from "@react-google-maps/api";
+import { GoogleMap, Marker, LoadScript, Polyline } from "@react-google-maps/api";
 import "../styles/CurrentTaskRender.css";
 
 const API_KEY = "AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y"; // Replace with your actual API key
@@ -179,16 +9,19 @@ const API_KEY = "AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y"; // Replace with your 
 const CurrentTaskRender = () => {
   const employeeLocation = useMemo(() => ({ lat: 40.73061, lng: -79.00000 }), []); // Example employee location
   const [userLocation, setUserLocation] = useState(null); // User's initial location
-  const [selectedMarker, setSelectedMarker] = useState(null);
   const [employeePosition, setEmployeePosition] = useState(employeeLocation); // Current position of employee
   const [employeePath, setEmployeePath] = useState([]); // Employee's route path
+  const [initialDistance, setInitialDistance] = useState(null); // Initial distance between user and employee
+  const [initialDuration, setInitialDuration] = useState(null); // Initial duration between user and employee
+  const [remainingDistance, setRemainingDistance] = useState(null); // Remaining distance to user
+  const [remainingDuration, setRemainingDuration] = useState(null); // Remaining duration to user
 
   const directionsRenderer = useRef(null); // To render the directions on the map
   const directionsService = useRef(null); // To calculate the directions
 
   const intervalRef = useRef(null); // Store the interval ID for clearing later
-
   const travelledPathRef = useRef([]); // Track the path that has been travelled
+  const travelledDistance = useRef(0); // Track the traveled distance in meters
 
   useEffect(() => {
     // Get user's current location only once
@@ -221,6 +54,13 @@ const CurrentTaskRender = () => {
           directionsRenderer.current.setDirections(response);
           const path = response.routes[0].overview_path;
           setEmployeePath(path); // Store the path
+          
+          // Get initial distance and duration
+          const route = response.routes[0].legs[0];
+          setInitialDistance(route.distance.value); // Store initial distance in meters
+          setInitialDuration(route.duration.value); // Store initial duration in seconds
+          setRemainingDistance(route.distance.text); // Remaining distance
+          setRemainingDuration(route.duration.text); // Remaining duration
         } else {
           console.error("Directions request failed:", status);
         }
@@ -228,15 +68,16 @@ const CurrentTaskRender = () => {
     }
   }, [userLocation, employeeLocation]);
 
-  // Function to animate the employee's marker along the path in a fixed time
+  // Function to animate the employee's marker along the path in a fixed time and update distance/time
   useEffect(() => {
-    if (employeePath.length === 0) return;
+    if (employeePath.length === 0 || initialDistance === null || initialDuration === null) return;
 
     let progress = 0;
-    const totalDuration = 15; // Fixed 10 seconds for the animation
+    const totalDuration = 15; // Fixed 15 seconds for the animation
     const intervalTime = 100; // Update every 100 milliseconds (0.1 seconds)
     const steps = totalDuration * 10; // Number of steps (10 updates per second)
     const pathLength = google.maps.geometry.spherical.computeLength(employeePath); // Length of the polyline path
+
     const pathInterval = setInterval(() => {
       progress += 1 / steps; // Move in small increments
 
@@ -246,9 +87,9 @@ const CurrentTaskRender = () => {
         let totalLength = 0;
         let segmentIndex = 0;
 
-        // Find the segment where the current progress lies
-        for (let i = 1; i < employeePath.length; i++) {
-          const segment = [employeePath[i - 1], employeePath[i]];
+        // Find the segment where the current progress lies, but start from the employee location
+        for (let i = employeePath.length - 1; i >= 1; i--) {
+          const segment = [employeePath[i], employeePath[i - 1]]; // Reverse the segment direction
           const segmentLength = google.maps.geometry.spherical.computeLength(segment);
           totalLength += segmentLength;
           if (totalLength >= segmentProgress) {
@@ -259,9 +100,20 @@ const CurrentTaskRender = () => {
 
         // Set the employee position to the current location on the path
         setEmployeePosition(employeePath[segmentIndex]);
-        
+
         // Add the traveled path to the pathRef for color highlighting
         travelledPathRef.current.push(employeePath[segmentIndex]);
+
+        // Update the traveled distance in meters
+        travelledDistance.current = google.maps.geometry.spherical.computeLength(travelledPathRef.current);
+
+        // Calculate remaining distance and duration
+        const remainingPathLength = initialDistance - travelledDistance.current;
+        const remainingTime = (remainingPathLength / initialDistance) * initialDuration;
+
+        // Update the remaining distance and duration
+        setRemainingDistance(`${(remainingPathLength / 1000).toFixed(2)} km`);
+        setRemainingDuration(`${(remainingTime / 60).toFixed(0)} mins`);
       } else {
         clearInterval(pathInterval); // Stop once the employee reaches the end of the path
       }
@@ -270,7 +122,7 @@ const CurrentTaskRender = () => {
     intervalRef.current = pathInterval;
 
     return () => clearInterval(pathInterval); // Clear the interval on cleanup
-  }, [employeePath]);
+  }, [employeePath, initialDistance, initialDuration]);
 
   return (
     <div className="task-container">
@@ -289,31 +141,12 @@ const CurrentTaskRender = () => {
             <Marker
               position={userLocation}
               icon={{ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" }}
-              onClick={() => setSelectedMarker("User")}
             />
           )}
           <Marker
             position={employeePosition}
             icon={{ url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }}
-            onClick={() => setSelectedMarker("Employee")}
           />
-          {selectedMarker === "User" && userLocation && (
-            <InfoWindow position={userLocation} onCloseClick={() => setSelectedMarker(null)}>
-              <div>
-                <h3>Your Location</h3>
-              </div>
-            </InfoWindow>
-          )}
-          {selectedMarker === "Employee" && (
-            <InfoWindow
-              position={employeePosition}
-              onCloseClick={() => setSelectedMarker(null)}
-            >
-              <div>
-                <h3>Employee Location</h3>
-              </div>
-            </InfoWindow>
-          )}
           <Polyline
             path={travelledPathRef.current}
             options={{
@@ -324,6 +157,14 @@ const CurrentTaskRender = () => {
           />
         </GoogleMap>
       </LoadScript>
+
+      {/* Display remaining distance and duration */}
+      {remainingDistance && remainingDuration && (
+        <div className="route-info">
+          <h4>Remaining Distance: {remainingDistance}</h4>
+          <h4>Remaining Duration: {remainingDuration}</h4>
+        </div>
+      )}
     </div>
   );
 };
