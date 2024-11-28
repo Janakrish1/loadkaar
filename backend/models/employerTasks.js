@@ -9,30 +9,15 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true, // Automatically generates a unique task_id
             primaryKey: true, // Set as the primary key
         },
-        user_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
+        payment_id: {
+            type: DataTypes.UUID, // Matches CHAR(36) for UUID format
+            allowNull: false, // Required field
             references: {
-                model: 'User', // Name of the referenced table (should match the name in the database)
-                key: 'user_id', // Primary key in the User table
+                model: 'Payment',
+                key: 'payment_id',
             },
-            onUpdate: 'CASCADE', // Update task user_id if the User's id changes
-            onDelete: 'CASCADE', // Delete tasks if the User is deleted
-        },
-        vehicleType: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                isIn: [['2wheeler', '3wheeler', '4wheeler', 'truck']], // Allow only valid vehicle types
-            },
-        },
-        taskStatus: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            defaultValue: 'inprogress',
-            validate: {
-                isIn: [['inprogress', 'completed']],
-            },
+            onUpdate: 'CASCADE',
+            onDelete: 'CASCADE',
         },
     },
     {

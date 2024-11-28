@@ -36,6 +36,7 @@ module.exports = {
                     contactPerson,
                     contactAddress,
                     contactPhoneNumber,
+                    vehicleType,
                     createdAt,
                     updatedAt
                 )
@@ -47,6 +48,7 @@ module.exports = {
                     :contactPerson,
                     :contactAddress,
                     :contactPhoneNumber,
+                    :vehicleType,
                     NOW(),
                     NOW()
                 );
@@ -62,17 +64,14 @@ module.exports = {
                     contactPerson,
                     contactAddress,
                     contactPhoneNumber,
+                    vehicleType
                 },
                 type: sequelize.QueryTypes.INSERT,
             });
 
-            // Fetch the last inserted taskDetails_id using LAST_INSERT_ID()
-            const [result] = await sequelize.query('SELECT LAST_INSERT_ID() AS taskDetails_id');
-
             // Send a success response with the inserted task details ID
             res.status(201).json({
                 message: 'Task details saved successfully.',
-                taskDetails_id: result[0].taskDetails_id,
             });
         } catch (error) {
             console.error(error); // Log the error for debugging

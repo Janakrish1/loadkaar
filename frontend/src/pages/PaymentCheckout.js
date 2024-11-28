@@ -9,13 +9,13 @@ import { clearDeliveryFormData, clearDeliveryPartnerView } from "../redux/delive
 const PaymentCheckout = () => {
     const location = useLocation();
     const { userID } = useSelector((state) => state.user);
+    const deliveryFormData = useSelector((state) => state.deliveryPartnerView.formData || {});
     const { selectedDriver } = location.state || {};
     const navigate = useNavigate();
 
     const [userDetails, setUserDetails] = useState({ FName: '', LName: '', Email: '' });
     const [paymentResponse, setPaymentResponse] = useState(null);
     const [transactionStatus, setTransactionStatus] = useState('');
-    const deliveryFormData = useSelector((state) => state.deliveryPartnerView.formData || {});
     const dispatch = useDispatch();
 
     const [paymentData, setPaymentData] = useState({
@@ -62,18 +62,61 @@ const PaymentCheckout = () => {
     };
 
     const handlePaymentSuccess = () => {
-        
-        axios.post("http://localhost:5001/api/save-payment-details", {
-            paymentResponse: paymentResponse,
-            paymentData: paymentData,
-            status: transactionStatus
-        })
-            .then(response => {
-                console.log(response.data);  
+
+        // try {
+
+        // await axios
+        //     .post("http://localhost:5001/api/save-tasks", { userID: userID, vehicleType: formData.vehicleType })
+        //     .then((response) => {
+        //         const taskID = response.data.taskID;
+
+        //         // Prepare taskDetails object with updated fields
+        //         const taskDetails = {
+        //             task_id: taskID,
+        //             itemDescription: formData.itemDescription,
+        //             pickupLocation: formData.pickupLocation,
+        //             dropLocation: formData.dropLocation,
+        //             contactPerson: formData.contactPerson,
+        //             contactAddress: formData.contactAddress,
+        //             contactPhoneNumber: formData.contactPhoneNumber,
+        //         };
+
+        //         // Post the taskDetails to save-task-details endpoint
+        //         axios
+        //             .post("http://localhost:5001/api/save-task-details", taskDetails)
+        //             .then(() => {
+        //                 handleFindDeliveryPartner();
+        //             })
+        //             .catch((error) => {
+        //                 alert(error.response?.data?.error || "An error occurred while saving task details.");
+        //             });
+        //     })
+        //     .catch((error) => {
+        //         alert(error.response?.data?.error || "An error occurred while saving the task.");
+        //     });
+
+        try {
+            axios.post("http://localhost:5001/api/save-payment-details", {
+                paymentResponse: paymentResponse,
+                paymentData: paymentData,
+                status: transactionStatus
             })
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
+                .then(response => {
+                    
+                    axios.post("http://localhost:5001/api/save-tasks", {
+                        paymentResponse: paymentResponse
+                    })
+                    .then(response => {
+                        console.log(response.data.message);
+                    })
+
+                })
+                .catch(error => {
+                    console.error('There was an error!', error);
+                });
+        } catch (error) {
+
+        }
 
 
         dispatch(clearDeliveryFormData());
