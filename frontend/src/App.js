@@ -4,6 +4,7 @@ import LandingPage from "./pages/LandingPage";
 import Employer_HomePage from "./pages/Employer_HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PaymentCheckout from "./pages/PaymentCheckout";
+import CurrentTaskRender from "./pages/CurrentTaskRender";
 
 function App() {
     return (
@@ -20,7 +21,10 @@ function App() {
                     path="/payment"
                     element={<ProtectedRoute element={<PaymentCheckout />} />}
                 />
-
+                <Route
+                    path="/render-task"
+                    element={<ProtectedRoute element={<CurrentTaskRender />} />}
+                />
             </Routes>
         </Router>
     );
