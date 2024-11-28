@@ -3,8 +3,10 @@ import { GoogleMap, Marker, LoadScript, InfoWindow } from "@react-google-maps/ap
 import "../styles/FindDeliveryPartnerUsingMap.css";
 import PaymentCheckout from "./PaymentCheckout";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const FindDeliveryPartnerUsingMap = () => {
+  // const { ...deliveryFormData } = useSelector((state) => (state.deliveryPartnerView));
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drivers, setDrivers] = useState([]);
   const [activeDrivers, setActiveDrivers] = useState([]);
@@ -23,6 +25,7 @@ const FindDeliveryPartnerUsingMap = () => {
   }, []);
 
   useEffect(() => {
+    // console.log(deliveryFormData.formData)
     if (currentLocation) {
       // Static dummy drivers data
       const dummyDrivers = [

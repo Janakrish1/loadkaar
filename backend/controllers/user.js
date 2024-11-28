@@ -153,5 +153,36 @@ module.exports = {
             console.error('Error fetching user ID:', error);
             return res.status(500).json({ error: 'An error occurred while fetching user ID' });
         }
-    }    
+    },
+
+    getUsername: async (req, res) => {
+        const { userID } = req.body;
+        console.log("HERERHERHER - ", userID);
+
+        if(!userID) {
+            res.status(400).json({error: "User not found"});
+        }
+
+        try {
+            findQuery = `
+                SELECT firstname AS FName, lastname AS LName
+                FROM User 
+                WHERE user_id = :userID
+            `;
+
+            const [results] = await sequelize.query(findQuery, {
+                replacements: {userID},
+                type: sequelize.QueryTypes.SELECT,
+            });
+
+            if(results.length === 0) {
+                return res.status(404).json({error: "User not found"});
+            }
+
+            return res.status(200).json({message: "User found succesfully!", FName: results.FName, LName: results.LName});
+
+        } catch (error) {
+            
+        }
+    },
 };

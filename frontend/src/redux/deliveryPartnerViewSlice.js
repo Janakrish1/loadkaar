@@ -5,6 +5,15 @@ const deliveryPartnerViewSlice = createSlice({
     initialState: {
         currentView: "default",
         activeMenu: "Current Orders",
+        deliveryForm: {
+            vehicleType: "2wheeler",
+            itemDescription: "",
+            pickupLocation: "",
+            dropLocation: "",
+            contactPerson: "",
+            contactAddress: "",
+            contactPhoneNumber: "",
+        },
     },
     reducers: {
         setDeliveryPartnerView: (state, action) => {
@@ -19,8 +28,51 @@ const deliveryPartnerViewSlice = createSlice({
         getCurrentView: (state) => {
             return state.currentView;
         },
+        setDeliveryFormData: (state, action) => {
+            const {
+                vehicleType,
+                itemDescription,
+                pickupLocation,
+                dropLocation,
+                contactPerson,
+                contactAddress,
+                contactPhoneNumber
+            } = action.payload;
+
+            if (vehicleType && itemDescription && pickupLocation && dropLocation && contactPerson && contactAddress && contactPhoneNumber) {
+                state.formData = {
+                    vehicleType,
+                    itemDescription,
+                    pickupLocation,
+                    dropLocation,
+                    contactPerson,
+                    contactAddress,
+                    contactPhoneNumber,
+                };
+            }
+        },
+        clearDeliveryFormData: (state) => {
+            state.deliveryForm = {
+                vehicleType: "2wheeler",
+                itemDescription: "",
+                pickupLocation: "",
+                dropLocation: "",
+                contactPerson: "",
+                contactAddress: "",
+                contactPhoneNumber: "",
+            };
+        },
     },
 });
 
-export const { setDeliveryPartnerView, clearDeliveryPartnerView, getCurrentView } = deliveryPartnerViewSlice.actions;
+
+
+export const { 
+    setDeliveryPartnerView, 
+    clearDeliveryPartnerView, 
+    getCurrentView,
+    setDeliveryFormData,
+    clearDeliveryFormData
+} = deliveryPartnerViewSlice.actions;
+
 export default deliveryPartnerViewSlice.reducer;

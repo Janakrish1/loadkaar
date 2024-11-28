@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/PaymentCheckout.css';
 import { useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import logo from '../assets/logo.jpeg';
 
 const PaymentCheckout = () => {
     const location = useLocation();
@@ -9,17 +11,27 @@ const PaymentCheckout = () => {
     const { selectedDriver } = location.state || {};
     console.log(selectedDriver);
     console.log("User = ", userID);
+    const [userDetails, setUserDetails] = useState({ FName: "", LName: "" });
+    const dispatch = useDispatch();
 
+    const { ...deliveryFormData } = useSelector((state) => (state.deliveryPartnerView)); 
 
+    useEffect(() => {
+        if (userID) {
+            console.log(userID);
+            fetchDetails();
+        }
+    }, [userID]);
 
     const [paymentData, setPaymentData] = useState({
-        payment_id: '',
+        // payment_id: '',
         user_id: userID,
+        employee_name: selectedDriver.name,
         employee_id: selectedDriver.id,
         amount: '',
-        payment_date: new Date().toISOString().split('T')[0],
-        task_id: '',
-        invoice_number: '',
+        // payment_date: new Date().toISOString().split('T')[0],
+        // task_id: '',
+        // invoice_number: '',
     });
 
     const [paymentResponse, setPaymentResponse] = useState(null);
@@ -41,10 +53,10 @@ const PaymentCheckout = () => {
     };
 
     const handlePayment = async () => {
-        const { payment_id, user_id, employee_id, amount, invoice_number } = paymentData;
-        
+        console.log(deliveryFormData.formData);
+        console.log(userDetails.FName, userDetails.LName, paymentData.employee_name, paymentData.amount);
         // Validation check
-        if (!payment_id || !user_id || !employee_id || !amount || !invoice_number) {
+        if (!userDetails.FName || !userDetails.LName || !paymentData.employee_name || !paymentData.amount) {
             alert("Please fill in all required fields!");
             return;
         }
@@ -55,33 +67,33 @@ const PaymentCheckout = () => {
             return;
         }
 
-        const options = {
-            key: "rzp_test_LpesfJag0kjwF6", // Replace with your Razorpay Key ID
-            amount: amount * 100, // Amount in paisa
-            currency: "INR",
-            name: "Your Company Name",
-            description: `Invoice: ${invoice_number}`,
-            handler: (response) => {
-                setPaymentResponse(response);
-                setTransactionStatus('success');
-            },
-            prefill: {
-                name: 'Customer Name', // You can dynamically fetch this data
-                email: 'customer@example.com', // You can dynamically fetch this data
-                contact: '9999999999', // You can dynamically fetch this data
-            },
-            theme: {
-                color: "#3399cc",
-            },
-        };
+        // const options = {
+        //     key: "rzp_test_LpesfJag0kjwF6", // Replace with your Razorpay Key ID
+        //     amount: amount * 100, // Amount in paisa
+        //     currency: "INR",
+        //     name: "Your Company Name",
+        //     description: `Invoice: ${invoice_number}`,
+        //     handler: (response) => {
+        //         setPaymentResponse(response);
+        //         setTransactionStatus('success');
+        //     },
+        //     prefill: {
+        //         name: 'Customer Name', // You can dynamically fetch this data
+        //         email: 'customer@example.com', // You can dynamically fetch this data
+        //         contact: '9999999999', // You can dynamically fetch this data
+        //     },
+        //     theme: {
+        //         color: "#3399cc",
+        //     },
+        // };
 
-        const razorpay = new window.Razorpay(options);
-        razorpay.open();
+        // const razorpay = new window.Razorpay(options);
+        // razorpay.open();
 
-        razorpay.on('payment.failed', (response) => {
-            setPaymentResponse(response.error);
-            setTransactionStatus('failure');
-        });
+        // razorpay.on('payment.failed', (response) => {
+        //     setPaymentResponse(response.error);
+        //     setTransactionStatus('failure');
+        // });
     };
 
     const renderPaymentDetails = () => {
@@ -128,55 +140,95 @@ const PaymentCheckout = () => {
         );
     }
 
+    const fetchDetails = async () => {
+        try {
+            const response = await axios.post("http://localhost:5001/api/get-username", { userID });
+            setUserDetails({
+                FName: response.data.FName,
+                LName: response.data.LName
+            });
+
+            setPaymentData({
+                employer_name: userDetails.FName + " " + userDetails.LName,
+            });
+            setPaymentData({employee_name: selectedDriver.name});
+            console.log(paymentData);
+        } catch (err) {
+            console.error("Error fetching user details:", err);
+        }
+    };
+
     return (
+        
         <div className="payment-checkout">
+             <header className="header">
+        <div className="logo-container">
+          <img src={logo} alt="LoadKaar Logo" className="logo" />
+        </div>
+        <h1 className="website-name">LoadKaar</h1>
+      </header>
             <h2>Payment Checkout</h2>
             <form>
                 <label>
-                    Payment ID (UUID):
-                    <input type="text" name="payment_id" value={paymentData.payment_id} onChange={handleChange} required />
+                    Your Name:
+                    <input type="text" name="employer_name" value={`${userDetails.FName} ${userDetails.LName}`} className='readonly' readOnly />
                 </label>
                 <label>
-                    Employer ID (UUID):
-                    <input type="text" name="user_id" value={paymentData.user_id} onChange={handleChange} required />
+                    Driver Name:
+                    <input type="text" name="employee_name" value={paymentData.employee_name} className='readonly' readOnly />
                 </label>
                 <label>
-                    Employee ID (UUID):
-                    <input type="text" name="employee_id" value={paymentData.employee_id} onChange={handleChange} required />
+                    Vehicle Type:
+                    <input type="text" name="vehicleType" value={deliveryFormData.formData.vehicleType} className='readonly' readOnly />
+                </label>
+                <label>
+                    Item Description:
+                    <input type="text" name="itemDescription" value={deliveryFormData.formData.itemDescription} className='readonly' readOnly />
+                </label>
+                <label>
+                    Pickup Location:
+                    <input type="text" name="pickupLocation" value={deliveryFormData.formData.pickupLocation} className='readonly' readOnly />
+                </label>
+                <label>
+                    Drop Location:
+                    <input type="text" name="dropLocation" value={deliveryFormData.formData.dropLocation} className='readonly' readOnly />
+                </label>
+                <label>
+                    Contact Person:
+                    <input type="text" name="contactPerson" value={deliveryFormData.formData.contactPerson} className='readonly' readOnly />
+                </label>
+                <label>
+                    Contact Person:
+                    <input type="text" name="contactAddress" value={deliveryFormData.formData.contactAddress} className='readonly' readOnly />
+                </label>
+                <label>
+                    Contact Phone number:
+                    <input type="text" name="contactPhoneNumber" value={deliveryFormData.formData.contactPhoneNumber} className='readonly' readOnly />
                 </label>
                 <label>
                     Amount:
                     <input type="number" name="amount" value={paymentData.amount} onChange={handleChange} required />
                 </label>
-                <label>
-                    Payment Method:
-                    <select name="payment_method" value={paymentData.payment_method} onChange={handleChange} required>
-                        <option value="">Select</option>
-                        <option value="cash">Cash</option>
-                        <option value="credit_card">Credit Card</option>
-                        <option value="upi">UPI</option>
-                    </select>
-                </label>
-                <label>
+                {/* <label>
                     Status:
                     <select name="status" value={paymentData.status} onChange={handleChange}>
                         <option value="pending">Pending</option>
                         <option value="completed">Completed</option>
                         <option value="failed">Failed</option>
                     </select>
-                </label>
-                <label>
+                </label> */}
+                {/* <label>
                     Payment Date:
                     <input type="date" name="payment_date" value={paymentData.payment_date} onChange={handleChange} required />
-                </label>
-                <label>
+                </label> */}
+                {/* <label>
                     Task ID (UUID):
                     <input type="text" name="task_id" value={paymentData.task_id} onChange={handleChange} required />
-                </label>
-                <label>
+                </label> */}
+                {/* <label>
                     Invoice Number:
                     <input type="text" name="invoice_number" value={paymentData.invoice_number} onChange={handleChange} required />
-                </label>
+                </label> */}
                 <button type="button" onClick={handlePayment}>
                     Pay Now
                 </button>
