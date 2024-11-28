@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import BookDeliveryPartner from "./BookDeliveryPartner";
 import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
-import FindDeliveryPartners from "./FindDeliveryPartnerUsingMap";
+import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
 
 function Employer_HomePage() {
   const dispatch = useDispatch();
@@ -48,7 +48,7 @@ function Employer_HomePage() {
       case "default": 
         return currentOrders !== null ? <></> : <div><br/><h1>No Current Orders!</h1></div>;
       case "findDelivery":
-        return <FindDeliveryPartners />;
+        return <FindDeliveryPartnerUsingMap />;
       default:
         return <div>Select a menu item to view details</div>;
     }

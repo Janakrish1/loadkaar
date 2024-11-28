@@ -1,44 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/PaymentCheckout.css';
-import { useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import logo from '../assets/logo.jpeg';
+import { clearDeliveryFormData, clearDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 
 const PaymentCheckout = () => {
     const location = useLocation();
     const { userID } = useSelector((state) => state.user);
     const { selectedDriver } = location.state || {};
-    console.log(selectedDriver);
-    console.log("User = ", userID);
-    const [userDetails, setUserDetails] = useState({ FName: "", LName: "", Email: "" });
+    const navigate = useNavigate();
 
-    const { ...deliveryFormData } = useSelector((state) => (state.deliveryPartnerView));
-
-    useEffect(() => {
-        if (userID) {
-            console.log(userID);
-            fetchDetails();
-        }
-    }, [userID]);
+    const [userDetails, setUserDetails] = useState({ FName: '', LName: '', Email: '' });
+    const [paymentResponse, setPaymentResponse] = useState(null);
+    const [transactionStatus, setTransactionStatus] = useState('');
+    const deliveryFormData = useSelector((state) => state.deliveryPartnerView.formData || {});
+    const dispatch = useDispatch();
 
     const [paymentData, setPaymentData] = useState({
         user_id: userID,
-        employee_name: selectedDriver.name,
-        employee_id: selectedDriver.id,
+        employee_name: selectedDriver?.name || '',
+        employee_id: selectedDriver?.id || '',
         amount: '',
         payment_date: new Date().toISOString().split('T')[0],
     });
 
-    const handlePaymentSuccess = async () => {
-        console.log(paymentResponse.razorpay_payment_id);
-        console.log("Delivery Form Data:", deliveryFormData.formData);
-        console.log("User Details: ", userDetails.FName, userDetails.LName, userDetails.Email);
-        console.log("Payment Details: ", paymentData.employee_name, paymentData.amount);
-    }
+    // Fetch user details when userID changes
+    useEffect(() => {
+        const fetchDetails = async () => {
+            try {
+                const response = await axios.post("http://localhost:5001/api/get-username", { userID });
+                setUserDetails({
+                    FName: response.data.FName,
+                    LName: response.data.LName,
+                    Email: response.data.Email,
+                });
+            } catch (err) {
+                console.error("Error fetching user details:", err);
+            }
+        };
 
-    const [paymentResponse, setPaymentResponse] = useState(null);
-    const [transactionStatus, setTransactionStatus] = useState(null);
+        if (userID) {
+            fetchDetails();
+        }
+    }, [userID]);
 
     const loadRazorpayScript = () => {
         return new Promise((resolve) => {
@@ -55,13 +61,25 @@ const PaymentCheckout = () => {
         setPaymentData({ ...paymentData, [name]: value });
     };
 
+    const handlePaymentSuccess = () => {
+        console.log("Payment Success:", paymentResponse);
+        console.log("Delivery Form Data:", deliveryFormData);
+        console.log("User Details:", userDetails);
+        console.log("Payment Data:", paymentData);
+        
+
+        dispatch(clearDeliveryFormData());
+        dispatch(clearDeliveryPartnerView());
+        setTimeout(() => {
+        }, 2000); // 2000 milliseconds = 2 seconds
+        navigate('/employer-home');
+    };
+
     const handlePayment = async () => {
-        // Validation check to ensure all required fields are filled
         if (!userDetails.FName || !userDetails.LName || !paymentData.employee_name || !paymentData.amount) {
             alert("Please fill in all required fields!");
             return;
         }
-        
 
         const isScriptLoaded = await loadRazorpayScript();
         if (!isScriptLoaded) {
@@ -70,20 +88,19 @@ const PaymentCheckout = () => {
         }
 
         const options = {
-            key: "rzp_test_LpesfJag0kjwF6", // Replace with your Razorpay Key ID
+            key: "rzp_test_LpesfJag0kjwF6",
             amount: paymentData.amount * 100, // Amount in paisa
             currency: "INR",
             name: "LoadKaar",
-            description: `Invoice: ${deliveryFormData.formData.itemDescription}`,
+            description: `Invoice: ${deliveryFormData.itemDescription}`,
             handler: (response) => {
                 setPaymentResponse(response);
                 setTransactionStatus('success');
             },
             prefill: {
                 name: paymentData.employee_name,
-                contactPerson: deliveryFormData.formData.contactPerson,
-                contactAddress: deliveryFormData.formData.contactAddress,
-                contactPhoneNumber: deliveryFormData.formData.contactPhoneNumber
+                contact: deliveryFormData.contactPhoneNumber,
+                email: userDetails.Email,
             },
             theme: {
                 color: "#3399cc",
@@ -99,45 +116,13 @@ const PaymentCheckout = () => {
         });
     };
 
-    if (transactionStatus === 'success' || transactionStatus === 'failure') {
-        return (
-            <div className="payment-checkout">
-                <h2>{transactionStatus === 'success' ? 'Payment Successful!' : 'Payment Failed!'}</h2>
-                <div className="payment-response">
-                    {transactionStatus === 'success' ? (
-                        <>
-                        {handlePaymentSuccess()}
-                        </>
-                    ) : (
-                        <>
-                            <p><strong>Error Code:</strong> {paymentResponse.code}</p>
-                            <p><strong>Description:</strong> {paymentResponse.description}</p>
-                            <p><strong>Source:</strong> {paymentResponse.source}</p>
-                            <p><strong>Step:</strong> {paymentResponse.step}</p>
-                            <p><strong>Reason:</strong> {paymentResponse.reason}</p>
-                        </>
-                    )}
-                </div>
-                <button onClick={() => setTransactionStatus(null)}>Back to Checkout</button>
-            </div>
-        );
-    }
-
-    const fetchDetails = async () => {
-        try {
-            const response = await axios.post("http://localhost:5001/api/get-username", { userID });
-            setUserDetails({
-                FName: response.data.FName,
-                LName: response.data.LName,
-                Email: response.data.Email
-            });
-        } catch (err) {
-            console.error("Error fetching user details:", err);
+    useEffect(() => {
+        if (transactionStatus === 'success') {
+            handlePaymentSuccess();
         }
-    };
+    }, [transactionStatus]);
 
     return (
-
         <div className="payment-checkout">
             <header className="header">
                 <div className="logo-container">
@@ -145,6 +130,7 @@ const PaymentCheckout = () => {
                 </div>
                 <h1 className="website-name">LoadKaar</h1>
             </header>
+
             <h2>Payment Checkout</h2>
             <form>
                 <button type="button" onClick={handlePayment}>
@@ -152,45 +138,57 @@ const PaymentCheckout = () => {
                 </button>
                 <label>
                     Your Name:
-                    <input type="text" name="employer_name" value={`${userDetails.FName} ${userDetails.LName}`} className='readonly' readOnly />
+                    <input type="text" value={`${userDetails.FName} ${userDetails.LName}`} className="readonly" readOnly />
                 </label>
                 <label>
                     Driver Name:
-                    <input type="text" name="employee_name" value={paymentData.employee_name} className='readonly' readOnly />
+                    <input type="text" value={paymentData.employee_name} className="readonly" readOnly />
                 </label>
                 <label>
                     Vehicle Type:
-                    <input type="text" name="vehicleType" value={deliveryFormData.formData.vehicleType} className='readonly' readOnly />
+                    <input type="text" value={deliveryFormData.vehicleType} className="readonly" readOnly />
                 </label>
                 <label>
                     Item Description:
-                    <input type="text" name="itemDescription" value={deliveryFormData.formData.itemDescription} className='readonly' readOnly />
+                    <input type="text" value={deliveryFormData.itemDescription} className="readonly" readOnly />
                 </label>
                 <label>
                     Pickup Location:
-                    <input type="text" name="pickupLocation" value={deliveryFormData.formData.pickupLocation} className='readonly' readOnly />
+                    <input type="text" value={deliveryFormData.pickupLocation} className="readonly" readOnly />
                 </label>
                 <label>
                     Drop Location:
-                    <input type="text" name="dropLocation" value={deliveryFormData.formData.dropLocation} className='readonly' readOnly />
+                    <input type="text" value={deliveryFormData.dropLocation} className="readonly" readOnly />
                 </label>
                 <label>
                     Contact Person:
-                    <input type="text" name="contactPerson" value={deliveryFormData.formData.contactPerson} className='readonly' readOnly />
+                    <input type="text" value={deliveryFormData.contactPerson} className="readonly" readOnly />
                 </label>
                 <label>
-                    Contact Person:
-                    <input type="text" name="contactAddress" value={deliveryFormData.formData.contactAddress} className='readonly' readOnly />
+                    Contact Address:
+                    <input type="text" value={deliveryFormData.contactAddress} className="readonly" readOnly />
                 </label>
                 <label>
-                    Contact Phone number:
-                    <input type="text" name="contactPhoneNumber" value={deliveryFormData.formData.contactPhoneNumber} className='readonly' readOnly />
+                    Contact Phone Number:
+                    <input type="text" value={deliveryFormData.contactPhoneNumber} className="readonly" readOnly />
                 </label>
                 <label>
                     Amount:
                     <input type="number" name="amount" value={paymentData.amount} onChange={handleChange} required />
                 </label>
             </form>
+
+            {transactionStatus === 'failure' && (
+                <div className="payment-response">
+                    <h2>Payment Failed!</h2>
+                    <p><strong>Error Code:</strong> {paymentResponse?.code}</p>
+                    <p><strong>Description:</strong> {paymentResponse?.description}</p>
+                    <p><strong>Source:</strong> {paymentResponse?.source}</p>
+                    <p><strong>Step:</strong> {paymentResponse?.step}</p>
+                    <p><strong>Reason:</strong> {paymentResponse?.reason}</p>
+                    <button onClick={() => setTransactionStatus('')}>Back to Checkout</button>
+                </div>
+            )}
         </div>
     );
 };
