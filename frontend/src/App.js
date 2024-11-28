@@ -7,6 +7,7 @@ import Warehouse_HomePage from "./pages/Employer_HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PaymentCheckout from "./pages/PaymentCheckout";
 import Vehicles from "./pages/Vehicles"
+import CurrentTaskRender from "./pages/CurrentTaskRender";
 
 function App() {
     return (
@@ -34,6 +35,10 @@ function App() {
                     element={<ProtectedRoute element={<Employer_HomePage />} />} 
                 />
 
+                <Route
+                    path="/render-task"
+                    element={<ProtectedRoute element={<CurrentTaskRender />} />}
+                />
             </Routes>
         </Router>
     );
