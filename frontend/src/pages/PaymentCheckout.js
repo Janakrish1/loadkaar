@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
 import '../styles/PaymentCheckout.css';
+import { useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const PaymentCheckout = () => {
+    const location = useLocation();
+    const { userID } = useSelector((state) => state.user);
+    const { selectedDriver } = location.state || {};
+    console.log(selectedDriver);
+    console.log("User = ", userID);
+
+
+
     const [paymentData, setPaymentData] = useState({
         payment_id: '',
-        employer_id: '',
-        employee_id: '',
+        user_id: userID,
+        employee_id: selectedDriver.id,
         amount: '',
-        payment_method: '',
-        status: 'pending',
         payment_date: new Date().toISOString().split('T')[0],
         task_id: '',
         invoice_number: '',
@@ -33,10 +41,10 @@ const PaymentCheckout = () => {
     };
 
     const handlePayment = async () => {
-        const { payment_id, employer_id, employee_id, amount, invoice_number } = paymentData;
+        const { payment_id, user_id, employee_id, amount, invoice_number } = paymentData;
         
         // Validation check
-        if (!payment_id || !employer_id || !employee_id || !amount || !invoice_number) {
+        if (!payment_id || !user_id || !employee_id || !amount || !invoice_number) {
             alert("Please fill in all required fields!");
             return;
         }
@@ -81,7 +89,7 @@ const PaymentCheckout = () => {
             <div className="payment-details">
                 <h3>Form Details:</h3>
                 <p><strong>Payment ID:</strong> {paymentData.payment_id}</p>
-                <p><strong>Employer ID:</strong> {paymentData.employer_id}</p>
+                <p><strong>Employer ID:</strong> {paymentData.user_id}</p>
                 <p><strong>Employee ID:</strong> {paymentData.employee_id}</p>
                 <p><strong>Amount:</strong> ₹{paymentData.amount}</p>
                 <p><strong>Payment Method:</strong> {paymentData.payment_method}</p>
@@ -130,7 +138,7 @@ const PaymentCheckout = () => {
                 </label>
                 <label>
                     Employer ID (UUID):
-                    <input type="text" name="employer_id" value={paymentData.employer_id} onChange={handleChange} required />
+                    <input type="text" name="user_id" value={paymentData.user_id} onChange={handleChange} required />
                 </label>
                 <label>
                     Employee ID (UUID):
