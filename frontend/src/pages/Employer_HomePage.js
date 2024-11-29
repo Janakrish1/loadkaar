@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/Employer_HomePage.css"; // Import the CSS file
 import logo from "../assets/logo.jpeg"; // Load your logo image here
 import profile_pic from "../assets/Icons/profile.jpg";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import BookDeliveryPartner from "./BookDeliveryPartner";
 import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
+import axios from "axios";
 
 function Employer_HomePage() {
   const dispatch = useDispatch();
@@ -15,8 +16,26 @@ function Employer_HomePage() {
   const [currentOrders, setCurrentOrders] = useState(null);
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
+  const { userID } = useSelector((state) => (state.user));
 
-  
+
+
+  // Fetch user details when userID changes
+  useEffect(() => {
+    const fetchDetails = async () => {
+        try {
+            const response = await axios.post("http://localhost:5001/api/employer-get-tasks", {userID});
+            console.log(response.data.results);
+        } catch (err) {
+            console.error("Error fetching details:", err);
+        }
+    };
+
+    if (userID) {
+        fetchDetails(userID);
+    }
+}, [userID]);
+
 
   // orders -> user_id 
   // payment - (payment_id) (user_id(employer_id)) (employee_id)
