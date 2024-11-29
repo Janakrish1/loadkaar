@@ -1,92 +1,76 @@
 import React, { useState } from "react";
 import "../styles/EmployerOrders.css"; // CSS for TaskReview component
 
-const EmployerOrders = () => {
-  const [reviews, setReviews] = useState([
-    { id: 1, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-    { id: 2, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-    { id: 3, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" },
-    { id: 4, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-    { id: 5, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-    { id: 6, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" },
-    { id: 7, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-    { id: 8, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-    { id: 9, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" },
-    { id: 10, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-    { id: 11, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-    { id: 12, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" }
-  ]);
-
-  const [expandedReview, setExpandedReview] = useState(null);
-  const [editReview, setEditReview] = useState(null); // Temporarily holds review data while editing
+const EmployerOrders = ({ enrichedOrders }) => {
+  const [expandedOrder, setExpandedOrder] = useState(null);
+  const [editOrder, setEditOrder] = useState(null); // Temporarily holds order data while editing
 
   const handleExpand = (id) => {
-    const currentReview = reviews.find((review) => review.id === id);
-    setExpandedReview(id);
-    setEditReview({ ...currentReview });
+    const currentOrder = enrichedOrders.find((order) => order.task.task_id === id);
+    setExpandedOrder(id);
+    setEditOrder({ ...currentOrder });
   };
 
   const handleInputChange = (field, value) => {
-    setEditReview((prev) => ({ ...prev, [field]: value }));
+    setEditOrder((prev) => ({
+      ...prev,
+      taskDetails: [{ ...prev.taskDetails[0], [field]: value }],
+    }));
   };
 
   const handleSave = () => {
-    setReviews((prevReviews) =>
-      prevReviews.map((review) =>
-        review.id === expandedReview ? { ...editReview } : review
-      )
-    );
-    setExpandedReview(null);
-    setEditReview(null);
+    // Logic to save the edited order details (update state or API call)
+    setExpandedOrder(null);
+    setEditOrder(null);
   };
 
   const handleCancel = () => {
-    setExpandedReview(null);
-    setEditReview(null);
+    setExpandedOrder(null);
+    setEditOrder(null);
   };
 
   return (
     <div className="task-review-container">
-      {reviews.map((review) => (
+      {enrichedOrders.map((order) => (
         <div
-          key={review.id}
-          className={`review-card ${expandedReview === review.id ? "expanded" : ""}`}
-          onClick={() => handleExpand(review.id)}
+          key={order.task.task_id}
+          className={`review-card ${expandedOrder === order.task.task_id ? "expanded" : ""}`}
+          onClick={() => handleExpand(order.task.task_id)}
         >
-          <h3>{review.title}</h3>
-          <p>Rating: {review.rating}/5</p>
-          <p>{review.feedback}</p>
+          <h3>Task ID: {order.task.task_id}</h3>
+          <p>Status: {order.taskDetails[0].taskStatus}</p>
+          <p>Payment: {order.paymentDetails[0].amount} ({order.paymentDetails[0].status})</p>
+          <p>Vehicle Type: {order.taskDetails[0].vehicleType}</p>
         </div>
       ))}
 
-      {/* Popup for Expanded Review */}
-      {expandedReview && (
+      {/* Popup for Expanded Order */}
+      {expandedOrder && editOrder && (
         <div className="popup-overlay">
           <div className="popup-card">
-            <h3>Edit Review</h3>
+            <h3>Edit Task Details</h3>
             <label>
-              Title:
+              Pickup Location:
               <input
                 type="text"
-                value={editReview.title}
-                onChange={(e) => handleInputChange("title", e.target.value)}
+                value={editOrder.taskDetails[0].pickupLocation}
+                onChange={(e) => handleInputChange("pickupLocation", e.target.value)}
               />
             </label>
             <label>
-              Rating:
+              Drop Location:
               <input
-                type="number"
-                value={editReview.rating}
-                min="1"
-                max="5"
-                onChange={(e) => handleInputChange("rating", e.target.value)}
+                type="text"
+                value={editOrder.taskDetails[0].dropLocation}
+                onChange={(e) => handleInputChange("dropLocation", e.target.value)}
               />
             </label>
             <label>
-              Feedback:
-              <textarea
-                value={editReview.feedback}
-                onChange={(e) => handleInputChange("feedback", e.target.value)}
+              Task Status:
+              <input
+                type="text"
+                value={editOrder.taskDetails[0].taskStatus}
+                onChange={(e) => handleInputChange("taskStatus", e.target.value)}
               />
             </label>
             <div className="button-group">
