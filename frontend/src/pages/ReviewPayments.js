@@ -4,10 +4,10 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 
 const ReviewPayments = () => {
-  const { userID } = useSelector((state) => state.user); // Assuming userID is stored in the Redux state
+  const { userID } = useSelector((state) => state.user);
   const [payments, setPayments] = useState([]);
-  const [tasks, setTasks] = useState({}); // Store task_id for each payment
-  const [expandedPayment, setExpandedPayment] = useState(null); // Tracks the currently expanded payment
+  const [tasks, setTasks] = useState({}); // Store tasks as an object {payment_id: task_id}
+  const [expandedPayment, setExpandedPayment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,10 +19,13 @@ const ReviewPayments = () => {
         const response = await axios.post("http://localhost:5001/api/get-payment-details", { user_id: userID });
         setPayments(response.data);
 
-        // Fetch task IDs for each payment
-        response.data.forEach((payment) => {
-          fetchTaskByPaymentId(payment.payment_id);
-        });
+        // Fetch task IDs for each payment in a batch call
+        const paymentIds = response.data.map(payment => payment.payment_id);
+        if (paymentIds.length > 0) {
+          const taskResponse = await axios.post("http://localhost:5001/api/get-taskbypayment", { payment_ids: paymentIds });
+          setTasks(taskResponse.data.tasks); // Assuming the response contains { tasks: { payment_id: task_id } }
+          console.log(taskResponse);
+        }
 
         setLoading(false);
       } catch (err) {
@@ -36,27 +39,12 @@ const ReviewPayments = () => {
     }
   }, [userID]);
 
-  
-
-  // Fetch task_id by payment_id
-  const fetchTaskByPaymentId = async (payment_id) => {
-    try {
-      const response = await axios.post("http://localhost:5001/api/get-taskbypayment", { payment_id });
-      setTasks((prevTasks) => ({
-        ...prevTasks,
-        [payment_id]: response.data.taskID,
-      }));
-    } catch (err) {
-      console.error(`Error fetching task for payment ID ${payment_id}:`, err);
-    }
-  };
-
   const handleExpand = (payment) => {
-    setExpandedPayment(payment); // Show the overlay with selected payment details
+    setExpandedPayment(payment);
   };
 
   const handleCloseOverlay = () => {
-    setExpandedPayment(null); // Hide the overlay
+    setExpandedPayment(null);
   };
 
   if (loading) {
@@ -79,7 +67,7 @@ const ReviewPayments = () => {
           <p>Amount: ₹{payment.amount}</p>
           <p>Status: {payment.status}</p>
           <p>Payment Date: {new Date(payment.payment_date).toLocaleDateString()}</p>
-          <p>Task ID: {tasks[payment.payment_id] || "Fetching..."}</p> {/* Display the task ID */}
+          <p>Task ID: {tasks[payment.payment_id] || "Fetching..."}</p> {/* Access task ID using the payment_id */}
         </div>
       ))}
 
@@ -111,5 +99,3 @@ const ReviewPayments = () => {
 };
 
 export default ReviewPayments;
-
-
