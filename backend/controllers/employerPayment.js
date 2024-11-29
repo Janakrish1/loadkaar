@@ -48,7 +48,37 @@ module.exports = {
 
         } catch (error) {
             res.status(500).json({ error: 'An error occurred while saving the payment details' });
+        }   
+    },
+    employerGetPaymentDetails: async (req, res) => {
+        const { payment_id } = req.body;
+        if (!payment_id) {
+            return res.status(400).json({ error: 'Payment is required' });
         }
-        
-    }
+
+        try {
+            selectQuery = `
+                SELECT *
+                FROM Payment
+                WHERE payment_id = :payment_id
+            `;
+
+            const results = await sequelize.query(selectQuery, {
+                replacements: { payment_id },
+                type: sequelize.QueryTypes.SELECT,
+            });
+
+            if (!results || results.length === 0) {
+                return res.status(200).json({ 
+                    message: 'No tasks found for this employer.', 
+                    results: [] 
+                });
+            }
+
+            res.status(200).json({message: 'Fetched details successfully', results});
+
+        } catch (error) {
+            res.status(500).json({ error: 'An error occurred while fetching the details' });
+        }
+    },
 };

@@ -9,6 +9,7 @@ import BookDeliveryPartner from "./BookDeliveryPartner";
 import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
 import axios from "axios";
+import EmployerOrders from "./EmployerOrders";
 
 function Employer_HomePage() {
   const dispatch = useDispatch();
@@ -25,7 +26,25 @@ function Employer_HomePage() {
     const fetchDetails = async () => {
         try {
             const response = await axios.post("http://localhost:5001/api/employer-get-tasks", {userID});
-            console.log(response.data.results);
+            const tasks = response.data.results;
+
+            const enrichedOrders = await Promise.all(
+              tasks.map(async (task) => {
+                const [taskDetails, paymentDetails] = await Promise.all([
+                  axios.post("http://localhost:5001/api/employer-get-task-details", {task_id: task.task_id }),
+                  axios.post("http://localhost:5001/api/employer-get-payment-details", {payment_id: task.payment_id }),
+                ]);
+
+                return {
+                  task,
+                  taskDetails: taskDetails.data.results,
+                  paymentDetails: paymentDetails.data.results,
+                };
+              })
+            );
+
+            console.log(enrichedOrders);
+
         } catch (err) {
             console.error("Error fetching details:", err);
         }
@@ -70,7 +89,7 @@ function Employer_HomePage() {
   const renderView = () => {
     switch (currentView) {
       case "default": 
-        return currentOrders !== null ? <></> : <div><br/><h1>No Current Orders!</h1></div>;
+        return currentOrders !== null ? <EmployerOrders /> : <div><br/><h1>No Current Orders!</h1></div>;
       case "findDelivery":
         return <FindDeliveryPartnerUsingMap />;
       default:

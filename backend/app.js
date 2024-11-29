@@ -28,10 +28,10 @@ db.sequelize.authenticate()
 
 const dbRoute = require("./routes/connectDB");
 const { registerUser, getUser, getUserID, getUsername } = require("./controllers/user");
-const { saveTaskDetails } = require("./controllers/employerTaskDetails");
+const { saveTaskDetails, employerGetTaskDetails } = require("./controllers/employerTaskDetails");
 const { saveTasks, employerGetTasks } = require("./controllers/employerTasks");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus} = require("./controllers/vehicles");
-const { savePaymentSuccess } = require("./controllers/employerPayment");
+const { savePaymentSuccess, employerGetPaymentDetails } = require("./controllers/employerPayment");
  
 app.use("/api", dbRoute);
 
@@ -49,6 +49,7 @@ app.use('/api/employer-get-tasks', employerGetTasks);
 
 // Task Details
 app.use('/api/save-task-details', saveTaskDetails);
+app.use('/api/employer-get-task-details', employerGetTaskDetails);
 
 //Vehicles
 app.use('/api/addVehicle', addVehicle);
@@ -59,6 +60,7 @@ app.use('/api/vehicles/status', getVehicleStatus);
 
 // Payment
 app.use('/api/save-payment-details', savePaymentSuccess);
+app.use('/api/employer-get-payment-details', employerGetPaymentDetails);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
