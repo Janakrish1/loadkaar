@@ -71,7 +71,8 @@ const PaymentCheckout = () => {
                 .then(response => {
 
                     axios.post("http://localhost:5001/api/save-tasks", {
-                        paymentResponse: paymentResponse
+                        paymentResponse: paymentResponse,
+                        paymentData: paymentData
                     })
                     .then(response => {
                         const task_id = response.data.taskID;

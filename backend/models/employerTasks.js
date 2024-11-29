@@ -19,6 +19,22 @@ module.exports = (sequelize, DataTypes) => {
             onUpdate: 'CASCADE',
             onDelete: 'CASCADE',
         },
+        employer_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false, // Required field
+            references: {
+                model: 'User', // Name of the referenced table
+                key: 'user_id', // Referenced column
+            },
+        },
+        employee_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false, // Required field
+            references: {
+                model: 'User', // Name of the referenced table
+                key: 'user_id', // Referenced column
+            },
+        },
     },
     {
         freezeTableName: true, // Prevents Sequelize from pluralizing the table name
