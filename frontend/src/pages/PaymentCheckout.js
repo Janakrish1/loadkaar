@@ -9,13 +9,13 @@ import { clearDeliveryFormData, clearDeliveryPartnerView } from "../redux/delive
 const PaymentCheckout = () => {
     const location = useLocation();
     const { userID } = useSelector((state) => state.user);
+    const deliveryFormData = useSelector((state) => state.deliveryPartnerView.formData || {});
     const { selectedDriver } = location.state || {};
     const navigate = useNavigate();
 
     const [userDetails, setUserDetails] = useState({ FName: '', LName: '', Email: '' });
     const [paymentResponse, setPaymentResponse] = useState(null);
     const [transactionStatus, setTransactionStatus] = useState('');
-    const deliveryFormData = useSelector((state) => state.deliveryPartnerView.formData || {});
     const dispatch = useDispatch();
 
     const [paymentData, setPaymentData] = useState({
@@ -62,17 +62,43 @@ const PaymentCheckout = () => {
     };
 
     const handlePaymentSuccess = () => {
-        console.log("Payment Success:", paymentResponse);
-        console.log("Delivery Form Data:", deliveryFormData);
-        console.log("User Details:", userDetails);
-        console.log("Payment Data:", paymentData);
-        
+        try {
+            axios.post("http://localhost:5001/api/save-payment-details", {
+                paymentResponse: paymentResponse,
+                paymentData: paymentData,
+                status: transactionStatus
+            })
+                .then(response => {
+
+                    axios.post("http://localhost:5001/api/save-tasks", {
+                        paymentResponse: paymentResponse,
+                        paymentData: paymentData
+                    })
+                    .then(response => {
+                        const task_id = response.data.taskID;
+                        axios.post("http://localhost:5001/api/save-task-details", { 
+                            task_id: task_id,
+                            deliveryFormData: deliveryFormData
+                        })
+                        .then(response => {
+                            console.log(response.data.message);
+                        })
+                    })
+
+                })
+                .catch(error => {
+                    console.error('There was an error!', error);
+                });
+        } catch (error) {
+            alert(error);
+        }
 
         dispatch(clearDeliveryFormData());
         dispatch(clearDeliveryPartnerView());
         setTimeout(() => {
-        }, 2000); // 2000 milliseconds = 2 seconds
-        navigate('/employer-home');
+        }, 2000);
+        navigate('/employer-home', { replace: true });
+        // window.location.reload(); // This will refresh the page
     };
 
     const handlePayment = async () => {

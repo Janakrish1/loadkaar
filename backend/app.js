@@ -27,10 +27,14 @@ db.sequelize.authenticate()
 })();
 
 const dbRoute = require("./routes/connectDB");
+const { registerUser, getUser, getUserID, getUsername } = require("./controllers/user");
+const { saveTaskDetails, employerGetTaskDetails } = require("./controllers/employerTaskDetails");
+const { saveTasks, employerGetTasks } = require("./controllers/employerTasks");
 const { registerUser, getUser, getUserID, getUsername,getProfileDetails,updateProfileDetails } = require("./controllers/user");
 const { saveTaskDetails } = require("./controllers/employerTaskDetails");
 const { saveTasks } = require("./controllers/employerTasks");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus} = require("./controllers/vehicles");
+const { savePaymentSuccess, employerGetPaymentDetails } = require("./controllers/employerPayment");
  
 app.use("/api", dbRoute);
 
@@ -44,9 +48,11 @@ app.use('/api/get-username', getUsername);
 
 // Tasks
 app.use('/api/save-tasks', saveTasks);
+app.use('/api/employer-get-tasks', employerGetTasks);
 
 // Task Details
 app.use('/api/save-task-details', saveTaskDetails);
+app.use('/api/employer-get-task-details', employerGetTaskDetails);
 
 //Vehicles
 app.use('/api/addVehicle', addVehicle);
@@ -54,6 +60,13 @@ app.use('/api/vehicles/user', getUserVehicles);
 app.use('/api/vehicles/remove', removeVehicle);
 app.use('/api/vehicles/update-status', updateVehicleStatus);
 app.use('/api/vehicles/status', getVehicleStatus);
+
+// Payment
+app.use('/api/save-payment-details', savePaymentSuccess);
+app.use('/api/employer-get-payment-details', employerGetPaymentDetails);
+
+// reviews
+
 
 //Profile Settings
 app.use('/api/user', getProfileDetails);

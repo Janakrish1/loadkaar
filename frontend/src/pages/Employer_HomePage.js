@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/Employer_HomePage.css"; // Import the CSS file
 import logo from "../assets/logo.jpeg"; // Load your logo image here
 import profile_pic from "../assets/Icons/profile.jpg";
@@ -8,18 +8,58 @@ import { useNavigate } from "react-router-dom";
 import BookDeliveryPartner from "./BookDeliveryPartner";
 import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
+import TaskReview from "./TaskReview";
+import axios from "axios";
+import EmployerOrders from "./EmployerOrders";
 
 function Employer_HomePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentOrders, setCurrentOrders] = useState(null);
+  const [enrichedOrders, setEnrichedOrders] = useState([]); // New state to handle enriched orders
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
+  const { userID } = useSelector((state) => state.user);
+
+  // Fetch user details when userID changes
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        const response = await axios.post("http://localhost:5001/api/employer-get-tasks", { userID });
+        const tasks = response.data.results;
+
+        // Enrich tasks with additional details
+        const enrichedOrders = await Promise.all(
+          tasks.map(async (task) => {
+            const [taskDetails, paymentDetails] = await Promise.all([
+              axios.post("http://localhost:5001/api/employer-get-task-details", { task_id: task.task_id }),
+              axios.post("http://localhost:5001/api/employer-get-payment-details", { payment_id: task.payment_id }),
+            ]);
+
+            return {
+              task,
+              taskDetails: taskDetails.data.results,
+              paymentDetails: paymentDetails.data.results,
+            };
+          })
+        );
+
+        setEnrichedOrders(enrichedOrders);
+        setCurrentOrders(enrichedOrders.length > 0); // Boolean flag to check if there are orders
+      } catch (err) {
+        console.error("Error fetching details:", err);
+      }
+    };
+
+    if (userID) {
+      fetchDetails();
+    }
+  }, [userID]);
 
   // Handle Menu Click
   const handleMenuClick = (menuItem, view = "default") => {
     dispatch(setDeliveryPartnerView({ activeMenu: menuItem, currentView: view }));
-    if(view === "default") {
+    if (view === "default") {
       dispatch(clearDeliveryFormData());
     }
   };
@@ -45,10 +85,19 @@ function Employer_HomePage() {
   // Render View Based on State
   const renderView = () => {
     switch (currentView) {
-      case "default": 
-        return currentOrders !== null ? <></> : <div><br/><h1>No Current Orders!</h1></div>;
+      case "default":
+        return enrichedOrders.length > 0 ? (
+          <EmployerOrders enrichedOrders={enrichedOrders} />
+        ) : (
+          <div>
+            <br />
+            <h1>No Current Orders!</h1>
+          </div>
+        );
       case "findDelivery":
         return <FindDeliveryPartnerUsingMap />;
+      case "tasksReview": // Add case for tasks review
+        return <TaskReview />;
       default:
         return <div>Select a menu item to view details</div>;
     }
@@ -97,7 +146,7 @@ function Employer_HomePage() {
           </div>
           <div
             className={`menu-item ${activeMenu === "Tasks Review" ? "active" : ""}`}
-            onClick={() => handleMenuClick("Tasks Review")}
+            onClick={() => handleMenuClick("Tasks Review", "tasksReview")}
           >
             Tasks Review
           </div>
@@ -107,7 +156,9 @@ function Employer_HomePage() {
         <main className="main-content">
           {/* Action Buttons */}
           <div className="action-buttons">
-            <button onClick={handleDeliveryBooking} className="theme-button">Book Delivery Partner</button>
+            <button onClick={handleDeliveryBooking} className="theme-button">
+              Book Delivery Partner
+            </button>
             <button className="theme-button">Book Warehouse</button>
           </div>
 
