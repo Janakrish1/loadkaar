@@ -41,4 +41,42 @@ module.exports = {
             res.status(500).json({ error: 'An error occurred while saving the task' });
         }
     },
+
+    // added this fucntion  to retirve task id for payment.
+    getTaskByPaymentId: async (req, res) => {
+        const { payment_id } = req.body;
+
+        if (!payment_id) {
+            return res.status(400).json({ error: 'Payment ID is required' });
+        }
+
+        try {
+            // Query to fetch task_id using payment_id
+            const query = `
+                SELECT task_id 
+                FROM Tasks 
+                WHERE payment_id = :payment_id;
+            `;
+
+            // Execute the query
+            const [task] = await sequelize.query(query, {
+                replacements: { payment_id },
+                type: sequelize.QueryTypes.SELECT,
+            });
+
+            if (!task) {
+                return res.status(404).json({ error: 'Task not found for the provided payment ID' });
+            }
+
+            // Send the response with the task ID
+            res.status(200).json({
+                message: 'Task retrieved successfully.',
+                taskID: task.task_id,
+            });
+        } catch (error) {
+            console.error(error);  // Log the error for debugging
+            res.status(500).json({ error: 'An error occurred while fetching the task' });
+        }
+    }
+
 };

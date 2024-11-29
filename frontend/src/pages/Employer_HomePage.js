@@ -12,7 +12,9 @@ import TaskReview from "./TaskReview";
 import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
 
 
+
 function Employer_HomePage() {
+  const { userID } = useSelector((state) => state.user); // Assuming userID is in the Redux state
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentOrders, setCurrentOrders] = useState(null);
@@ -36,6 +38,9 @@ function Employer_HomePage() {
   const handleLogout = () => {
     dispatch(clearUser());
     dispatch(clearDeliveryPartnerView());
+    localStorage.removeItem(`payments_${userID}`);
+    localStorage.removeItem(`tasks_${userID}`);
+
     navigate("/");
   };
 

@@ -66,121 +66,77 @@
   }
   
   /* Popup Overlay Styling (Optional: For showing full details in a modal) */
-  .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Dark semi-transparent background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Ensure overlay appears above other content */
-    animation: fadeIn 0.4s ease;
+/* Overlay Styling */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Dark semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure overlay appears above other content */
+  animation: fadeIn 0.4s ease;
+}
+
+/* Popup Card */
+.popup-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 2rem;
+  width: 400px;
+  max-width: 90%; /* Responsive design */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: slideDown 0.4s ease;
+}
+
+.popup-card h3 {
+  margin-bottom: 1rem;
+  color: #004aad;
+}
+
+/* Button Group Styling */
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.cancel-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.cancel-button:hover {
+  background-color: #c82333;
+}
+
+/* Smooth Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  
-  /* Popup Content Styling */
-  .popup-card {
-    background-color: white;
-    border-radius: 8px;
-    padding: 2rem;
-    width: 400px;
-    max-width: 90%; /* Responsive behavior for smaller screens */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    animation: slideDown 0.4s ease;
+  to {
+    opacity: 1;
   }
-  
-  .popup-card h3 {
-    margin-bottom: 1rem;
-    color: #004aad;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
   }
-  
-  .popup-card label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #333;
+  to {
+    transform: translateY(0);
   }
-  
-  .popup-card input,
-  .popup-card textarea {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #d1e3fc;
-    border-radius: 5px;
-    font-size: 1rem;
-  }
-  
-  .popup-card textarea {
-    resize: vertical;
-  }
-  
-  /* Button Group Styling */
-  .button-group {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  .save-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .save-button:hover {
-    background-color: blue;
-  }
-  
-  .cancel-button {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .cancel-button:hover {
-    background-color: #c82333;
-  }
-  
-  /* Animations for Smooth Transitions */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  
-  @keyframes slideDown {
-    from {
-      transform: translateY(-20px);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-  
-  /* Mobile Responsive Adjustments */
-  @media (max-width: 768px) {
-    .review-card {
-      flex: 1 1 calc(100% - 2rem); /* Single column layout for smaller screens */
-    }
-    
-    .review-card .expanded-details {
-      max-height: 300px; /* Limit height on mobile */
-    }
-  }
+}
+
   
   
