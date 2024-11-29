@@ -50,6 +50,10 @@
     outline: none;
 }
 
+.readonly {
+    background-color: #d5d0d0;
+}
+
 /* Button Styling */
 .payment-checkout button {
     background-color: #004aad; /* Primary theme color */

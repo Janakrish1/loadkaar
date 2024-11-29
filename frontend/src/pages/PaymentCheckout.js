@@ -1,21 +1,50 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/PaymentCheckout.css';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
+import logo from '../assets/logo.jpeg';
+import { clearDeliveryFormData, clearDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 
 const PaymentCheckout = () => {
+    const location = useLocation();
+    const { userID } = useSelector((state) => state.user);
+    const deliveryFormData = useSelector((state) => state.deliveryPartnerView.formData || {});
+    const { selectedDriver } = location.state || {};
+    const navigate = useNavigate();
+
+    const [userDetails, setUserDetails] = useState({ FName: '', LName: '', Email: '' });
+    const [paymentResponse, setPaymentResponse] = useState(null);
+    const [transactionStatus, setTransactionStatus] = useState('');
+    const dispatch = useDispatch();
+
     const [paymentData, setPaymentData] = useState({
-        payment_id: '',
-        employer_id: '',
-        employee_id: '',
+        user_id: userID,
+        employee_name: selectedDriver?.name || '',
+        employee_id: selectedDriver?.id || '',
         amount: '',
-        payment_method: '',
-        status: 'pending',
         payment_date: new Date().toISOString().split('T')[0],
-        task_id: '',
-        invoice_number: '',
     });
 
-    const [paymentResponse, setPaymentResponse] = useState(null);
-    const [transactionStatus, setTransactionStatus] = useState(null);
+    // Fetch user details when userID changes
+    useEffect(() => {
+        const fetchDetails = async () => {
+            try {
+                const response = await axios.post("http://localhost:5001/api/get-username", { userID });
+                setUserDetails({
+                    FName: response.data.FName,
+                    LName: response.data.LName,
+                    Email: response.data.Email,
+                });
+            } catch (err) {
+                console.error("Error fetching user details:", err);
+            }
+        };
+
+        if (userID) {
+            fetchDetails();
+        }
+    }, [userID]);
 
     const loadRazorpayScript = () => {
         return new Promise((resolve) => {
@@ -32,11 +61,48 @@ const PaymentCheckout = () => {
         setPaymentData({ ...paymentData, [name]: value });
     };
 
+    const handlePaymentSuccess = () => {
+        try {
+            axios.post("http://localhost:5001/api/save-payment-details", {
+                paymentResponse: paymentResponse,
+                paymentData: paymentData,
+                status: transactionStatus
+            })
+                .then(response => {
+
+                    axios.post("http://localhost:5001/api/save-tasks", {
+                        paymentResponse: paymentResponse,
+                        paymentData: paymentData
+                    })
+                    .then(response => {
+                        const task_id = response.data.taskID;
+                        axios.post("http://localhost:5001/api/save-task-details", { 
+                            task_id: task_id,
+                            deliveryFormData: deliveryFormData
+                        })
+                        .then(response => {
+                            console.log(response.data.message);
+                        })
+                    })
+
+                })
+                .catch(error => {
+                    console.error('There was an error!', error);
+                });
+        } catch (error) {
+            alert(error);
+        }
+
+        dispatch(clearDeliveryFormData());
+        dispatch(clearDeliveryPartnerView());
+        setTimeout(() => {
+        }, 2000);
+        navigate('/employer-home', { replace: true });
+        // window.location.reload(); // This will refresh the page
+    };
+
     const handlePayment = async () => {
-        const { payment_id, employer_id, employee_id, amount, invoice_number } = paymentData;
-        
-        // Validation check
-        if (!payment_id || !employer_id || !employee_id || !amount || !invoice_number) {
+        if (!userDetails.FName || !userDetails.LName || !paymentData.employee_name || !paymentData.amount) {
             alert("Please fill in all required fields!");
             return;
         }
@@ -48,19 +114,19 @@ const PaymentCheckout = () => {
         }
 
         const options = {
-            key: "rzp_test_LpesfJag0kjwF6", // Replace with your Razorpay Key ID
-            amount: amount * 100, // Amount in paisa
+            key: "rzp_test_LpesfJag0kjwF6",
+            amount: paymentData.amount * 100, // Amount in paisa
             currency: "INR",
-            name: "Your Company Name",
-            description: `Invoice: ${invoice_number}`,
+            name: "LoadKaar",
+            description: `Invoice: ${deliveryFormData.itemDescription}`,
             handler: (response) => {
                 setPaymentResponse(response);
                 setTransactionStatus('success');
             },
             prefill: {
-                name: 'Customer Name', // You can dynamically fetch this data
-                email: 'customer@example.com', // You can dynamically fetch this data
-                contact: '9999999999', // You can dynamically fetch this data
+                name: paymentData.employee_name,
+                contact: deliveryFormData.contactPhoneNumber,
+                email: userDetails.Email,
             },
             theme: {
                 color: "#3399cc",
@@ -76,103 +142,79 @@ const PaymentCheckout = () => {
         });
     };
 
-    const renderPaymentDetails = () => {
-        return (
-            <div className="payment-details">
-                <h3>Form Details:</h3>
-                <p><strong>Payment ID:</strong> {paymentData.payment_id}</p>
-                <p><strong>Employer ID:</strong> {paymentData.employer_id}</p>
-                <p><strong>Employee ID:</strong> {paymentData.employee_id}</p>
-                <p><strong>Amount:</strong> ₹{paymentData.amount}</p>
-                <p><strong>Payment Method:</strong> {paymentData.payment_method}</p>
-                <p><strong>Status:</strong> {paymentData.status}</p>
-                <p><strong>Payment Date:</strong> {paymentData.payment_date}</p>
-                <p><strong>Task ID:</strong> {paymentData.task_id}</p>
-                <p><strong>Invoice Number:</strong> {paymentData.invoice_number}</p>
-            </div>
-        );
-    };
-
-    if (transactionStatus === 'success' || transactionStatus === 'failure') {
-        return (
-            <div className="payment-checkout">
-                <h2>{transactionStatus === 'success' ? 'Payment Successful!' : 'Payment Failed!'}</h2>
-                <div className="payment-response">
-                    {transactionStatus === 'success' ? (
-                        <>
-                            <p><strong>Payment ID:</strong> {paymentResponse.razorpay_payment_id}</p>
-                            <p><strong>Order ID:</strong> {paymentResponse.razorpay_order_id}</p>
-                            <p><strong>Signature:</strong> {paymentResponse.razorpay_signature}</p>
-                        </>
-                    ) : (
-                        <>
-                            <p><strong>Error Code:</strong> {paymentResponse.code}</p>
-                            <p><strong>Description:</strong> {paymentResponse.description}</p>
-                            <p><strong>Source:</strong> {paymentResponse.source}</p>
-                            <p><strong>Step:</strong> {paymentResponse.step}</p>
-                            <p><strong>Reason:</strong> {paymentResponse.reason}</p>
-                        </>
-                    )}
-                </div>
-                {renderPaymentDetails()}
-                <button onClick={() => setTransactionStatus(null)}>Back to Checkout</button>
-            </div>
-        );
-    }
+    useEffect(() => {
+        if (transactionStatus === 'success') {
+            handlePaymentSuccess();
+        }
+    }, [transactionStatus]);
 
     return (
         <div className="payment-checkout">
+            <header className="header">
+                <div className="logo-container">
+                    <img src={logo} alt="LoadKaar Logo" className="logo" />
+                </div>
+                <h1 className="website-name">LoadKaar</h1>
+            </header>
+
             <h2>Payment Checkout</h2>
             <form>
+                <button type="button" onClick={handlePayment}>
+                    Pay Now
+                </button>
                 <label>
-                    Payment ID (UUID):
-                    <input type="text" name="payment_id" value={paymentData.payment_id} onChange={handleChange} required />
+                    Your Name:
+                    <input type="text" value={`${userDetails.FName} ${userDetails.LName}`} className="readonly" readOnly />
                 </label>
                 <label>
-                    Employer ID (UUID):
-                    <input type="text" name="employer_id" value={paymentData.employer_id} onChange={handleChange} required />
+                    Driver Name:
+                    <input type="text" value={paymentData.employee_name} className="readonly" readOnly />
                 </label>
                 <label>
-                    Employee ID (UUID):
-                    <input type="text" name="employee_id" value={paymentData.employee_id} onChange={handleChange} required />
+                    Vehicle Type:
+                    <input type="text" value={deliveryFormData.vehicleType} className="readonly" readOnly />
+                </label>
+                <label>
+                    Item Description:
+                    <input type="text" value={deliveryFormData.itemDescription} className="readonly" readOnly />
+                </label>
+                <label>
+                    Pickup Location:
+                    <input type="text" value={deliveryFormData.pickupLocation} className="readonly" readOnly />
+                </label>
+                <label>
+                    Drop Location:
+                    <input type="text" value={deliveryFormData.dropLocation} className="readonly" readOnly />
+                </label>
+                <label>
+                    Contact Person:
+                    <input type="text" value={deliveryFormData.contactPerson} className="readonly" readOnly />
+                </label>
+                <label>
+                    Contact Address:
+                    <input type="text" value={deliveryFormData.contactAddress} className="readonly" readOnly />
+                </label>
+                <label>
+                    Contact Phone Number:
+                    <input type="text" value={deliveryFormData.contactPhoneNumber} className="readonly" readOnly />
                 </label>
                 <label>
                     Amount:
                     <input type="number" name="amount" value={paymentData.amount} onChange={handleChange} required />
                 </label>
-                <label>
-                    Payment Method:
-                    <select name="payment_method" value={paymentData.payment_method} onChange={handleChange} required>
-                        <option value="">Select</option>
-                        <option value="cash">Cash</option>
-                        <option value="credit_card">Credit Card</option>
-                        <option value="upi">UPI</option>
-                    </select>
-                </label>
-                <label>
-                    Status:
-                    <select name="status" value={paymentData.status} onChange={handleChange}>
-                        <option value="pending">Pending</option>
-                        <option value="completed">Completed</option>
-                        <option value="failed">Failed</option>
-                    </select>
-                </label>
-                <label>
-                    Payment Date:
-                    <input type="date" name="payment_date" value={paymentData.payment_date} onChange={handleChange} required />
-                </label>
-                <label>
-                    Task ID (UUID):
-                    <input type="text" name="task_id" value={paymentData.task_id} onChange={handleChange} required />
-                </label>
-                <label>
-                    Invoice Number:
-                    <input type="text" name="invoice_number" value={paymentData.invoice_number} onChange={handleChange} required />
-                </label>
-                <button type="button" onClick={handlePayment}>
-                    Pay Now
-                </button>
             </form>
+
+            {transactionStatus === 'failure' && (
+                <div className="payment-response">
+                    <h2>Payment Failed!</h2>
+                    <p><strong>Error Code:</strong> {paymentResponse?.code}</p>
+                    <p><strong>Description:</strong> {paymentResponse?.description}</p>
+                    <p><strong>Source:</strong> {paymentResponse?.source}</p>
+                    <p><strong>Step:</strong> {paymentResponse?.step}</p>
+                    <p><strong>Reason:</strong> {paymentResponse?.reason}</p>
+                    <button onClick={() => setTransactionStatus('')}>Back to Checkout</button>
+                </div>
+            )}
         </div>
     );
 };
