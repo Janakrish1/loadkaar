@@ -1,10 +1,10 @@
+/* global google */
+
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/BookDeliveryPartner.css";
 import { useDispatch } from "react-redux";
 import { setDeliveryFormData } from "../redux/deliveryPartnerViewSlice";
-import { LoadScript } from "@react-google-maps/api";
 
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y";
 
 function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
     const dispatch = useDispatch();
@@ -122,7 +122,6 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
         const value = e.target.value;
         const name = e.target.name;
         setOrigin(value);
-        // setFormData((prevData) => ({...prevData, [name]: value}));
 
         if (window.google && value) {
             const autocompleteService = new window.google.maps.places.AutocompleteService();
@@ -190,7 +189,6 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
     };
 
     return (
-        <LoadScript googleMapsApiKey={GOOGLE_API_KEY} libraries={["places"]}>
             <div className="popup-overlay">
                 <div className="popup-content">
                     <h2>Book Delivery Partner</h2>
@@ -317,7 +315,6 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
                     <button onClick={onClose} className="close-button">Close</button>
                 </div>
             </div>
-        </LoadScript>
     );
 }
 
