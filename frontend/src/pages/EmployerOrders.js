@@ -1,84 +1,110 @@
 import React, { useState } from "react";
-import "../styles/EmployerOrders.css"; // CSS for TaskReview component
+import "../styles/EmployerOrders.css"; // CSS for styling
+import CurrentTaskRender from "./CurrentTaskRender";
 
 const EmployerOrders = ({ enrichedOrders }) => {
-  const [expandedOrder, setExpandedOrder] = useState(null);
-  const [editOrder, setEditOrder] = useState(null); // Temporarily holds order data while editing
+  const [expandedOrder, setExpandedOrder] = useState(null); // Tracks the currently expanded order
+  const [currentMapTask, setCurrentMapTask] = useState(null); // Tracks the task for which the map is displayed
 
   const handleExpand = (id) => {
-    const currentOrder = enrichedOrders.find((order) => order.task.task_id === id);
     setExpandedOrder(id);
-    setEditOrder({ ...currentOrder });
   };
 
-  const handleInputChange = (field, value) => {
-    setEditOrder((prev) => ({
-      ...prev,
-      taskDetails: [{ ...prev.taskDetails[0], [field]: value }],
-    }));
-  };
-
-  const handleSave = () => {
-    // Logic to save the edited order details (update state or API call)
+  const handleBack = () => {
     setExpandedOrder(null);
-    setEditOrder(null);
   };
 
-  const handleCancel = () => {
+  const handleViewMap = (id) => {
     setExpandedOrder(null);
-    setEditOrder(null);
+    setCurrentMapTask(id);
   };
 
   return (
     <div className="task-review-container">
-      {enrichedOrders.map((order) => (
-        <div
-          key={order.task.task_id}
-          className={`review-card ${expandedOrder === order.task.task_id ? "expanded" : ""}`}
-          onClick={() => handleExpand(order.task.task_id)}
-        >
-          <h3>Task ID: {order.task.task_id}</h3>
-          <p>Status: {order.taskDetails[0].taskStatus}</p>
-          <p>Payment: {order.paymentDetails[0].amount} ({order.paymentDetails[0].status})</p>
-          <p>Vehicle Type: {order.taskDetails[0].vehicleType}</p>
+      {/* Map Display Section */}
+      {currentMapTask && (
+        <div className="map-container">
+          <h3>Status Map for Task ID: {currentMapTask}</h3>
+          <div className="map-render">
+            {<CurrentTaskRender  />}
+            <p>Map rendering for task {currentMapTask} will appear here.</p>
+          </div>
         </div>
-      ))}
+      )}
 
-      {/* Popup for Expanded Order */}
-      {expandedOrder && editOrder && (
+      {/* Task Cards */}
+      <div className="task-cards-container">
+        {enrichedOrders.map((order) => (
+          <div
+            key={order.task.task_id}
+            className={`review-card ${expandedOrder === order.task.task_id ? "expanded" : ""}`}
+            onClick={() => handleExpand(order.task.task_id)}
+          >
+            <h3>Task ID: {order.task.task_id}</h3>
+            <p>
+              <strong>Status:</strong>{" "}
+              <span className="status-highlight">{order.taskDetails[0].taskStatus}</span>
+            </p>
+            <p>
+              <strong>Payment:</strong> {order.paymentDetails[0].amount} ({order.paymentDetails[0].status})
+            </p>
+            <p>
+              <strong>Vehicle Type:</strong> {order.taskDetails[0].vehicleType}
+            </p>
+            <p>
+              <strong>Source:</strong> {order.taskDetails[0].pickupLocation}
+            </p>
+            <p>
+              <strong>Destination:</strong> {order.taskDetails[0].dropLocation}
+            </p>
+            <p>
+              <strong>Item Description:</strong> {order.taskDetails[0].itemDescription}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Expanded Order View */}
+      {expandedOrder && (
         <div className="popup-overlay">
           <div className="popup-card">
-            <h3>Edit Task Details</h3>
-            <label>
-              Pickup Location:
-              <input
-                type="text"
-                value={editOrder.taskDetails[0].pickupLocation}
-                onChange={(e) => handleInputChange("pickupLocation", e.target.value)}
-              />
-            </label>
-            <label>
-              Drop Location:
-              <input
-                type="text"
-                value={editOrder.taskDetails[0].dropLocation}
-                onChange={(e) => handleInputChange("dropLocation", e.target.value)}
-              />
-            </label>
-            <label>
-              Task Status:
-              <input
-                type="text"
-                value={editOrder.taskDetails[0].taskStatus}
-                onChange={(e) => handleInputChange("taskStatus", e.target.value)}
-              />
-            </label>
+            <h3>Task Details</h3>
+            {enrichedOrders
+              .filter((order) => order.task.task_id === expandedOrder)
+              .map((order) => (
+                <div key={order.task.task_id}>
+                  <p>
+                    <strong>Task ID:</strong> {order.task.task_id}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {order.taskDetails[0].taskStatus}
+                  </p>
+                  <p>
+                    <strong>Payment:</strong> {order.paymentDetails[0].amount} ({order.paymentDetails[0].status})
+                  </p>
+                  <p>
+                    <strong>Vehicle Type:</strong> {order.taskDetails[0].vehicleType}
+                  </p>
+                  <p>
+                    <strong>Source:</strong> {order.taskDetails[0].pickupLocation}
+                  </p>
+                  <p>
+                    <strong>Destination:</strong> {order.taskDetails[0].dropLocation}
+                  </p>
+                  <p>
+                    <strong>Item Description:</strong> {order.taskDetails[0].itemDescription}
+                  </p>
+                </div>
+              ))}
             <div className="button-group">
-              <button onClick={handleSave} className="save-button">
-                Save
+              <button
+                onClick={() => handleViewMap(expandedOrder)}
+                className="view-map-button"
+              >
+                View Map
               </button>
-              <button onClick={handleCancel} className="cancel-button">
-                Cancel
+              <button onClick={handleBack} className="back-button">
+                Back
               </button>
             </div>
           </div>
