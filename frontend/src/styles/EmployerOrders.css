@@ -1,159 +1,74 @@
-/* General Container Styling */
-.task-review-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 1.5rem;
-    padding: 1rem;
-  }
-  
-  /* Individual Review Card Styling */
-  .review-card {
+.review-card {
     border: 1px solid #ccc;
     border-radius: 8px;
-    padding: 1rem;
-    background-color: #f9f9f9;
+    padding: 16px;
+    margin: 10px 0;
     cursor: pointer;
-    transition: transform 0.4s ease, opacity 0.4s ease;
-    overflow: hidden;
-    flex: 1 1 calc(30% - 1rem); /* Responsive layout for 3 cards per row */
-    min-width: 250px;
-    max-width: 350px;
+    transition: transform 0.2s;
   }
   
-  .review-card h3 {
-    color: #004aad;
-    margin: 0 0 0.5rem;
-  }
-  
-  .review-card p {
-    margin: 0.5rem 0;
-    color: #555;
-  }
-  
-  .review-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  /* Expanded Card Styling */
   .review-card.expanded {
-    background-color: #e6f7ff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 2; /* Bring expanded card to the front */
+    transform: scale(1.05);
+    background-color: #f9f9f9;
   }
   
-  /* Popup Overlay Styling */
+  .status-highlight {
+    color: #fff;
+    background-color: #4caf50;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  
   .popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Dark semi-transparent background */
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Ensure overlay appears above other content */
-    animation: fadeIn 0.4s ease;
   }
   
-  /* Popup Content Styling */
   .popup-card {
-    background-color: white;
+    background: #fff;
     border-radius: 8px;
-    padding: 2rem;
+    padding: 20px;
     width: 400px;
-    max-width: 90%; /* Responsive behavior for smaller screens */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    animation: slideDown 0.4s ease;
+    max-width: 90%;
   }
   
-  .popup-card h3 {
-    margin-bottom: 1rem;
-    color: #004aad;
-  }
-  
-  .popup-card label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .popup-card input,
-  .popup-card textarea {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #d1e3fc;
-    border-radius: 5px;
-    font-size: 1rem;
-  }
-  
-  .popup-card textarea {
-    resize: vertical;
-  }
-  
-  /* Button Group Styling */
   .button-group {
     display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1rem;
+    justify-content: space-between;
+    margin-top: 20px;
   }
   
-  .save-button {
-    background-color: #28a745;
+  .view-map-button{
+    background-color: #007bff;
     color: white;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
+    border-radius: 4px;
+    padding: 8px 16px;
     cursor: pointer;
-    transition: background-color 0.3s;
   }
   
-  .save-button:hover {
-    background-color: blue;
-  }
-  
-  .cancel-button {
-    background-color: #dc3545;
+  .back-button {
+    background-color: red;
     color: white;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
+    border-radius: 4px;
+    padding: 8px 16px;
     cursor: pointer;
-    transition: background-color 0.3s;
   }
   
-  .cancel-button:hover {
-    background-color: #c82333;
+  .view-map-button:hover {
+    background-color: #0056b3;
   }
   
-  /* Animations for Smooth Transitions */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+
+  .back-button:hover {
+    background-color: rgb(121, 43, 43);
   }
   
-  @keyframes slideDown {
-    from {
-      transform: translateY(-20px);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-  
-  /* Mobile Responsive Adjustments */
-  @media (max-width: 768px) {
-    .review-card {
-      flex: 1 1 calc(100% - 2rem); /* Single column layout for smaller screens */
-    }
-  }
