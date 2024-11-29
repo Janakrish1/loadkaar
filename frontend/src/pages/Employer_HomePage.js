@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import BookDeliveryPartner from "./BookDeliveryPartner";
 import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
+import TaskReview from "./TaskReview";
 
 function Employer_HomePage() {
   const dispatch = useDispatch();
@@ -24,7 +25,7 @@ function Employer_HomePage() {
   // Handle Menu Click
   const handleMenuClick = (menuItem, view = "default") => {
     dispatch(setDeliveryPartnerView({ activeMenu: menuItem, currentView: view }));
-    if(view === "default") {
+    if (view === "default") {
       dispatch(clearDeliveryFormData());
     }
   };
@@ -50,10 +51,12 @@ function Employer_HomePage() {
   // Render View Based on State
   const renderView = () => {
     switch (currentView) {
-      case "default": 
-        return currentOrders !== null ? <></> : <div><br/><h1>No Current Orders!</h1></div>;
+      case "default":
+        return currentOrders !== null ? <></> : <div><br /><h1>No Current Orders!</h1></div>;
       case "findDelivery":
         return <FindDeliveryPartnerUsingMap />;
+      case "tasksReview": // Add case for tasks review
+        return <TaskReview />;
       default:
         return <div>Select a menu item to view details</div>;
     }
@@ -102,7 +105,7 @@ function Employer_HomePage() {
           </div>
           <div
             className={`menu-item ${activeMenu === "Tasks Review" ? "active" : ""}`}
-            onClick={() => handleMenuClick("Tasks Review")}
+            onClick={() => handleMenuClick("Tasks Review", "tasksReview")}
           >
             Tasks Review
           </div>
