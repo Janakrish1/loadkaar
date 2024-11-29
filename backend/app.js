@@ -27,9 +27,9 @@ db.sequelize.authenticate()
 })();
 
 const dbRoute = require("./routes/connectDB");
-const { registerUser, getUser, getUserID, getUsername } = require("./controllers/user");
 const { saveTaskDetails, employerGetTaskDetails } = require("./controllers/employerTaskDetails");
 const { saveTasks, employerGetTasks } = require("./controllers/employerTasks");
+const { registerUser, getUser, getUserID, getUsername,getProfileDetails,updateProfileDetails } = require("./controllers/user");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus} = require("./controllers/vehicles");
 const { savePaymentSuccess, employerGetPaymentDetails } = require("./controllers/employerPayment");
  
@@ -64,6 +64,10 @@ app.use('/api/employer-get-payment-details', employerGetPaymentDetails);
 
 // reviews
 
+
+//Profile Settings
+app.use('/api/user', getProfileDetails);
+app.use('/api/updateProfile', updateProfileDetails);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

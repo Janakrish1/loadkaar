@@ -1,258 +1,186 @@
-import React, { useState } from "react";
-import "../styles/Profile_Settings.css"; // Import the CSS for styling
-import logo from "../assets/logo.jpeg"; // Logo image for the header
-import profileIcon from "../assets/Icons/profile.jpg"; // Placeholder for profile picture
-import "../styles/Popup.css";
-import Popup from './Popup';
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import "../styles/Profile_Settings.css"; // Add styles if needed
 
-function ProfileSettings() {
-  // State for profile fields
-  const [showPopup, setShowPopup] = useState(false);
-  const [profile, setProfile] = useState({
-    uniqueID: "1234567890", // Dummy unique ID from backend
-    name: "John Doe",
-    email: "johndoe@example.com",
-    phone: "123-456-7890",
-    password: "oldpassword", // Assuming this is the current password for validation
-    address: "123 Main Street, Springfield, USA", // Dummy address
-    profilePicture: profileIcon, // Default profile picture
+const ProfileSettings = () => {
+  const { userID } = useSelector((state) => state.user);
+  const [profileData, setProfileData] = useState({
+    firstName: "",
+    lastName: "",
+    houseNo: "",
+    locality: "",
+    city: "",
+    state: "",
+    pincode: "",
+    phoneNumber: "",
+    email: "",
+    password: "",
   });
 
-  const [isEditing, setIsEditing] = useState({
-    name: false,
-    email: false,
-    phone: false,
-    address: false,
-    password: false,
-  });
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [changesMade, setChangesMade] = useState([]);
-
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfile({ ...profile, [name]: value });
-    if (!changesMade.includes(name)) {
-      setChangesMade([...changesMade, name]);
+  // Fetch user profile data from backend
+  const fetchProfileData = async () => {
+    const profileDetails = {user_id: userID};
+    console.log("The profile user's id is:", profileDetails);
+    try {
+      const response = await axios.post("http://localhost:5001/api/user", profileDetails);
+      console.log(response.data);
+      setProfileData(response.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+      alert("Failed to fetch profile data.");
     }
   };
 
-  const handlePasswordChange = (e) => {
+  useEffect(() => {
+    fetchProfileData();
+  }, [userID]);
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "newPassword") setNewPassword(value);
-    if (name === "confirmNewPassword") setConfirmNewPassword(value);
-    if (name === "currentPassword") setCurrentPassword(value);
+    setProfileData({ ...profileData, [name]: value });
   };
 
-  // Handle form submission (mock save action)
-  const handleSave = (e) => {
-    e.preventDefault();
-    const changesText = changesMade.map((field) => `${field}: ${profile[field]}`).join(", ");
-    setShowPopup(true);
-
-
-    // const confirmSave = window.confirm(
-    //   `The following fields have changed: ${changesText}. Do you want to save these changes?`
-    // );
-    // if (confirmSave) {
-    //   alert("Profile updated successfully!");
-    //   setChangesMade([]); // Reset changes after saving
-    // } else {
-    //   alert("Changes were not saved.");
-    // }
+  // Handle form submission to update profile
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const data = {...profileData, user_id: userID};
+      console.log("The data before updating is:", data);
+      await axios.put("http://localhost:5001/api/updateProfile", data);
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile.");
+    }
   };
 
-  const handleClose = () => {
-    showPopup(false);
+  if (isLoading) {
+    return <p>Loading...</p>;
   }
 
-  // Handle password change
-  const handlePasswordChangeSubmit = () => {
-    if (currentPassword === profile.password) {
-      if (newPassword === confirmNewPassword) {
-        setProfile({ ...profile, password: newPassword });
-        alert("Password updated successfully!");
-      } else {
-        alert("Passwords do not match!");
-      }
-    } else {
-      alert("Incorrect current password.");
-    }
-  };
-
-  // Handle account deletion
-  const handleDeleteAccount = () => {
-    if (window.confirm("Are you sure you want to delete your account?")) {
-      alert("Account deleted!");
-    }
-  };
-
   return (
-    <div className="profile-settings-page">
-      {/* Header */}
-      <header className="header">
-        <div className="logo-container">
-          <img src={logo} alt="LoadKaar Logo" className="logo" />
+    <div className="profile-settings-container">
+      <h1>Profile Settings</h1>
+      <form onSubmit={handleFormSubmit}>
+        <div className="form-group">
+          <label>First Name:</label>
+          <input
+            type="text"
+            name="firstName"
+            value={profileData.firstName}
+            onChange={handleInputChange}
+            required
+          />
         </div>
-        <h1 className="website-name">LoadKaar</h1>
-        <div className="profile-container">
-          <div className="status active">ACTIVE</div>
-          <div className="profile">
-            <img src={profileIcon} alt="profile_pic" className="profile-icon" />
-            <span>Profile</span>
-          </div>
+
+        <div className="form-group">
+          <label>Last Name:</label>
+          <input
+            type="text"
+            name="lastName"
+            value={profileData.lastName}
+            onChange={handleInputChange}
+            required
+          />
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="profile-settings-container">
-        <h1 className="page-title">Profile Settings</h1>
-        <form className="profile-form" onSubmit={handleSave}>
-          {/* Profile Picture */}
-          <div className="profile-picture-section">
-            <img
-              src={profile.profilePicture}
-              alt="Profile"
-              className="profile-picture"
-            />
-            <label className="upload-label">
-              Change Profile Picture
-              <input
-                type="file"
-                accept="image/*"
-                className="upload-input"
-                onChange={handleChange}
-              />
-            </label>
-          </div>
+        <div className="form-group">
+          <label>House No.:</label>
+          <input
+            type="text"
+            name="houseNo"
+            value={profileData.houseNo}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
 
-          {/* Unique ID (Read-only) */}
-          <div className="form-group">
-            <label htmlFor="uniqueID">Unique ID</label>
-            <input
-              type="text"
-              id="uniqueID"
-              name="uniqueID"
-              value={profile.uniqueID}
-              readOnly
-              className="read-only-input"
-            />
-          </div>
+        <div className="form-group">
+          <label>Locality:</label>
+          <input
+            type="text"
+            name="locality"
+            value={profileData.locality}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
 
-          {/* Name */}
-          <div className="form-group">
-            <label htmlFor="name">Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={profile.name}
-              onChange={handleChange}
-            />
-          </div>
+        <div className="form-group">
+          <label>City:</label>
+          <input
+            type="text"
+            name="city"
+            value={profileData.city}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
 
-          {/* Email */}
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={profile.email}
-              onChange={handleChange}
-            />
-          </div>
+        <div className="form-group">
+          <label>State:</label>
+          <input
+            type="text"
+            name="state"
+            value={profileData.state}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
 
-          {/* Phone */}
-          <div className="form-group">
-            <label htmlFor="phone">Phone</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={profile.phone}
-              onChange={handleChange}
-            />
-          </div>
+        <div className="form-group">
+          <label>Pincode:</label>
+          <input
+            type="number"
+            name="pincode"
+            value={profileData.pincode}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
 
-          {/* Address */}
-          <div className="form-group">
-            <label htmlFor="address">Address</label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={profile.address}
-              onChange={handleChange}
-            />
-          </div>
+        <div className="form-group">
+          <label>Phone Number:</label>
+          <input
+            type="tel"
+            name="phoneNumber"
+            value={profileData.phoneNumber}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
 
-          {/* Password */}
-          {isEditing.password ? (
-            <div className="password-change-section">
-              <div className="form-group">
-                <label htmlFor="currentPassword">Current Password</label>
-                <input
-                  type="password"
-                  id="currentPassword"
-                  name="currentPassword"
-                  value={currentPassword}
-                  onChange={handlePasswordChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="newPassword">New Password</label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  name="newPassword"
-                  value={newPassword}
-                  onChange={handlePasswordChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="confirmNewPassword">Confirm New Password</label>
-                <input
-                  type="password"
-                  id="confirmNewPassword"
-                  name="confirmNewPassword"
-                  value={confirmNewPassword}
-                  onChange={handlePasswordChange}
-                />
-              </div>
-              <button type="button" onClick={handlePasswordChangeSubmit}>
-                Change Password
-              </button>
-            </div>
-          ) : (
-            <button type="button" onClick={() => setIsEditing({ ...isEditing, password: true })}>
-              Change Password
-            </button>
-          )}
+        <div className="form-group">
+          <label>Email:</label>
+          <input
+            type="email"
+            name="email"
+            value={profileData.email}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
 
-          {/* Save Button */}
-          <button onClick={handleSave} type="submit" className="save-button">
-            Save Changes
-          </button>
+        <div className="form-group">
+          <label>Password:</label>
+          <input
+            type="password"
+            name="password"
+            value={profileData.password}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
 
-          {/* Delete Account Button */}
-          <button type="button" className="delete-button" onClick={handleDeleteAccount}>
-            Delete Account
-          </button>
-        </form>
-        {showPopup && <Popup />}
-      </main>
-
-      {/* Footer */}
-      <footer>
-        <p>&copy; 2024 LoadKaar. All rights reserved.</p>
-      </footer>
+        <button type="submit" className="save-button">Save Changes</button>
+      </form>
     </div>
   );
-}
+};
 
 export default ProfileSettings;
