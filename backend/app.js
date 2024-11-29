@@ -32,6 +32,7 @@ const { saveTaskDetails } = require("./controllers/employerTaskDetails");
 const { saveTasks,getTasksByPaymentIds } = require("./controllers/employerTasks");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus} = require("./controllers/vehicles");
 const { savePaymentSuccess,getPaymentDetails } = require("./controllers/employerPayment");
+const { getReviewsByReviewerId,getReviewsByRevieweeId } = require("./controllers/taskReviews");
  
 app.use("/api", dbRoute);
 
@@ -60,7 +61,10 @@ app.use('/api/vehicles/status', getVehicleStatus);
 // Payment
 app.use('/api/save-payment-details', savePaymentSuccess);
 app.use('/api/get-payment-details',getPaymentDetails);
+
 // reviews
+app.use('/api/get-reviewbyreviewer',getReviewsByReviewerId);
+app.use('/api/get-reviewbyreviewee',getReviewsByRevieweeId);
 
 
 const PORT = process.env.PORT || 5001;

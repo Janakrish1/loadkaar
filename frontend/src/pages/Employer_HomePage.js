@@ -63,7 +63,9 @@ function Employer_HomePage() {
       case "findDelivery":
         return <FindDeliveryPartnerUsingMap />;
       case "tasksReview": // Add case for tasks review
-        return <TaskReview />;
+      return <TaskReview type="Tasks Review" />;
+        case "recReview": // Add case for tasks review
+        return <TaskReview type="Received Review" />;
         case "payments": // Added case for payments
       return <ReviewPayments />; 
       default:
@@ -117,6 +119,12 @@ function Employer_HomePage() {
             onClick={() => handleMenuClick("Tasks Review", "tasksReview")}
           >
             Tasks Review
+          </div>
+          <div
+            className={`menu-item ${activeMenu === "Received Review" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Received Review", "recReview")}
+          >
+            Received Review
           </div>
         </aside>
 
