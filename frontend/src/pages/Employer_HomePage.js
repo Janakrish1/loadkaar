@@ -9,6 +9,8 @@ import BookDeliveryPartner from "./BookDeliveryPartner";
 import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
 import TaskReview from "./TaskReview";
+import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
+
 
 function Employer_HomePage() {
   const dispatch = useDispatch();
@@ -57,6 +59,8 @@ function Employer_HomePage() {
         return <FindDeliveryPartnerUsingMap />;
       case "tasksReview": // Add case for tasks review
         return <TaskReview />;
+        case "payments": // Added case for payments
+      return <ReviewPayments />; 
       default:
         return <div>Select a menu item to view details</div>;
     }
@@ -99,7 +103,7 @@ function Employer_HomePage() {
           </div>
           <div
             className={`menu-item ${activeMenu === "Payments" ? "active" : ""}`}
-            onClick={() => handleMenuClick("Payments")}
+            onClick={() => handleMenuClick("Payments","payments")}
           >
             Payments
           </div>

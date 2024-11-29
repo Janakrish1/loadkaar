@@ -31,7 +31,7 @@ const { registerUser, getUser, getUserID, getUsername } = require("./controllers
 const { saveTaskDetails } = require("./controllers/employerTaskDetails");
 const { saveTasks } = require("./controllers/employerTasks");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus} = require("./controllers/vehicles");
-const { savePaymentSuccess } = require("./controllers/employerPayment");
+const { savePaymentSuccess,getPaymentDetails } = require("./controllers/employerPayment");
  
 app.use("/api", dbRoute);
 
@@ -58,7 +58,7 @@ app.use('/api/vehicles/status', getVehicleStatus);
 
 // Payment
 app.use('/api/save-payment-details', savePaymentSuccess);
-
+app.use('/api/get-payment-details',getPaymentDetails);
 // reviews
 
 
