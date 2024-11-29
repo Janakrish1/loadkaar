@@ -55,6 +55,21 @@ module.exports = (sequelize, DataTypes) => {
                     len: [10, 15], // Allow phone numbers between 10 and 15 characters
                 },
             },
+            vehicleType: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    isIn: [['2wheeler', '3wheeler', '4wheeler', 'truck']], // Allow only valid vehicle types
+                },
+            },
+            taskStatus: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                defaultValue: 'inprogress',
+                validate: {
+                    isIn: [['inprogress', 'completed']],
+                },
+            },
         },
         {
             freezeTableName: true, // Prevents Sequelize from pluralizing the table name
