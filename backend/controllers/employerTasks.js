@@ -2,23 +2,24 @@ const { sequelize } = require("../models");
 
 module.exports = {
     saveTasks: async (req, res) => {
-        const { userID, vehicleType } = req.body;
+        const { paymentResponse, paymentData: paymentData } = req.body;
+        const { razorpay_payment_id: payment_id } = paymentResponse;
+        const { user_id: employer_id, employee_id } = paymentData;
 
-        console.log(userID, vehicleType);
-        if (!userID) {
-            return res.status(400).json({ error: 'User is required' });
+        if (!payment_id) {
+            return res.status(400).json({ error: 'Payment transaction is cancelled abruptly' });
         }
 
         try {
             // Insert the task into the database
             const insertQuery = `
-                INSERT INTO Tasks (user_id, vehicleType, createdAt, updatedAt)
-                VALUES (:userID, :vehicleType, NOW(), NOW());
+                INSERT INTO Tasks (payment_id, employer_id, employee_id, createdAt, updatedAt)
+                VALUES (:payment_id, :employer_id, :employee_id, NOW(), NOW());
             `;
             
             // Execute the insert query
             await sequelize.query(insertQuery, {
-                replacements: { userID, vehicleType },
+                replacements: { payment_id, employer_id, employee_id },
                 type: sequelize.QueryTypes.INSERT,
             });
 

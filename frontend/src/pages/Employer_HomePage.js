@@ -16,6 +16,11 @@ function Employer_HomePage() {
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
 
+  
+
+  // orders -> user_id 
+  // payment - (payment_id) (user_id(employer_id)) (employee_id)
+
   // Handle Menu Click
   const handleMenuClick = (menuItem, view = "default") => {
     dispatch(setDeliveryPartnerView({ activeMenu: menuItem, currentView: view }));

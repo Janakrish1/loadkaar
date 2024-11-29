@@ -31,6 +31,7 @@ const { registerUser, getUser, getUserID, getUsername } = require("./controllers
 const { saveTaskDetails } = require("./controllers/employerTaskDetails");
 const { saveTasks } = require("./controllers/employerTasks");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus} = require("./controllers/vehicles");
+const { savePaymentSuccess } = require("./controllers/employerPayment");
  
 app.use("/api", dbRoute);
 
@@ -54,6 +55,9 @@ app.use('/api/vehicles/user', getUserVehicles);
 app.use('/api/vehicles/remove', removeVehicle);
 app.use('/api/vehicles/update-status', updateVehicleStatus);
 app.use('/api/vehicles/status', getVehicleStatus);
+
+// Payment
+app.use('/api/save-payment-details', savePaymentSuccess);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -8,8 +8,13 @@ const API_KEY = "AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y"; // Replace with your 
 
 const CurrentTaskRender = () => {
   const employeeLocation = useMemo(() => ({ lat: 40.73061, lng: -79.00000 }), []); // Example employee location
+
+  // First task employee comes to the destination (source from form)
   const [userLocation, setUserLocation] = useState(null); // User's initial location
+
+  // User location
   const [employeePosition, setEmployeePosition] = useState(employeeLocation); // Current position of employee
+
   const [employeePath, setEmployeePath] = useState([]); // Employee's route path
   const [initialDistance, setInitialDistance] = useState(null); // Initial distance between user and employee
   const [initialDuration, setInitialDuration] = useState(null); // Initial duration between user and employee
