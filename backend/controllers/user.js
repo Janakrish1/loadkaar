@@ -184,4 +184,89 @@ module.exports = {
             
         }
     },
+
+    getProfileDetails: async (req, res) => {
+        const { user_id } = req.body;
+        if(!user_id) {
+            res.status(400).json({error: "User not found"});
+        }
+
+        try {
+            findQuery = `
+                SELECT *
+                FROM User 
+                WHERE user_id = :user_id
+            `;
+
+            const [results] = await sequelize.query(findQuery, {
+                replacements: {user_id},
+                type: sequelize.QueryTypes.SELECT,
+            });
+
+            if(results.length === 0) {
+                return res.status(404).json({error: "User not found"});
+            }
+
+            res.status(200).json(results);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    },
+
+    updateProfileDetails: async (req, res) => {
+        console.log("After reaching:", req.body);
+        const { 
+            user_id,
+            firstName,
+            lastName,
+            houseNo,
+            locality,
+            city,
+            state,
+            pincode,
+            phoneNumber,
+            email,
+            password} = req.body;
+        try {
+
+            const updateQuery = `UPDATE User SET firstName = :firstName, lastName = :lastName, houseNo = :houseNo,
+            locality = :locality, city = :city, state = :state, pincode = :pincode, phoneNumber = :phoneNumber,
+            email = :email, password = :password WHERE user_id = :user_id`;
+
+            // Update the vehicle status in the database
+            const result = await sequelize.query(
+                updateQuery,
+                {
+                    replacements: {
+                        user_id,
+                        firstName,
+                        lastName,
+                        houseNo,
+                        locality,
+                        city,
+                        state,
+                        pincode,
+                        phoneNumber,
+                        email,
+                        password
+                    },
+                    type: sequelize.QueryTypes.UPDATE
+                }
+            );
+
+            if (result.length === 0) {
+                return res.status(404).json({ error: 'Vehicle not found' });
+            }
+
+            res.status(200).json({
+                message: 'Vehicle status updated successfully',
+            });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    },
+
+
 };
