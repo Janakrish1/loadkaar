@@ -103,6 +103,7 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
     };
 
     const handleInputChange = (event) => {
+        console.log(formData);
         const { name, value } = event.target;
         setFormData((prevData) => ({ ...prevData, [name]: value }));
         const error = validateInput(name, value);
@@ -121,7 +122,7 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
         const value = e.target.value;
         const name = e.target.name;
         setOrigin(value);
-        setFormData((prevData) => ({...prevData, [name]: value}));
+        // setFormData((prevData) => ({...prevData, [name]: value}));
 
         if (window.google && value) {
             const autocompleteService = new window.google.maps.places.AutocompleteService();
@@ -142,7 +143,7 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
         const value = e.target.value;
         setDestination(value);
         const name = e.target.name;
-        setFormData((prevData) => ({...prevData, [name]: value}));
+        // setFormData((prevData) => ({...prevData, [name]: value}));
 
         if (window.google && value) {
             const autocompleteService = new window.google.maps.places.AutocompleteService();
@@ -174,13 +175,17 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         if (isFormValid()) {
             dispatch(setDeliveryFormData({ ...formData }));
             onClose();
             onFindDeliveryPartner();
         } else {
-            alert("Please correct the errors in the form.");
+            if(formData.pickupLocation.length === 0)
+                alert("Please select the pickup location.");
+            else if(formData.dropLocation.length === 0) 
+                alert("Please select the drop location.");
+            else 
+            alert("Please fill the details!");
         }
     };
 
@@ -304,7 +309,7 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
                             {errors.contactPhoneNumber && <p className="error">{errors.contactPhoneNumber}</p>}
                         </label>
 
-                        <button onClick={handleSubmit} type="submit" disabled={!isFormValid()}>
+                        <button onClick={handleSubmit} type="submit">
                             Find Delivery Partner
                         </button>
                     </form>
