@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import BookDeliveryPartner from "./BookDeliveryPartner";
 import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
+import TaskReview from "./TaskReview";
 import axios from "axios";
 import EmployerOrders from "./EmployerOrders";
 
@@ -95,6 +96,8 @@ function Employer_HomePage() {
         );
       case "findDelivery":
         return <FindDeliveryPartnerUsingMap />;
+      case "tasksReview": // Add case for tasks review
+        return <TaskReview />;
       default:
         return <div>Select a menu item to view details</div>;
     }
@@ -143,7 +146,7 @@ function Employer_HomePage() {
           </div>
           <div
             className={`menu-item ${activeMenu === "Tasks Review" ? "active" : ""}`}
-            onClick={() => handleMenuClick("Tasks Review")}
+            onClick={() => handleMenuClick("Tasks Review", "tasksReview")}
           >
             Tasks Review
           </div>

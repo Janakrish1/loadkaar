@@ -8,6 +8,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PaymentCheckout from "./pages/PaymentCheckout";
 import Vehicles from "./pages/Vehicles"
 import CurrentTaskRender from "./pages/CurrentTaskRender";
+import Reviews from "./pages/TaskReview";
+
 
 function App() {
     return (
@@ -39,6 +41,7 @@ function App() {
                     path="/render-task"
                     element={<ProtectedRoute element={<CurrentTaskRender />} />}
                 />
+                
             </Routes>
         </Router>
     );
