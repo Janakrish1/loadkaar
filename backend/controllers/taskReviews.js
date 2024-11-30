@@ -3,7 +3,7 @@ const { sequelize } = require("../models");
 module.exports = {
     getReviewsByReviewerId: async (req, res) => {
         const { user_id: reviewer_id } = req.body; // Expecting reviewer_id from the request body
-        console.log(reviewer_id);
+        
         try {
             const selectQuery = `
                 SELECT * FROM Review
@@ -15,7 +15,7 @@ module.exports = {
                 type: sequelize.QueryTypes.SELECT,
             });
 
-            if (reviewDetails.length === 0) {
+            if (!reviewDetails && reviewDetails.length === 0) {
                 return res.status(404).json({ message: 'No reviews found for this reviewer.' });
             }
 
@@ -40,7 +40,7 @@ module.exports = {
                 type: sequelize.QueryTypes.SELECT,
             });
 
-            if (reviewDetails.length === 0) {
+            if (!reviewDetails && reviewDetails.length === 0) {
                 return res.status(404).json({ message: 'No reviews found for this reviewee.' });
             }
 

@@ -13,6 +13,8 @@ const deliveryPartnerViewSlice = createSlice({
             contactPerson: "",
             contactAddress: "",
             contactPhoneNumber: "",
+            distance: null,
+            duration: null,
         },
     },
     reducers: {
@@ -36,11 +38,13 @@ const deliveryPartnerViewSlice = createSlice({
                 dropLocation,
                 contactPerson,
                 contactAddress,
-                contactPhoneNumber
+                contactPhoneNumber,
+                distance,
+                duration
             } = action.payload;
 
-            if (vehicleType && itemDescription && pickupLocation && dropLocation && contactPerson && contactAddress && contactPhoneNumber) {
-                state.formData = {
+            if (vehicleType && itemDescription && pickupLocation && dropLocation && contactPerson && contactAddress && contactPhoneNumber && distance && duration) {
+                state.deliveryForm = {
                     vehicleType,
                     itemDescription,
                     pickupLocation,
@@ -48,6 +52,8 @@ const deliveryPartnerViewSlice = createSlice({
                     contactPerson,
                     contactAddress,
                     contactPhoneNumber,
+                    distance,
+                    duration
                 };
             }
         },
@@ -60,6 +66,8 @@ const deliveryPartnerViewSlice = createSlice({
                 contactPerson: "",
                 contactAddress: "",
                 contactPhoneNumber: "",
+                distance: null,
+                duration: null,
             };
         },
     },
