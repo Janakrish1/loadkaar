@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/Employer_HomePage.css"; // Import the CSS file
 import logo from "../assets/logo.jpeg"; // Load your logo image here
 import profile_pic from "../assets/Icons/profile.jpg";
@@ -9,6 +9,8 @@ import BookDeliveryPartner from "./BookDeliveryPartner";
 import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
 import TaskReview from "./TaskReview";
+import axios from "axios";
+import EmployerOrders from "./EmployerOrders";
 import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
 
 
@@ -18,13 +20,44 @@ function Employer_HomePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentOrders, setCurrentOrders] = useState(null);
+  const [enrichedOrders, setEnrichedOrders] = useState([]); // New state to handle enriched orders
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
 
-  
+  // Fetch user details when userID changes
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        const response = await axios.post("http://localhost:5001/api/employer-get-tasks", { userID });
+        const tasks = response.data.results;
 
-  // orders -> user_id 
-  // payment - (payment_id) (user_id(employer_id)) (employee_id)
+        // Enrich tasks with additional details
+        const enrichedOrders = await Promise.all(
+          tasks.map(async (task) => {
+            const [taskDetails, paymentDetails] = await Promise.all([
+              axios.post("http://localhost:5001/api/employer-get-task-details", { task_id: task.task_id }),
+              axios.post("http://localhost:5001/api/employer-get-payment-details", { payment_id: task.payment_id }),
+            ]);
+
+            return {
+              task,
+              taskDetails: taskDetails.data.results,
+              paymentDetails: paymentDetails.data.results,
+            };
+          })
+        );
+
+        setEnrichedOrders(enrichedOrders);
+        setCurrentOrders(enrichedOrders.length > 0); // Boolean flag to check if there are orders
+      } catch (err) {
+        console.error("Error fetching details:", err);
+      }
+    };
+
+    if (userID) {
+      fetchDetails();
+    }
+  }, [userID]);
 
   // Handle Menu Click
   const handleMenuClick = (menuItem, view = "default") => {
@@ -59,7 +92,14 @@ function Employer_HomePage() {
   const renderView = () => {
     switch (currentView) {
       case "default":
-        return currentOrders !== null ? <></> : <div><br /><h1>No Current Orders!</h1></div>;
+        return enrichedOrders.length > 0 ? (
+          <EmployerOrders enrichedOrders={enrichedOrders} />
+        ) : (
+          <div>
+            <br />
+            <h1>No Current Orders!</h1>
+          </div>
+        );
       case "findDelivery":
         return <FindDeliveryPartnerUsingMap />;
       case "tasksReview": // Add case for tasks review
@@ -132,7 +172,9 @@ function Employer_HomePage() {
         <main className="main-content">
           {/* Action Buttons */}
           <div className="action-buttons">
-            <button onClick={handleDeliveryBooking} className="theme-button">Book Delivery Partner</button>
+            <button onClick={handleDeliveryBooking} className="theme-button">
+              Book Delivery Partner
+            </button>
             <button className="theme-button">Book Warehouse</button>
           </div>
 

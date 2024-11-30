@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearUser } from "../redux/userSlice";
 import axios from "axios";
 import VehiclesPage from "./Vehicles"; // Import your VehiclesPage component
+import ProfileSettingsPage from "./Profile_Settings";
 
 function Employee_HomePage() {
   const { userID } = useSelector((state) => state.user); // Using userID from Redux
@@ -67,7 +68,12 @@ function Employee_HomePage() {
   const handleMenuClick = (view) => {
     if (view === "vehicles") {
       setCurrentView("vehicles");
-    } else {
+    } 
+    else if(view === "profilePage")
+    {
+      setCurrentView("profilePage");
+    }
+    else {
       setCurrentView("default");
     }
   };
@@ -91,9 +97,15 @@ function Employee_HomePage() {
               {isActive ? "ACTIVE" : "INACTIVE"}
             </div>
           </div>
-          <div className="profile">
-            <img src={profile_pic} alt="profile_pic" className="profile-icon" />
-            <span>Profile</span>
+          <div 
+            className="profile" 
+            onClick={() => {
+              handleMenuClick("profilePage")
+            }}
+            style={{ cursor: "pointer" }} // Adds a pointer cursor for better UX
+          >
+          <img src={profile_pic} alt="profile_pic" className="profile-icon" />
+          <span>Profile</span>
           </div>
           {/* Logout Button */}
           <button className="logout-button" onClick={handleLogout}>
@@ -140,6 +152,9 @@ function Employee_HomePage() {
               updateToggleStatus={updateToggleStatus}
             />
             )} {/* Display VehiclesPage here */}
+          {currentView === "profilePage" && (
+            <ProfileSettingsPage/>
+            )} {/* Display ProfileSettingsPage here */}
           {currentView === "tasks" && <div>Current Tasks Section Here</div>}
           {currentView === "pastTasks" && <div>Past Tasks Section Here</div>}
           {currentView === "payments" && <div>Payments Section Here</div>}

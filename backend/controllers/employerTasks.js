@@ -37,8 +37,42 @@ module.exports = {
                 taskID: taskID,
             });
         } catch (error) {
-            console.error(error);  // Log the error for debugging
             res.status(500).json({ error: 'An error occurred while saving the task' });
+        }
+    },
+
+    employerGetTasks: async (req, res) => {
+        const {userID} = req.body;
+        if (!userID) {
+            return res.status(400).json({ error: 'User is not registered' });
+        }
+
+        try {
+            selectQuery = `
+                SELECT task_id AS task_id, payment_id AS payment_id, employer_id AS employer_id, employee_id AS employee_id
+                FROM Tasks
+                WHERE employer_id = :userID
+            `;
+
+            const results = await sequelize.query(selectQuery, {
+                replacements: { userID },
+                type: sequelize.QueryTypes.SELECT,
+            });
+
+            if (!results || results.length === 0) {
+                return res.status(200).json({ 
+                    message: 'No tasks found for this employer.', 
+                    results: [] 
+                });
+            }
+            else {
+                console.log(results);
+            }
+
+            res.status(200).json({message: 'Fetched details successfully', results});
+
+        } catch (error) {
+            res.status(500).json({ error: 'An error occurred while fetching the details' });
         }
     },
 

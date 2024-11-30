@@ -27,11 +27,11 @@ db.sequelize.authenticate()
 })();
 
 const dbRoute = require("./routes/connectDB");
-const { registerUser, getUser, getUserID, getUsername } = require("./controllers/user");
-const { saveTaskDetails } = require("./controllers/employerTaskDetails");
-const { saveTasks,getTasksByPaymentIds } = require("./controllers/employerTasks");
+const { saveTaskDetails, employerGetTaskDetails } = require("./controllers/employerTaskDetails");
+const { saveTasks, employerGetTasks } = require("./controllers/employerTasks");
+const { registerUser, getUser, getUserID, getUsername,getProfileDetails,updateProfileDetails,getTasksByPaymentIds } = require("./controllers/user");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus} = require("./controllers/vehicles");
-const { savePaymentSuccess,getPaymentDetails } = require("./controllers/employerPayment");
+const { savePaymentSuccess, employerGetPaymentDetails,getPaymentDetails } = require("./controllers/employerPayment");
 const { getReviewsByReviewerId,getReviewsByRevieweeId } = require("./controllers/taskReviews");
  
 app.use("/api", dbRoute);
@@ -46,10 +46,12 @@ app.use('/api/get-username', getUsername);
 
 // Tasks
 app.use('/api/save-tasks', saveTasks);
+app.use('/api/employer-get-tasks', employerGetTasks);
 app.use('/api/get-taskbypayment',getTasksByPaymentIds);
 
 // Task Details
 app.use('/api/save-task-details', saveTaskDetails);
+app.use('/api/employer-get-task-details', employerGetTaskDetails);
 
 //Vehicles
 app.use('/api/addVehicle', addVehicle);
@@ -61,11 +63,16 @@ app.use('/api/vehicles/status', getVehicleStatus);
 // Payment
 app.use('/api/save-payment-details', savePaymentSuccess);
 app.use('/api/get-payment-details',getPaymentDetails);
+app.use('/api/employer-get-payment-details', employerGetPaymentDetails);
 
 // reviews
 app.use('/api/get-reviewbyreviewer',getReviewsByReviewerId);
 app.use('/api/get-reviewbyreviewee',getReviewsByRevieweeId);
 
+
+//Profile Settings
+app.use('/api/user', getProfileDetails);
+app.use('/api/updateProfile', updateProfileDetails);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

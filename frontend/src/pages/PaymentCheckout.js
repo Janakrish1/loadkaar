@@ -98,7 +98,8 @@ const PaymentCheckout = () => {
         dispatch(clearDeliveryPartnerView());
         setTimeout(() => {
         }, 2000);
-        navigate('/employer-home');
+        navigate('/employer-home', { replace: true });
+        // window.location.reload(); // This will refresh the page
     };
 
     const handlePayment = async () => {
