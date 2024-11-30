@@ -7,6 +7,8 @@ import { clearUser } from "../redux/userSlice";
 import axios from "axios";
 import VehiclesPage from "./Vehicles"; // Import your VehiclesPage component
 import ProfileSettingsPage from "./Profile_Settings";
+import ReviewPayments from "./ReviewPayments";
+import TaskReview from "./TaskReview";
 
 function Employee_HomePage() {
   const { userID } = useSelector((state) => state.user); // Using userID from Redux
@@ -73,6 +75,18 @@ function Employee_HomePage() {
     {
       setCurrentView("profilePage");
     }
+    else if(view === "payments")
+    {
+     setCurrentView("payments"); 
+    }
+    else if(view === "yreviews")
+      {
+       setCurrentView("yreviews"); 
+      }
+      else if(view === "recreviews")
+        {
+         setCurrentView("recreviews"); 
+        }
     else {
       setCurrentView("default");
     }
@@ -130,8 +144,8 @@ function Employee_HomePage() {
           <div className="menu-item" onClick={() => handleMenuClick("payments")}>
             Payments
           </div>
-          <div className="menu-item" onClick={() => handleMenuClick("reviews")}>
-            Your Reviews
+          <div className="menu-item" onClick={() => handleMenuClick("yreviews")}>
+            Task Reviews
           </div>
           <div className="menu-item" onClick={() => handleMenuClick("recreviews")}>
             Received Reviews
@@ -154,12 +168,19 @@ function Employee_HomePage() {
             )} {/* Display VehiclesPage here */}
           {currentView === "profilePage" && (
             <ProfileSettingsPage/>
-            )} {/* Display ProfileSettingsPage here */}
+            )} 
+            {/* Display ProfileSettingsPage here */}
           {currentView === "tasks" && <div>Current Tasks Section Here</div>}
           {currentView === "pastTasks" && <div>Past Tasks Section Here</div>}
-          {currentView === "payments" && <div>Payments Section Here</div>}
-          {currentView === "yreviews" && <div>Your Tasks Review Section Here</div>}
-          {currentView === "recreviews" && <div>Received Tasks Review Section Here</div>}
+          {currentView === "payments" && (
+            <ReviewPayments/>
+            )}
+          {currentView === "yreviews" && (
+            <TaskReview type="Tasks Review"/>
+            )}
+          {currentView === "recreviews" && (
+            <TaskReview type="Received Review"/>
+            )}
         </main>
       </div>
 

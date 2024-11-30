@@ -2,20 +2,20 @@ const { sequelize } = require("../models");
 
 module.exports = {
     getReviewsByReviewerId: async (req, res) => {
-        const { user_id: reviewer_id } = req.body; // Expecting reviewer_id from the request body
+        const { user_id: reviewer_id, role} = req.body; // Expecting reviewer_id from the request body
         console.log(reviewer_id);
         try {
             const selectQuery = `
                 SELECT * FROM Review
-                WHERE reviewer_id = :reviewer_id;
+                WHERE reviewer_id = :reviewer_id AND role LIKE :role ;
             `;
 
             const reviewDetails = await sequelize.query(selectQuery, {
-                replacements: { reviewer_id },
+                replacements: { reviewer_id, role },
                 type: sequelize.QueryTypes.SELECT,
             });
 
-            if (reviewDetails.length === 0) {
+            if (!reviewDetails && reviewDetails.length === 0) {
                 return res.status(404).json({ message: 'No reviews found for this reviewer.' });
             }
 
@@ -27,20 +27,20 @@ module.exports = {
     },
 
     getReviewsByRevieweeId: async (req, res) => {
-        const { user_id: reviewee_id } = req.body; // Expecting reviewee_id from the request body
+        const { user_id: reviewee_id, role } = req.body; // Expecting reviewee_id from the request body
 
         try {
             const selectQuery = `
                 SELECT * FROM Review
-                WHERE reviewee_id = :reviewee_id;
+                WHERE reviewee_id = :reviewee_id AND role NOT LIKE :role ;
             `;
 
             const reviewDetails = await sequelize.query(selectQuery, {
-                replacements: { reviewee_id },
+                replacements: { reviewee_id, role },
                 type: sequelize.QueryTypes.SELECT,
             });
 
-            if (reviewDetails.length === 0) {
+            if (!reviewDetails && reviewDetails.length === 0) {
                 return res.status(404).json({ message: 'No reviews found for this reviewee.' });
             }
 

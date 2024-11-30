@@ -17,10 +17,10 @@ module.exports = (sequelize, DataTypes) => {
                 onUpdate: 'CASCADE', // Update task_id if the task's id changes
                 onDelete: 'CASCADE', // Delete review if the task is deleted
             },
-            // role: {
-            //     type: DataTypes.STRING,
-            //     allowNull: false,
-            // },
+            role: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
             reviewer_id: {
                 type: DataTypes.INTEGER,
                 allowNull: false,

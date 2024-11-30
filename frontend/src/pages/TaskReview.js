@@ -4,12 +4,13 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 
 const TaskReview = ({ type }) => {
-  const { userID } = useSelector((state) => state.user);
+  const { userID, role } = useSelector((state) => state.user || {});
   const [reviews, setReviews] = useState([]);
   const [expandedReview, setExpandedReview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log(role);
   const fetchReviews = async () => {
     try {
       setLoading(true);
@@ -22,9 +23,9 @@ const TaskReview = ({ type }) => {
       }
 
       if (type === "Tasks Review") {
-        response = await axios.post("http://localhost:5001/api/get-reviewbyreviewer", { user_id: userID });
+        response = await axios.post("http://localhost:5001/api/get-reviewbyreviewer", { user_id: userID ,role  });
       } else if (type === "Received Review") {
-        response = await axios.post("http://localhost:5001/api/get-reviewbyreviewee", { user_id: userID });
+        response = await axios.post("http://localhost:5001/api/get-reviewbyreviewee", { user_id: userID, role });
       } else {
         setError("Invalid type for reviews.");
         setLoading(false);
