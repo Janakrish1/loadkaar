@@ -49,18 +49,72 @@ function Employee_HomePage() {
   setIsActive(hasActiveVehicle);
   };
 
+  useEffect(() => {
+    if (navigator.geolocation) {
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const location = { lat: latitude, lng: longitude };
+
+          // Once location is fetched, store it in the database
+          storeLocationInDatabase(location);
+        },
+        (error) => {
+          console.error("Error fetching location:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }, []);
+
   //Fetch vehicle status on component mount
   useEffect(() => {
     fetchVehicleStatus();
   }, [userID]);
 
+  // Function to store the location in the database
+  const storeLocationInDatabase = async (location) => {
+    try {
+      const payload = {
+        user_id: userID,
+        latitude: location.lat,
+        longitude: location.lng
+      };
+      const userVal = {user_id: userID};
+      const responseMessage = await axios.post("http://localhost:5001/api/isactive", userVal);
+      if(responseMessage.data.message === "The User is active")
+      {
+      const response = await axios.post("http://localhost:5001/api/location", payload);
+
+      if (response.status === 200) {
+        console.log("Location stored successfully:", response.data);
+      } else {
+        console.error("Failed to store location:", response.data.message);
+      }
+    }
+    else{
+      console.error("The user is not active");
+    }
+    } catch (error) {
+      console.error("Error storing location:", error);
+    }
+  };
+
   // Toggle active status
   const toggleStatus = async () => {
-   if (!isActive) {
-      alert("Please activate your vehicles first.");
-      setCurrentView("vehicles");
-      return;
-    }
+    
+   if (!isActive ) {
+        fetchVehicleStatus();
+        if(!vehiclesActive)
+        {
+        alert("Please activate your vehicles first.");
+        setCurrentView("vehicles");
+        return;
+        }
+      }
+      
     setIsActive(!isActive);
   };
 
@@ -93,7 +147,7 @@ function Employee_HomePage() {
               <input type="checkbox" checked={isActive} onChange={toggleStatus} />
               <span className="slider"></span>
             </label>
-            <div className={`status ${isActive ? "active" : "inactive"}`}>
+            <div className={`status ${isActive ? "Active" : "Inactive"}`}>
               {isActive ? "ACTIVE" : "INACTIVE"}
             </div>
           </div>
@@ -131,7 +185,10 @@ function Employee_HomePage() {
             Payments
           </div>
           <div className="menu-item" onClick={() => handleMenuClick("reviews")}>
-            Tasks Review
+            Your Reviews
+          </div>
+          <div className="menu-item" onClick={() => handleMenuClick("recreviews")}>
+            Received Reviews
           </div>
 
           <div className="rating">
@@ -155,7 +212,8 @@ function Employee_HomePage() {
           {currentView === "tasks" && <div>Current Tasks Section Here</div>}
           {currentView === "pastTasks" && <div>Past Tasks Section Here</div>}
           {currentView === "payments" && <div>Payments Section Here</div>}
-          {currentView === "reviews" && <div>Tasks Review Section Here</div>}
+          {currentView === "yreviews" && <div>Your Tasks Review Section Here</div>}
+          {currentView === "recreviews" && <div>Received Tasks Review Section Here</div>}
         </main>
       </div>
 

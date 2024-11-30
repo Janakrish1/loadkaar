@@ -57,6 +57,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        status: {
+            type: DataTypes.ENUM("Active", "Inactive"),
+            defaultValue: "Active",
+        },
     },
     {
         freezeTableName: true, // Prevents Sequelize from pluralizing the table name
