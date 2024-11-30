@@ -2,34 +2,34 @@ const { sequelize } = require("../models");
 
 module.exports = {
     savePaymentSuccess: async (req, res) => {
-        const { 
-            paymentResponse: paymentResponse, 
+        const {
+            paymentResponse: paymentResponse,
             paymentData: paymentData,
             status: status
         } = req.body;
 
-            // Payment Success: { razorpay_payment_id: 'pay_PQrg18rKcPMust' }
-            // Delivery Form Data: {
-            //   vehicleType: '2wheeler',
-            //   itemDescription: 'df',
-            //   pickupLocation: 'dfsdf',
-            //   dropLocation: 'sdf',
-            //   contactPerson: 'sdf',
-            //   contactAddress: 'sdf',
-            //   contactPhoneNumber: 'sdf'
-            // }
-            // User Details: { FName: 'test', LName: 'test', Email: 'test@gmail.com' }
-            // Payment Data: {
-            //   user_id: 1,
-            //   employee_name: 'Driver A',
-            //   employee_id: 1,
-            //   amount: '12',
-            //   payment_date: '2024-11-28'
-            // }
-            // status
+        // Payment Success: { razorpay_payment_id: 'pay_PQrg18rKcPMust' }
+        // Delivery Form Data: {
+        //   vehicleType: '2wheeler',
+        //   itemDescription: 'df',
+        //   pickupLocation: 'dfsdf',
+        //   dropLocation: 'sdf',
+        //   contactPerson: 'sdf',
+        //   contactAddress: 'sdf',
+        //   contactPhoneNumber: 'sdf'
+        // }
+        // User Details: { FName: 'test', LName: 'test', Email: 'test@gmail.com' }
+        // Payment Data: {
+        //   user_id: 1,
+        //   employee_name: 'Driver A',
+        //   employee_id: 1,
+        //   amount: '12',
+        //   payment_date: '2024-11-28'
+        // }
+        // status
 
-        
-        
+
+
         try {
             const insertQuery = `
                 INSERT INTO Payment (payment_id, employer_id, employee_id, amount, status, payment_date, createdAt, updatedAt)
@@ -44,11 +44,11 @@ module.exports = {
                 type: sequelize.QueryTypes.INSERT,
             });
 
-            res.status(200).json({message: 'Payment details saved successfully!'});
+            res.status(200).json({ message: 'Payment details saved successfully!' });
 
         } catch (error) {
             res.status(500).json({ error: 'An error occurred while saving the payment details' });
-        }   
+        }
     },
     employerGetPaymentDetails: async (req, res) => {
         const { payment_id } = req.body;
@@ -69,13 +69,13 @@ module.exports = {
             });
 
             if (!results || results.length === 0) {
-                return res.status(200).json({ 
-                    message: 'No tasks found for this employer.', 
-                    results: [] 
+                return res.status(200).json({
+                    message: 'No tasks found for this employer.',
+                    results: []
                 });
             }
 
-            res.status(200).json({message: 'Fetched details successfully', results});
+            res.status(200).json({ message: 'Fetched details successfully', results });
 
         } catch (error) {
             res.status(500).json({ error: 'An error occurred while fetching the details' });
@@ -83,14 +83,28 @@ module.exports = {
     },
 
     getPaymentDetails: async (req, res) => {
-        const { user_id } = req.body; 
+        const { user_id, type } = req.body;
         console.log("asd", user_id);
         try {
-            const selectQuery = `
+
+            let selectQuery;
+            if (type === "Employer") {
+                selectQuery = `
                 SELECT * 
                 FROM Payment
                 WHERE employer_id = :user_id;
             `;
+
+            }
+            else if (type === "Employee") {
+
+                selectQuery = `
+                SELECT * 
+                FROM Payment
+                WHERE employee_id = :user_id;
+            `;
+
+            }
 
             const paymentDetails = await sequelize.query(selectQuery, {
                 replacements: { user_id },

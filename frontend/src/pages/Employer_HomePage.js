@@ -12,8 +12,7 @@ import TaskReview from "./TaskReview";
 import axios from "axios";
 import EmployerOrders from "./EmployerOrders";
 import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
-
-
+import ProfileSettings from "./Profile_Settings";
 
 function Employer_HomePage() {
   const { userID } = useSelector((state) => state.user); // Assuming userID is in the Redux state
@@ -107,7 +106,9 @@ function Employer_HomePage() {
         case "recReview": // Add case for tasks review
         return <TaskReview type="Received Review" />;
         case "payments": // Added case for payments
-      return <ReviewPayments />; 
+      return <ReviewPayments type="Employer" />; 
+      case "profile": // Added case for payments
+      return <ProfileSettings />; 
       default:
         return <div>Select a menu item to view details</div>;
     }
@@ -122,7 +123,12 @@ function Employer_HomePage() {
         </div>
         <h1 className="website-name">LoadKaar</h1>
         <div className="profile-container">
-          <div className="profile">
+          <div className="profile" onClick={() => {
+              handleMenuClick("profilePage","profile")
+            }}
+            style={{ cursor: "pointer" }} // Adds a pointer cursor for better UX
+            >
+            
             <img src={profile_pic} alt="profile_pic" className="profile-icon" />
             <span>Profile</span>
           </div>
