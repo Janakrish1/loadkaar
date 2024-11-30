@@ -67,6 +67,7 @@ const PaymentCheckout = () => {
                 paymentResponse: paymentResponse,
                 paymentData: paymentData,
                 status: transactionStatus
+                
             })
                 .then(response => {
 
