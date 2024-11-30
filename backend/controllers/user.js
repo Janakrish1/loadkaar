@@ -229,7 +229,6 @@ module.exports = {
             email,
             password} = req.body;
         try {
-
             const updateQuery = `UPDATE User SET firstName = :firstName, lastName = :lastName, houseNo = :houseNo,
             locality = :locality, city = :city, state = :state, pincode = :pincode, phoneNumber = :phoneNumber,
             email = :email, password = :password WHERE user_id = :user_id`;
