@@ -83,7 +83,6 @@ function Employee_HomePage() {
         longitude: location.lng
       };
       const userVal = {user_id: userID};
-      console.log(userVal);
       const responseMessage = await axios.post("http://localhost:5001/api/isactive", userVal);
       if(responseMessage.data.message === "The User is active")
       {
