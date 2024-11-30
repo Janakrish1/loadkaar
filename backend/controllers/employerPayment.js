@@ -54,7 +54,7 @@ module.exports = {
 
     getPaymentDetails: async (req, res) => {
         const { user_id } = req.body; 
-
+        console.log("asd", user_id);
         try {
             const selectQuery = `
                 SELECT * 
@@ -67,7 +67,7 @@ module.exports = {
                 type: sequelize.QueryTypes.SELECT,
             });
 
-            if (paymentDetails.length === 0) {
+            if (!paymentDetails && paymentDetails.length === 0) {
                 return res.status(404).json({ message: 'No payment records found for this user.' });
             }
 
