@@ -1,221 +1,116 @@
-// import React, { useState } from "react";
-// import "../styles/TaskReview.css"; // CSS for TaskReview component
-
-// const TaskReview = () => {
-//   const [reviews, setReviews] = useState([
-//     { id: 1, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-//     { id: 2, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-//     { id: 3, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" },
-//     { id: 4, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-//     { id: 5, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-//     { id: 6, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" },
-//     { id: 7, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-//     { id: 8, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-//     { id: 9, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" },
-//     { id: 10, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-//     { id: 11, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-//     { id: 12, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" }
-//   ]);
-
-//   const [expandedReview, setExpandedReview] = useState(null);
-//   const [editReview, setEditReview] = useState(null); // Temporarily holds review data while editing
-
-//   const handleExpand = (id) => {
-//     if (expandedReview === id) {
-//       // Collapse the card and reset temp state
-//       setExpandedReview(null);
-//       setEditReview(null);
-//     } else {
-//       // Expand the card and set temp state for editing
-//       const currentReview = reviews.find((review) => review.id === id);
-//       setExpandedReview(id);
-//       setEditReview({ ...currentReview });
-//     }
-//   };
-
-//   const handleInputChange = (field, value) => {
-//     setEditReview((prev) => ({ ...prev, [field]: value }));
-//   };
-
-//   const handleSave = () => {
-//     setReviews((prevReviews) =>
-//       prevReviews.map((review) =>
-//         review.id === expandedReview ? { ...editReview } : review
-//       )
-//     );
-//     setExpandedReview(null);
-//     setEditReview(null);
-//   };
-
-//   const handleCancel = () => {
-//     setExpandedReview(null);
-//     setEditReview(null);
-//   };
-
-//   return (
-//     <div className="task-review-container">
-//       {reviews.map((review) => (
-//         <div
-//           key={review.id}
-//           className={`review-card ${expandedReview === review.id ? "expanded" : ""}`}
-//           onClick={() => handleExpand(review.id)}
-//         >
-//           <h3>{review.title}</h3>
-//           <p>Rating: {review.rating}/5</p>
-//           <p>{review.feedback}</p>
-
-//           {expandedReview === review.id && (
-//             <div
-//               className="expanded-content"
-//               onClick={(e) => e.stopPropagation()} // Prevent parent onClick from firing
-//             >
-//               <label>
-//                 Title:
-//                 <input
-//                   type="text"
-//                   value={editReview.title}
-//                   onChange={(e) => handleInputChange("title", e.target.value)}
-//                 />
-//               </label>
-//               <label>
-//                 Rating:
-//                 <input
-//                   type="number"
-//                   value={editReview.rating}
-//                   min="1"
-//                   max="5"
-//                   onChange={(e) => handleInputChange("rating", e.target.value)}
-//                 />
-//               </label>
-//               <label>
-//                 Feedback:
-//                 <textarea
-//                   value={editReview.feedback}
-//                   onChange={(e) => handleInputChange("feedback", e.target.value)}
-//                 />
-//               </label>
-//               <div className="button-group">
-//                 <button onClick={handleSave} className="save-button">
-//                   Save
-//                 </button>
-//                 <button onClick={handleCancel} className="cancel-button">
-//                   Cancel
-//                 </button>
-//               </div>
-//             </div>
-//           )}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default TaskReview;
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/TaskReview.css"; // CSS for TaskReview component
+import axios from "axios";
+import { useSelector } from "react-redux";
 
-const TaskReview = () => {
-  const [reviews, setReviews] = useState([
-    { id: 1, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-    { id: 2, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-    { id: 3, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" },
-    { id: 4, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-    { id: 5, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-    { id: 6, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" },
-    { id: 7, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-    { id: 8, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-    { id: 9, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" },
-    { id: 10, title: "Order #101", rating: 4, feedback: "Great service and timely delivery!" },
-    { id: 11, title: "Order #102", rating: 3, feedback: "Average experience, slight delay." },
-    { id: 12, title: "Order #103", rating: 5, feedback: "Exceptional service! Highly recommended!" }
-  ]);
-
+const TaskReview = ({ type }) => {
+  const { userID } = useSelector((state) => state.user);
+  const [reviews, setReviews] = useState([]);
   const [expandedReview, setExpandedReview] = useState(null);
-  const [editReview, setEditReview] = useState(null); // Temporarily holds review data while editing
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleExpand = (id) => {
-    const currentReview = reviews.find((review) => review.id === id);
-    setExpandedReview(id);
-    setEditReview({ ...currentReview });
+  const fetchReviews = async () => {
+    try {
+      setLoading(true);
+      
+      let response;
+      if (!userID) {
+        setError("User not found. Please log in.");
+        setLoading(false);
+        return;
+      }
+
+      if (type === "Tasks Review") {
+        response = await axios.post("http://localhost:5001/api/get-reviewbyreviewer", { user_id: userID });
+      } else if (type === "Received Review") {
+        response = await axios.post("http://localhost:5001/api/get-reviewbyreviewee", { user_id: userID });
+      } else {
+        setError("Invalid type for reviews.");
+        setLoading(false);
+        return;
+      }
+
+      console.log(response.data);
+      setReviews(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError("No Reviews There!.");
+      setLoading(false);
+    }
   };
 
-  const handleInputChange = (field, value) => {
-    setEditReview((prev) => ({ ...prev, [field]: value }));
+  useEffect(() => {
+    if (userID) {
+      fetchReviews();
+    } else {
+      setError("User ID is missing.");
+    }
+  }, [userID, type]);
+
+  const handleExpand = (review) => {
+    setExpandedReview(review);
   };
 
-  const handleSave = () => {
-    setReviews((prevReviews) =>
-      prevReviews.map((review) =>
-        review.id === expandedReview ? { ...editReview } : review
-      )
-    );
+  const handleCloseOverlay = () => {
     setExpandedReview(null);
-    setEditReview(null);
   };
 
-  const handleCancel = () => {
-    setExpandedReview(null);
-    setEditReview(null);
-  };
+  if (loading) {
+    return <div className="loading">Loading reviews...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
 
   return (
+
     <div className="task-review-container">
       {reviews.map((review) => (
         <div
-          key={review.id}
-          className={`review-card ${expandedReview === review.id ? "expanded" : ""}`}
-          onClick={() => handleExpand(review.id)}
+          key={review.review_id}
+          className="review-card"
+          onClick={() => handleExpand(review)}
         >
-          <h3>{review.title}</h3>
+          <h3>Task ID: {review.task_id}</h3>
           <p>Rating: {review.rating}/5</p>
-          <p>{review.feedback}</p>
+          <p>Feedback: {review.comments}</p>
+          
         </div>
       ))}
 
-      {/* Popup for Expanded Review */}
+      {/* Overlay Popup for Expanded Payment */}
       {expandedReview && (
-        <div className="popup-overlay">
-          <div className="popup-card">
-            <h3>Edit Review</h3>
-            <label>
-              Title:
-              <input
-                type="text"
-                value={editReview.title}
-                onChange={(e) => handleInputChange("title", e.target.value)}
-              />
-            </label>
-            <label>
-              Rating:
-              <input
-                type="number"
-                value={editReview.rating}
-                min="1"
-                max="5"
-                onChange={(e) => handleInputChange("rating", e.target.value)}
-              />
-            </label>
-            <label>
-              Feedback:
-              <textarea
-                value={editReview.feedback}
-                onChange={(e) => handleInputChange("feedback", e.target.value)}
-              />
-            </label>
+        <div className="popup-overlay" onClick={handleCloseOverlay}>
+          <div
+            className="popup-card"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the popup
+          >
+            <h3>Review Details</h3>
+            <p><strong>Task ID:</strong> {expandedReview.task_id}</p>
+            <p><strong>Reviewer ID:</strong> {expandedReview.reviewer_id}</p>
+            <p><strong>Reviewee ID:</strong> {expandedReview.reviewee_id}</p>
+            <p><strong>Rating:</strong> {expandedReview.rating}/5</p>
+            <p><strong>Review Date:</strong> {new Date(expandedReview.review_date).toLocaleDateString()}</p>
             <div className="button-group">
-              <button onClick={handleSave} className="save-button">
-                Save
-              </button>
-              <button onClick={handleCancel} className="cancel-button">
-                Cancel
+              <button className="cancel-button" onClick={handleCloseOverlay}>
+                Close
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };
 
 export default TaskReview;
+
+
+
+
+
+
+

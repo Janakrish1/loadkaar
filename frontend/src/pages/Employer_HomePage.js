@@ -11,15 +11,18 @@ import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
 import TaskReview from "./TaskReview";
 import axios from "axios";
 import EmployerOrders from "./EmployerOrders";
+import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
+
+
 
 function Employer_HomePage() {
+  const { userID } = useSelector((state) => state.user); // Assuming userID is in the Redux state
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentOrders, setCurrentOrders] = useState(null);
   const [enrichedOrders, setEnrichedOrders] = useState([]); // New state to handle enriched orders
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
-  const { userID } = useSelector((state) => state.user);
 
   // Fetch user details when userID changes
   useEffect(() => {
@@ -68,6 +71,9 @@ function Employer_HomePage() {
   const handleLogout = () => {
     dispatch(clearUser());
     dispatch(clearDeliveryPartnerView());
+    localStorage.removeItem(`payments_${userID}`);
+    localStorage.removeItem(`tasks_${userID}`);
+
     navigate("/");
   };
 
@@ -97,7 +103,11 @@ function Employer_HomePage() {
       case "findDelivery":
         return <FindDeliveryPartnerUsingMap />;
       case "tasksReview": // Add case for tasks review
-        return <TaskReview />;
+      return <TaskReview type="Tasks Review" />;
+        case "recReview": // Add case for tasks review
+        return <TaskReview type="Received Review" />;
+        case "payments": // Added case for payments
+      return <ReviewPayments />; 
       default:
         return <div>Select a menu item to view details</div>;
     }
@@ -140,7 +150,7 @@ function Employer_HomePage() {
           </div>
           <div
             className={`menu-item ${activeMenu === "Payments" ? "active" : ""}`}
-            onClick={() => handleMenuClick("Payments")}
+            onClick={() => handleMenuClick("Payments","payments")}
           >
             Payments
           </div>
@@ -149,6 +159,12 @@ function Employer_HomePage() {
             onClick={() => handleMenuClick("Tasks Review", "tasksReview")}
           >
             Tasks Review
+          </div>
+          <div
+            className={`menu-item ${activeMenu === "Received Review" ? "active" : ""}`}
+            onClick={() => handleMenuClick("Received Review", "recReview")}
+          >
+            Received Review
           </div>
         </aside>
 

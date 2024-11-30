@@ -131,7 +131,10 @@ function Employee_HomePage() {
             Payments
           </div>
           <div className="menu-item" onClick={() => handleMenuClick("reviews")}>
-            Tasks Review
+            Your Reviews
+          </div>
+          <div className="menu-item" onClick={() => handleMenuClick("recreviews")}>
+            Received Reviews
           </div>
 
           <div className="rating">
@@ -155,7 +158,8 @@ function Employee_HomePage() {
           {currentView === "tasks" && <div>Current Tasks Section Here</div>}
           {currentView === "pastTasks" && <div>Past Tasks Section Here</div>}
           {currentView === "payments" && <div>Payments Section Here</div>}
-          {currentView === "reviews" && <div>Tasks Review Section Here</div>}
+          {currentView === "yreviews" && <div>Your Tasks Review Section Here</div>}
+          {currentView === "recreviews" && <div>Received Tasks Review Section Here</div>}
         </main>
       </div>
 
