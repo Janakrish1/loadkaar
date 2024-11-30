@@ -41,7 +41,7 @@ const VehiclesPage = ({ updateToggleStatus }) => {
       if (Array.isArray(response.data)) {
         setVehicles(response.data);
         if(updateToggle)
-          updateToggleStatus(response.data); // Check if any vehicle is active
+          updateToggleStatus(response.data);
       }
     }      
     } catch (error) {
