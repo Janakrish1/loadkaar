@@ -173,7 +173,7 @@ function Employee_HomePage() {
           {currentView === "tasks" && <div>Current Tasks Section Here</div>}
           {currentView === "pastTasks" && <div>Past Tasks Section Here</div>}
           {currentView === "payments" && (
-            <ReviewPayments/>
+            <ReviewPayments type="Employee"/>
             )}
           {currentView === "yreviews" && (
             <TaskReview type="Tasks Review"/>

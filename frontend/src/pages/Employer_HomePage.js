@@ -106,7 +106,7 @@ function Employer_HomePage() {
         case "recReview": // Add case for tasks review
         return <TaskReview type="Received Review" />;
         case "payments": // Added case for payments
-      return <ReviewPayments />; 
+      return <ReviewPayments type="Employer" />; 
       case "profile": // Added case for payments
       return <ProfileSettings />; 
       default:
