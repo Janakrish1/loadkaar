@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { GoogleMap, Marker, LoadScript, InfoWindow } from "@react-google-maps/api";
+import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import "../styles/FindDeliveryPartnerUsingMap.css";
 import { useNavigate } from "react-router-dom";
 
@@ -119,7 +119,6 @@ const FindDeliveryPartnerUsingMap = () => {
       </div>
       <div className="right-pane">
         <div className="map-container">
-          <LoadScript googleMapsApiKey="AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y">
             <GoogleMap
               mapContainerStyle={{ width: "100%", height: "500px" }}
               center={currentLocation || { lat: 0, lng: 0 }}
@@ -151,7 +150,6 @@ const FindDeliveryPartnerUsingMap = () => {
                 </InfoWindow>
               )}
             </GoogleMap>
-          </LoadScript>
         </div>
       </div>
 
