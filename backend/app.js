@@ -28,8 +28,8 @@ db.sequelize.authenticate()
 
 const dbRoute = require("./routes/connectDB");
 const { saveTaskDetails, employerGetTaskDetails } = require("./controllers/employerTaskDetails");
-const { saveTasks, employerGetTasks } = require("./controllers/employerTasks");
-const { registerUser, getUser, getUserID, getUsername,getProfileDetails,updateProfileDetails,getTasksByPaymentIds } = require("./controllers/user");
+const { saveTasks, employerGetTasks, getTasksByPaymentIds } = require("./controllers/employerTasks");
+const { registerUser, getUser, getUserID, getUsername,getProfileDetails,updateProfileDetails } = require("./controllers/user");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus} = require("./controllers/vehicles");
 const { savePaymentSuccess, employerGetPaymentDetails,getPaymentDetails } = require("./controllers/employerPayment");
 const { getReviewsByReviewerId,getReviewsByRevieweeId } = require("./controllers/taskReviews");
