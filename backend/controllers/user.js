@@ -215,7 +215,6 @@ module.exports = {
     },
 
     updateProfileDetails: async (req, res) => {
-        console.log("After reaching:", req.body);
         const { 
             user_id,
             firstName,
@@ -229,7 +228,6 @@ module.exports = {
             email,
             password} = req.body;
         try {
-
             const updateQuery = `UPDATE User SET firstName = :firstName, lastName = :lastName, houseNo = :houseNo,
             locality = :locality, city = :city, state = :state, pincode = :pincode, phoneNumber = :phoneNumber,
             email = :email, password = :password WHERE user_id = :user_id`;
@@ -262,6 +260,67 @@ module.exports = {
             res.status(200).json({
                 message: 'Vehicle status updated successfully',
             });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    },
+
+    updateUserStatus: async (req, res) => {
+        const { 
+            user_id,
+            status} = req.body;
+        try {
+            const updateQuery = `UPDATE User SET status = :status WHERE user_id = :user_id`;
+
+            // Update the vehicle status in the database
+            const result = await sequelize.query(
+                updateQuery,
+                {
+                    replacements: {
+                        user_id,
+                        status
+                    },
+                    type: sequelize.QueryTypes.UPDATE
+                }
+            );
+
+            if (result.length === 0) {
+                return res.status(404).json({ error: 'Vehicle not found' });
+            }
+
+            res.status(200).json({
+                message: 'Vehicle status updated successfully',
+            });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    },
+
+
+    checkActiveUser: async (req, res) => {
+        const { user_id } = req.body;
+        try {
+            
+            if (!user_id) {
+                return res.status(400).json({ error: 'UserID is required' });
+            }
+            const findQuery = `
+                SELECT COUNT(*) AS count
+                FROM User
+                WHERE user_id = :user_id AND status = 'Active'
+            `;
+
+            const [queryResult] = await sequelize.query(findQuery, {
+                replacements: { user_id },
+                type: sequelize.QueryTypes.SELECT
+            });
+            console.log(queryResult);
+            if (queryResult.count === 0) {
+                return res.status(200).json({ error: 'User is not in active state.' });
+            }
+            return res.status(200).json({message: "The User is active", queryResult});
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal Server Error' });

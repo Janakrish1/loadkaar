@@ -3,9 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
-const db = require('./models')
-
-
+const db = require('./models');
 
 dotenv.config();
 
@@ -29,10 +27,11 @@ db.sequelize.authenticate()
 const dbRoute = require("./routes/connectDB");
 const { saveTaskDetails, employerGetTaskDetails } = require("./controllers/employerTaskDetails");
 const { saveTasks, employerGetTasks, getTasksByPaymentIds } = require("./controllers/employerTasks");
-const { registerUser, getUser, getUserID, getUsername,getProfileDetails,updateProfileDetails } = require("./controllers/user");
+const { registerUser, getUser, getUserID, getUsername,getProfileDetails,updateProfileDetails, checkActiveUser, updateUserStatus } = require("./controllers/user");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus} = require("./controllers/vehicles");
 const { savePaymentSuccess, employerGetPaymentDetails,getPaymentDetails } = require("./controllers/employerPayment");
 const { getReviewsByReviewerId,getReviewsByRevieweeId } = require("./controllers/taskReviews");
+const { storeEmployeeLocation } = require("./controllers/userLocation");
  
 app.use("/api", dbRoute);
 
@@ -43,6 +42,7 @@ app.use('/api/login', getUser);
 // User 
 app.use('/api/get-user-id', getUserID); 
 app.use('/api/get-username', getUsername); 
+
 
 // Tasks
 app.use('/api/save-tasks', saveTasks);
@@ -74,6 +74,10 @@ app.use('/api/get-reviewbyreviewee',getReviewsByRevieweeId);
 app.use('/api/user', getProfileDetails);
 app.use('/api/updateProfile', updateProfileDetails);
 
+//User Location 
+app.use('/api/isactive', checkActiveUser);
+app.use('/api/location',storeEmployeeLocation);
+app.use('/api/users/updateStatus', updateUserStatus);
+
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-

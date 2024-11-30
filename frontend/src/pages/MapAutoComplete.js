@@ -1,4 +1,4 @@
-// "AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y" API KEY
+
 
 import React, { useState, useEffect, useRef } from "react";
 import { GoogleMap, LoadScript, DirectionsService, DirectionsRenderer } from "@react-google-maps/api";
@@ -124,7 +124,6 @@ const MapPage = () => {
                 <button className="sign-in-button">Home</button>
             </header>
 
-      <LoadScript googleMapsApiKey="AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y" libraries={["places"]}>
         <div className="form-container">
           <h1>Calculate Distance</h1>
           <form onSubmit={handleSubmit}>
@@ -175,9 +174,6 @@ const MapPage = () => {
             {duration && <p>Estimated Time: {duration}</p>}
           </div>
         </div>
-
-       
-      </LoadScript>
 
       <footer>
                 <p>&copy; 2024 LoadKaar @ All rights reserved.</p>

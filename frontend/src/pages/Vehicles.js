@@ -27,20 +27,21 @@ const VehiclesPage = ({ updateToggleStatus }) => {
   };
   
 
-  const fetchVehicles = async () => {
+  const fetchVehicles = async (updateToggle = true) => {
     try {
       const vehicleDetails = {user_id: userID};
       const response = await axios.post("http://localhost:5001/api/vehicles/user", vehicleDetails);
-      console.log("The response data is:",response.data);
       if(response.data.message === "No vehicles found for this user") 
       {
         setVehicles([]);
-        updateToggleStatus([]);
+        if(updateToggle)
+          updateToggleStatus([]);
       }
       else{
       if (Array.isArray(response.data)) {
         setVehicles(response.data);
-        updateToggleStatus(response.data); // Check if any vehicle is active
+        if(updateToggle)
+          updateToggleStatus(response.data); // Check if any vehicle is active
       }
     }      
     } catch (error) {
@@ -49,7 +50,7 @@ const VehiclesPage = ({ updateToggleStatus }) => {
   };
 
   useEffect(() => {
-    fetchVehicles();
+    fetchVehicles(false);
   }, [userID]);
 
   const handleAddVehicle = async () => {

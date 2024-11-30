@@ -6,5 +6,5 @@ controllers.employerTaskDetails = require('./employerTaskDetails');
 controllers.vehicles = require("./vehicles");
 controllers.employerPayment=require("./employerPayment");
 controllers.taskReviews=require("./taskReviews");
-
+controllers.userLocation = require('./userLocation');
 module.exports = controllers;

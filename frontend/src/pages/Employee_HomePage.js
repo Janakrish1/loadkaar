@@ -16,12 +16,32 @@ function Employee_HomePage() {
 
   const [currentView, setCurrentView] = useState("default"); // Manage different views (default or vehicles)
   const [isActive, setIsActive] = useState(true); // State to manage active/inactive status
-  const [vehiclesActive, setVehiclesActive] = useState(false); // Initially assume vehicles are not active
+  const [vehiclesActive, setVehiclesActive] = useState(true); // Initially assume vehicles are not active
 
   // Logout function
   const handleLogout = () => {
     dispatch(clearUser());
     window.location.href = "/"; // Redirect to login page after logout
+  };
+
+  const fetchUserStatus = async () => {
+    try{
+      const userData = {user_id: userID};
+      const responseMessage = await axios.post("http://localhost:5001/api/isactive", userData);
+
+      if(responseMessage.data.message === "The User is active")
+      {
+        setIsActive(true);
+      }
+      else
+      {
+        setIsActive(false);
+      }
+    }
+    catch (error) {
+      setIsActive(false);
+      console.error("Error fetching vehicle status:", error);
+    }
   };
 
   // Fetch vehicle status to check if it's active
@@ -32,38 +52,115 @@ function Employee_HomePage() {
       if (response.data.message === "User has at least one active vehicle.") {
         setVehiclesActive(true);
         setIsActive(true);
+        updateUserStatus(true);
       } else {
         setVehiclesActive(false);
         setIsActive(false);
+        updateUserStatus(true);
       }
       
     } catch (error) {
       setVehiclesActive(false);
       setIsActive(false);
+      updateUserStatus(false);
       console.error("Error fetching vehicle status:", error);
     }
   };
-
+  
 // Check if any vehicle is active
-
   const updateToggleStatus = (vehiclesList) => {
   const hasActiveVehicle = vehiclesList.some((vehicle) => vehicle.status === "Active");
   setIsActive(hasActiveVehicle);
+  updateUserStatus(hasActiveVehicle);
   };
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const location = { lat: latitude, lng: longitude };
+
+          // Once location is fetched, store it in the database
+          storeLocationInDatabase(location);
+        },
+        (error) => {
+          console.error("Error fetching location:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }, []);
 
   //Fetch vehicle status on component mount
   useEffect(() => {
-    fetchVehicleStatus();
+    fetchUserStatus();
   }, [userID]);
+
+  const updateUserStatus = async (newStatus) => {
+    try {
+      const userStatus = {
+        user_id: userID,
+        status: newStatus ? "Active" : "Inactive", // Set status based on new isActive value
+      };
+      const response = await axios.post("http://localhost:5001/api/users/updateStatus", userStatus);
+  
+      if (response.status === 200) {
+        console.log("User status updated successfully:", response.data);
+      } else {
+        console.error("Failed to update user status:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating user status:", error);
+    }
+  };
+
+
+  // Function to store the location in the database
+  const storeLocationInDatabase = async (location) => {
+    try {
+      const payload = {
+        user_id: userID,
+        latitude: location.lat,
+        longitude: location.lng
+      };
+      const userVal = {user_id: userID};
+      const responseMessage = await axios.post("http://localhost:5001/api/isactive", userVal);
+      if(responseMessage.data.message === "The User is active")
+      {
+      const response = await axios.post("http://localhost:5001/api/location", payload);
+
+      if (response.status === 200) {
+        console.log("Location stored successfully:", response.data);
+      } else {
+        console.error("Failed to store location:", response.data.message);
+      }
+    }
+    else{
+      console.error("The user is not active");
+    }
+    } catch (error) {
+      console.error("Error storing location:", error);
+    }
+  };
 
   // Toggle active status
   const toggleStatus = async () => {
-   if (!isActive) {
-      alert("Please activate your vehicles first.");
-      setCurrentView("vehicles");
-      return;
-    }
+    
+   if (!isActive ) {
+        fetchVehicleStatus();
+        if(!vehiclesActive)
+        {
+        alert("Please activate your vehicles first.");
+        setCurrentView("vehicles");
+        return;
+        }
+      }
+      
     setIsActive(!isActive);
+    updateUserStatus(!isActive);
   };
 
   // Function to load the "Vehicles" section in the same page
@@ -107,7 +204,7 @@ function Employee_HomePage() {
               <input type="checkbox" checked={isActive} onChange={toggleStatus} />
               <span className="slider"></span>
             </label>
-            <div className={`status ${isActive ? "active" : "inactive"}`}>
+            <div className={`status ${isActive ? "Active" : "Inactive"}`}>
               {isActive ? "ACTIVE" : "INACTIVE"}
             </div>
           </div>
