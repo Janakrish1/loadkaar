@@ -2,10 +2,21 @@ import React, { useState, useEffect } from "react";
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import "../styles/FindDeliveryPartnerUsingMap.css";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import axios from "axios";
+
+const GOOGLE_API_KEY = "AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y";
 
 const FindDeliveryPartnerUsingMap = () => {
-  // const { ...deliveryFormData } = useSelector((state) => (state.deliveryPartnerView));
-  const [currentLocation, setCurrentLocation] = useState(null);
+  const { userID } = useSelector((state) => state.user);
+  const {
+    pickupLocation,
+    dropLocation,
+    vehicleType,
+  } = useSelector((state) => state.deliveryPartnerView.deliveryForm || {});
+
+  const [sourceLocation, setSourceLocation] = useState(null);
+  const [destinationLocation, setDestinationLocation] = useState(null);
   const [drivers, setDrivers] = useState([]);
   const [activeDrivers, setActiveDrivers] = useState([]);
   const [selectedDriver, setSelectedDriver] = useState(null);
@@ -13,71 +24,127 @@ const FindDeliveryPartnerUsingMap = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch current location using the browser's geolocation API
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
-        setCurrentLocation({ lat: latitude, lng: longitude });
+    if (window.google && pickupLocation && dropLocation) {
+      const geoCoder = new window.google.maps.Geocoder();
+
+      geoCoder.geocode({ address: pickupLocation }, (results, status) => {
+        if (status === "OK") {
+          const location = results[0].geometry.location;
+          setSourceLocation({ lat: location.lat(), lng: location.lng() });
+        } else {
+          console.error(
+            "Geocode was not successful for the following reason:",
+            status
+          );
+        }
+      });
+
+      geoCoder.geocode({ address: dropLocation }, (results, status) => {
+        if (status === "OK") {
+          const location = results[0].geometry.location;
+          setDestinationLocation({ lat: location.lat(), lng: location.lng() });
+        } else {
+          console.error(
+            "Geocode was not successful for the following reason:",
+            status
+          );
+        }
       });
     }
-  }, []);
+  }, [pickupLocation, dropLocation]);
 
   useEffect(() => {
-    // console.log(deliveryFormData.formData)
-    if (currentLocation) {
-      // Static dummy drivers data
-      const dummyDrivers = [
-        { id: 1, name: "Driver A", lat: 40.4615, lng: -79.9398, status: "active", vehicleType: "Bike", rating: 4.5 },
-        { id: 2, name: "Driver B", lat: 40.4615 + 0.001, lng: -79.9398 + 0.001, status: "inactive", vehicleType: "Van", rating: 4.8 },
-        { id: 3, name: "Driver C", lat: 40.4615 - 0.001, lng: -79.9398 - 0.001, status: "active", vehicleType: "Truck", rating: 4.2 },
-        { id: 4, name: "Driver D", lat: 40.4615 + 0.002, lng: -79.9398 + 0.002, status: "inactive", vehicleType: "Bike", rating: 4.0 },
-      ];
+    const fetchDrivers = async () => {
+      if (sourceLocation && destinationLocation) {
+        try {
+          const response = await axios.post(
+            "http://localhost:5001/api/find-drivers",
+            { sourceLocation, vehicleType }
+          );
+          const data = response.data.results;
 
-      // Filter drivers that are active
-      const activeDrivers = dummyDrivers.filter(driver => driver.status === "active");
-      setDrivers(activeDrivers);
+          setDrivers(data);
 
-      // Filter active drivers and those within 5km
-      filterDriversByDistance(activeDrivers, currentLocation, 5).then(filteredDrivers => {
-        setActiveDrivers(filteredDrivers);
-        console.log('Filtered Drivers:', filteredDrivers);
-      });
-    }
-  }, [currentLocation]);
+          const filteredDrivers = await filterDriversByDistance(
+            data,
+            sourceLocation,
+            5
+          );
+          setActiveDrivers(filteredDrivers);
+        } catch (error) {
+          console.error("Error fetching drivers:", error);
+        }
+      }
+    };
 
-  const filterDriversByDistance = (drivers, currentLocation, maxDistanceKm) => {
+    fetchDrivers();
+  }, [sourceLocation, destinationLocation]);
+
+  const filterDriversByDistance = (drivers, sourceLocation, maxDistanceKm) => {
     return new Promise((resolve) => {
-      setTimeout(() => {
-        const service = new window.google.maps.DistanceMatrixService();
+      // const distanceService = new window.google.maps.DistanceMatrixService();
+      //       distanceService.getDistanceMatrix(
+      //           {
+      //               origins: [formData.pickupLocation],
+      //               destinations: [formData.dropLocation],
+      //               travelMode: window.google.maps.TravelMode.DRIVING,
+      //           },
+      //           (response, status) => {
+      //               if (status === "OK") {
+      //                   const distance = response.rows[0].elements[0].distance.text;
+      //                   const duration = response.rows[0].elements[0].duration.text;
+      //                   setFormData((prevData) => ({ ...prevData, distance, duration }));
+      //                   setDistance(distance);
+      //                   setDuration(duration);
 
-        const origins = drivers.map(driver => new window.google.maps.LatLng(driver.lat, driver.lng));
-        const destination = new window.google.maps.LatLng(currentLocation.lat, currentLocation.lng);
+      //                   console.log(distance, duration);
+      //                   resolve(true); // Resolve the promise when data is set
+      //               } else {
+      //                   alert("Distance request failed due to " + status);
+      //                   reject(false); // Reject the promise on failure
+      //               }
+      //           }
+      //       );
 
-        service.getDistanceMatrix(
-          {
-            origins,
-            destinations: [destination],
-            travelMode: window.google.maps.TravelMode.DRIVING,
-          },
-          (response, status) => {
-            if (status === "OK") {
-              const filteredDrivers = response.rows.map((row, index) => {
+      const service = new window.google.maps.DistanceMatrixService();
+
+      const origins = drivers.map(
+        (driver) =>
+          new window.google.maps.LatLng(
+            parseFloat(driver.lat),
+            parseFloat(driver.lng)
+          )
+      );
+      const destination = new window.google.maps.LatLng(
+        sourceLocation.lat,
+        sourceLocation.lng
+      );
+
+      service.getDistanceMatrix(
+        {
+          origins,
+          destinations: [destination],
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        },
+        (response, status) => {
+          if (status === "OK") {
+            const filteredDrivers = response.rows
+              .map((row, index) => {
                 const distance = row.elements[0].distance.value / 1000;
-                console.log(`Driver ${drivers[index].name}: Distance = ${distance} km`);
+                  return {
+                    ...drivers[index],
+                    distance,
+                  };
+              })
+              .filter((driver) => driver !== null);
 
-                if (distance <= maxDistanceKm) {
-                  return drivers[index];
-                }
-                return null;
-              }).filter(driver => driver !== null);
-              resolve(filteredDrivers);
-            } else {
-              console.error("Distance Matrix service failed:", status);
-              resolve([]);
-            }
+            resolve(filteredDrivers);
+          } else {
+            console.error("Distance Matrix service failed:", status);
+            resolve([]);
           }
-        );
-      }, 1000);
+        }
+      );
     });
   };
 
@@ -93,7 +160,7 @@ const FindDeliveryPartnerUsingMap = () => {
 
   const handleAssignTask = () => {
     closeDriverPopup();
-    navigate("/payment", {state: {selectedDriver}});
+    navigate("/payment", { state: { selectedDriver } });
   };
 
   return (
@@ -103,15 +170,17 @@ const FindDeliveryPartnerUsingMap = () => {
           {activeDrivers.length === 0 ? (
             <p>Loading delivery partners...</p>
           ) : (
-            activeDrivers.map((partner) => (
+            activeDrivers.map((partner, index) => (
               <div
-                key={partner.id}
+                key={partner.user_id || index}
                 className="card"
                 onClick={() => handleCardClick(partner)}
               >
-                <h3>{partner.name}</h3>
-                <p>Vehicle: {partner.vehicleType}</p>
-                <p>Rating: {partner.rating} ⭐</p>
+                <h3>
+                  {partner.firstname} {partner.lastname}
+                </h3>
+                <p>Distance: {partner.distance.toFixed(2)} km</p>
+                <p>Estimated Price: ${partner.estimated_price.toFixed(2)}</p>
               </div>
             ))
           )}
@@ -119,37 +188,44 @@ const FindDeliveryPartnerUsingMap = () => {
       </div>
       <div className="right-pane">
         <div className="map-container">
-            <GoogleMap
-              mapContainerStyle={{ width: "100%", height: "500px" }}
-              center={currentLocation || { lat: 0, lng: 0 }}
-              zoom={14}
-            >
-              {currentLocation && (
-                <Marker
-                  position={currentLocation}
-                  icon={{ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" }}
-                />
-              )}
-              {drivers.map(driver => (
-                <Marker
-                  key={driver.id}
-                  position={{ lat: driver.lat, lng: driver.lng }}
-                  onClick={() => setSelectedDriver(driver)}
-                />
-              ))}
-              {selectedDriver && (
-                <InfoWindow
-                  position={{ lat: selectedDriver.lat, lng: selectedDriver.lng }}
-                  onCloseClick={() => setSelectedDriver(null)}
-                >
-                  <div>
-                    <h3>{selectedDriver.name}</h3>
-                    <p>Vehicle: {selectedDriver.vehicleType}</p>
-                    <p>Rating: {selectedDriver.rating}</p>
-                  </div>
-                </InfoWindow>
-              )}
-            </GoogleMap>
+          <GoogleMap
+            mapContainerStyle={{ width: "100%", height: "500px" }}
+            center={sourceLocation || { lat: 0, lng: 0 }}
+            zoom={14}
+          >
+            {sourceLocation && (
+              <Marker
+                position={sourceLocation}
+                icon={{
+                  url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                }}
+              />
+            )}
+            {drivers.map((driver) => (
+              <Marker
+                key={driver.user_id}
+                position={{
+                  lat: parseFloat(driver.lat),
+                  lng: parseFloat(driver.lng),
+                }}
+                onClick={() => setSelectedDriver(driver)}
+              />
+            ))}
+
+            {selectedDriver && selectedDriver.lat && selectedDriver.lng && (
+              <InfoWindow
+                position={{ lat: parseFloat(selectedDriver.lat), lng: parseFloat(selectedDriver.lng) }}
+                onCloseClick={() => setSelectedDriver(null)}
+              >
+                <div>
+                  <h3>{selectedDriver.firstname} {selectedDriver.lastname}</h3>
+                  <p>Vehicle: {selectedDriver.vehicleType}</p>
+                  <p>Rating: {selectedDriver.rating} ⭐</p>
+                </div>
+              </InfoWindow>
+            )}
+
+          </GoogleMap>
         </div>
       </div>
 

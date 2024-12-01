@@ -25,14 +25,14 @@ db.sequelize.authenticate()
 })();
 
 const dbRoute = require("./routes/connectDB");
-const { saveTaskDetails, employerGetTaskDetails } = require("./controllers/employerTaskDetails");
-const { saveTasks, employerGetTasks, getTasksByPaymentIds } = require("./controllers/employerTasks");
-const { registerUser, getUser, getUserID, getUsername,getProfileDetails,updateProfileDetails, checkActiveUser, updateUserStatus } = require("./controllers/user");
-const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus} = require("./controllers/vehicles");
-const { savePaymentSuccess, employerGetPaymentDetails,getPaymentDetails } = require("./controllers/employerPayment");
-const { getReviewsByReviewerId,getReviewsByRevieweeId } = require("./controllers/taskReviews");
+const { saveTaskDetails } = require("./controllers/employerTaskDetails");
+const { saveTasks, getTasks, getTasksByPaymentIds } = require("./controllers/employerTasks");
+const { registerUser, getUser, getUserID, getProfileDetails, updateProfileDetails, checkActiveUser, findDrivers, getUserDetailsforPayment, updateUserStatus } = require("./controllers/user");
+const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus } = require("./controllers/vehicles");
+const { savePaymentSuccess, getPaymentDetails } = require("./controllers/employerPayment");
+const { getReviewsByReviewerId, getReviewsByRevieweeId } = require("./controllers/taskReviews");
 const { storeEmployeeLocation } = require("./controllers/userLocation");
- 
+
 app.use("/api", dbRoute);
 
 // Login & Register
@@ -40,18 +40,18 @@ app.use('/api/register', registerUser);
 app.use('/api/login', getUser);
 
 // User 
-app.use('/api/get-user-id', getUserID); 
-app.use('/api/get-username', getUsername); 
+app.use('/api/get-user-id', getUserID);
+app.use('/api/get-username', getUserDetailsforPayment);
+app.use('/api/find-drivers', findDrivers);
 
 
 // Tasks
 app.use('/api/save-tasks', saveTasks);
-app.use('/api/employer-get-tasks', employerGetTasks);
-app.use('/api/get-taskbypayment',getTasksByPaymentIds);
+app.use('/api/get-tasks', getTasks);
+app.use('/api/get-taskbypayment', getTasksByPaymentIds);
 
 // Task Details
 app.use('/api/save-task-details', saveTaskDetails);
-app.use('/api/employer-get-task-details', employerGetTaskDetails);
 
 //Vehicles
 app.use('/api/addVehicle', addVehicle);
@@ -62,12 +62,11 @@ app.use('/api/vehicles/status', getVehicleStatus);
 
 // Payment
 app.use('/api/save-payment-details', savePaymentSuccess);
-app.use('/api/get-payment-details',getPaymentDetails);
-app.use('/api/employer-get-payment-details', employerGetPaymentDetails);
+app.use('/api/get-payment-details', getPaymentDetails);
 
 // reviews
-app.use('/api/get-reviewbyreviewer',getReviewsByReviewerId);
-app.use('/api/get-reviewbyreviewee',getReviewsByRevieweeId);
+app.use('/api/get-reviewbyreviewer', getReviewsByReviewerId);
+app.use('/api/get-reviewbyreviewee', getReviewsByRevieweeId);
 
 
 //Profile Settings
@@ -76,7 +75,7 @@ app.use('/api/updateProfile', updateProfileDetails);
 
 //User Location 
 app.use('/api/isactive', checkActiveUser);
-app.use('/api/location',storeEmployeeLocation);
+app.use('/api/location', storeEmployeeLocation);
 app.use('/api/users/updateStatus', updateUserStatus);
 
 const PORT = process.env.PORT || 5001;
