@@ -3,31 +3,31 @@ import "../styles/EmployerOrders.css"; // CSS for styling
 import CurrentTaskRender from "./CurrentTaskRender";
 
 const EmployerOrders = ({ enrichedOrders }) => {
-  const [expandedOrder, setExpandedOrder] = useState(null); // Tracks the currently expanded order
-  const [currentMapTask, setCurrentMapTask] = useState(null); // Tracks the task for which the map is displayed
+  const [expandedOrderIndex, setExpandedOrderIndex] = useState(null); // Tracks the currently expanded order by index
+  const [currentMapOrderIndex, setCurrentMapOrderIndex] = useState(null); // Tracks the order index for which the map is displayed
 
-  const handleExpand = (id) => {
-    setExpandedOrder(id);
+  const handleExpand = (index) => {
+    setExpandedOrderIndex(index);
   };
 
   const handleBack = () => {
-    setExpandedOrder(null);
+    setExpandedOrderIndex(null);
   };
 
-  const handleViewMap = (id) => {
-    setExpandedOrder(null);
-    setCurrentMapTask(id);
+  const handleViewMap = (index) => {
+    setExpandedOrderIndex(null);
+    setCurrentMapOrderIndex(index);
   };
 
   return (
     <div className="task-review-container">
       {/* Map Display Section */}
-      {currentMapTask && (
+      {currentMapOrderIndex !== null && (
         <div className="map-container">
-          <h3>Status Map for Task ID: {currentMapTask}</h3>
+          <h3>Status Map for Task {currentMapOrderIndex + 1}</h3>
           <div className="map-render">
-            {<CurrentTaskRender />}
-            <p>Map rendering for task {currentMapTask} will appear here.</p>
+            <CurrentTaskRender />
+            <p>Map rendering for task {currentMapOrderIndex + 1} will appear here.</p>
           </div>
         </div>
       )}
@@ -37,15 +37,14 @@ const EmployerOrders = ({ enrichedOrders }) => {
         {enrichedOrders.map((order, index) => (
           <div
             key={index}
-            className={`review-card ${expandedOrder === index ? "expanded" : ""}`}
+            className={`review-card ${expandedOrderIndex === index ? "expanded" : ""}`}
             onClick={() => handleExpand(index)}
           >
             <p>
               <strong>Employee Name:</strong> {order.employeeName}
             </p>
             <p>
-              <strong>Status:</strong>{" "}
-              <span className="status-highlight">{order.taskStatus}</span>
+              <strong>Status:</strong> <span className="status-highlight">{order.taskStatus}</span>
             </p>
             <p>
               <strong>Payment:</strong> {order.payment}
@@ -62,47 +61,40 @@ const EmployerOrders = ({ enrichedOrders }) => {
             <p>
               <strong>Item Description:</strong> {order.itemDescription}
             </p>
-            <p>
-              <strong>Employee Name:</strong> {order.employeeName}
-            </p>
           </div>
         ))}
       </div>
 
       {/* Expanded Order View */}
-      {expandedOrder !== null && (
+      {expandedOrderIndex !== null && (
         <div className="popup-overlay">
           <div className="popup-card">
-            <h3>Task Details</h3>
             <div>
               <p>
-                <strong>Task ID:</strong> {expandedOrder + 1}
+                <strong>Employee Name:</strong> {enrichedOrders[expandedOrderIndex].employeeName}
               </p>
               <p>
-                <strong>Status:</strong> {enrichedOrders[expandedOrder].taskStatus}
+                <strong>Status:</strong> {enrichedOrders[expandedOrderIndex].taskStatus}
               </p>
               <p>
-                <strong>Payment:</strong> {enrichedOrders[expandedOrder].payment}
+                <strong>Payment:</strong> {enrichedOrders[expandedOrderIndex].payment}
               </p>
               <p>
-                <strong>Vehicle Type:</strong> {enrichedOrders[expandedOrder].vehicleType}
+                <strong>Vehicle Type:</strong> {enrichedOrders[expandedOrderIndex].vehicleType}
               </p>
               <p>
-                <strong>Source:</strong> {enrichedOrders[expandedOrder].source}
+                <strong>Source:</strong> {enrichedOrders[expandedOrderIndex].source}
               </p>
               <p>
-                <strong>Destination:</strong> {enrichedOrders[expandedOrder].destination}
+                <strong>Destination:</strong> {enrichedOrders[expandedOrderIndex].destination}
               </p>
               <p>
-                <strong>Item Description:</strong> {enrichedOrders[expandedOrder].itemDescription}
-              </p>
-              <p>
-                <strong>Employee Name:</strong> {enrichedOrders[expandedOrder].employeeName}
+                <strong>Item Description:</strong> {enrichedOrders[expandedOrderIndex].itemDescription}
               </p>
             </div>
             <div className="button-group">
               <button
-                onClick={() => handleViewMap(expandedOrder)}
+                onClick={() => handleViewMap(expandedOrderIndex)}
                 className="view-map-button"
               >
                 View Map

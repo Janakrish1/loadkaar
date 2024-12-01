@@ -10,12 +10,14 @@ import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView
 import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
 import TaskReview from "./TaskReview";
 import axios from "axios";
-import EmployerOrders from "./EmployerOrders";
+import CurrentOrders from "./CurrentOrders";
+import PastOrders from "./PastOrders";
 import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
 import ProfileSettings from "./Profile_Settings";
 
 function Employer_HomePage() {
-  const { userID } = useSelector((state) => state.user); // Assuming userID is in the Redux state
+  const { userID, role } = useSelector((state) => state.user); // Assuming userID is in the Redux state
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentOrders, setCurrentOrders] = useState(null);
@@ -23,23 +25,31 @@ function Employer_HomePage() {
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
 
-  // Fetch user details when userID changes
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.post("http://localhost:5001/api/get-tasks", { userID, role: 'Employee', taskStatus: 'inprogress' });
+        const checkRole = role === "Employer" ? "Employee" : "Employer";
+        const checkStatus = currentView === "pastOrders" ? "completed" : "inprogress";
+  
+        const response = await axios.post("http://localhost:5001/api/get-tasks", {
+          userID,
+          role: checkRole,
+          taskStatus: checkStatus,
+        });
+  
         const tasks = response.data.results;
         setEnrichedOrders(tasks);
-        setCurrentOrders(enrichedOrders.length > 0); // Boolean flag to check if there are orders
+        setCurrentOrders(tasks.length > 0); // Boolean flag to check if there are orders
       } catch (err) {
         console.error("Error fetching details:", err);
       }
     };
-
-    if (userID) {
+  
+    if (userID && currentView) {
       fetchDetails();
     }
-  }, [userID]);
+  }, [userID, role, currentView]); // Trigger when any of these change
+  
 
   // Handle Menu Click
   const handleMenuClick = (menuItem, view = "default") => {
@@ -47,14 +57,15 @@ function Employer_HomePage() {
     if (view === "default") {
       dispatch(clearDeliveryFormData());
     }
+    
   };
 
   // Logout Functionality
   const handleLogout = () => {
     dispatch(clearUser());
     dispatch(clearDeliveryPartnerView());
-    localStorage.removeItem(`payments_${userID}`);
-    localStorage.removeItem(`tasks_${userID}`);
+    // localStorage.removeItem(`payments_${userID}`);
+    // localStorage.removeItem(`tasks_${userID}`);
 
     navigate("/");
   };
@@ -76,7 +87,16 @@ function Employer_HomePage() {
     switch (currentView) {
       case "default":
         return enrichedOrders.length > 0 ? (
-          <EmployerOrders enrichedOrders={enrichedOrders} />
+          <CurrentOrders enrichedOrders={enrichedOrders} />
+        ) : (
+          <div>
+            <br />
+            <h1>No Current Orders!</h1>
+          </div>
+        );
+      case "pastOrders":
+        return enrichedOrders.length > 0 ? (
+          <PastOrders enrichedOrders={enrichedOrders} />
         ) : (
           <div>
             <br />
@@ -134,7 +154,7 @@ function Employer_HomePage() {
           </div>
           <div
             className={`menu-item ${activeMenu === "Past Orders" ? "active" : ""}`}
-            onClick={() => handleMenuClick("Past Orders")}
+            onClick={() => handleMenuClick("Past Orders", "pastOrders")}
           >
             Past Orders
           </div>

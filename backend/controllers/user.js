@@ -78,6 +78,7 @@ module.exports = {
 
     // Login and validate a user
     getUser: async (req, res) => {
+        
         try {
             const { email, password, role } = req.body;
 
@@ -111,7 +112,9 @@ module.exports = {
                 type: sequelize.QueryTypes.SELECT
             });
 
-            if (results.length === 0) {
+            console.log(results);
+
+            if (results && results.length === 0) {
                 return res.status(404).json({ error: 'Invalid credentials or user not found' });
             }
 
