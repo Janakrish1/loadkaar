@@ -9,43 +9,74 @@ import { clearDeliveryFormData, clearDeliveryPartnerView } from "../redux/delive
 const PaymentCheckout = () => {
     const location = useLocation();
     const { userID } = useSelector((state) => state.user);
-    const deliveryFormData = useSelector((state) => state.deliveryPartnerView.formData || {});
+    const deliveryFormData = useSelector((state) => state.deliveryPartnerView.deliveryForm || {});
     const { selectedDriver } = location.state || {};
     const navigate = useNavigate();
 
-    const [userDetails, setUserDetails] = useState({ FName: '', LName: '', Email: '' });
+    const [userDetails, setUserDetails] = useState({ FName: '', LName: '', UserContact: '', Email: '' });
     const [paymentResponse, setPaymentResponse] = useState(null);
     const [transactionStatus, setTransactionStatus] = useState('');
+    const [vehicleType, setVehicleType] = useState("");
     const dispatch = useDispatch();
 
-    const [paymentData, setPaymentData] = useState({
+
+    const paymentData = {
         user_id: userID,
-        employee_name: selectedDriver?.name || '',
-        employee_id: selectedDriver?.id || '',
-        amount: '',
+        employee_name: `${selectedDriver?.firstname} ${selectedDriver?.lastname}`|| '',
+        employee_id: selectedDriver.user_id || '',
+        amount: selectedDriver.estimated_price,
         payment_date: new Date().toISOString().split('T')[0],
-    });
+    };
+
+    console.log(selectedDriver);
+    console.log(deliveryFormData);
+    console.log(paymentData);
+    console.log(userDetails);
+
 
     // Fetch user details when userID changes
     useEffect(() => {
         const fetchDetails = async () => {
             try {
                 const response = await axios.post("http://localhost:5001/api/get-username", { userID });
+    
+                // Set user details
                 setUserDetails({
                     FName: response.data.FName,
                     LName: response.data.LName,
+                    UserContact: response.data.UserContact,
                     Email: response.data.Email,
                 });
+    
+                // Set vehicle type based on deliveryFormData
+                if (deliveryFormData?.vehicleType) {
+                    switch (deliveryFormData.vehicleType) {
+                        case "2wheeler":
+                            setVehicleType("Two Wheeler");
+                            break;
+                        case "3wheeler":
+                            setVehicleType("Three Wheeler");
+                            break;
+                        case "4wheeler":
+                            setVehicleType("Four Wheeler");
+                            break;
+                        case "truck":
+                            setVehicleType("Truck");
+                            break;
+                        default:
+                            setVehicleType("Unknown Vehicle");
+                    }
+                }
             } catch (err) {
                 console.error("Error fetching user details:", err);
             }
         };
-
+    
         if (userID) {
             fetchDetails();
         }
-    }, [userID]);
-
+    }, [userID, deliveryFormData?.vehicleType]);
+    
     const loadRazorpayScript = () => {
         return new Promise((resolve) => {
             const script = document.createElement("script");
@@ -56,13 +87,9 @@ const PaymentCheckout = () => {
         });
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setPaymentData({ ...paymentData, [name]: value });
-    };
-
     const handlePaymentSuccess = () => {
         try {
+            if(paymentData && paymentResponse && transactionStatus && deliveryFormData) {
             axios.post("http://localhost:5001/api/save-payment-details", {
                 paymentResponse: paymentResponse,
                 paymentData: paymentData,
@@ -90,6 +117,7 @@ const PaymentCheckout = () => {
                 .catch(error => {
                     console.error('There was an error!', error);
                 });
+            }
         } catch (error) {
             alert(error);
         }
@@ -125,7 +153,7 @@ const PaymentCheckout = () => {
                 setTransactionStatus('success');
             },
             prefill: {
-                name: paymentData.employee_name,
+                name: `${userDetails.FName} ${userDetails.LName}`,
                 contact: deliveryFormData.contactPhoneNumber,
                 email: userDetails.Email,
             },
@@ -160,20 +188,13 @@ const PaymentCheckout = () => {
 
             <h2>Payment Checkout</h2>
             <form>
-                <button type="button" onClick={handlePayment}>
-                    Pay Now
-                </button>
                 <label>
-                    Your Name:
+                    Driver Name:
                     <input type="text" value={`${userDetails.FName} ${userDetails.LName}`} className="readonly" readOnly />
                 </label>
                 <label>
-                    Driver Name:
-                    <input type="text" value={paymentData.employee_name} className="readonly" readOnly />
-                </label>
-                <label>
                     Vehicle Type:
-                    <input type="text" value={deliveryFormData.vehicleType} className="readonly" readOnly />
+                    <input type="text" value={vehicleType} className="readonly" readOnly />
                 </label>
                 <label>
                     Item Description:
@@ -201,8 +222,11 @@ const PaymentCheckout = () => {
                 </label>
                 <label>
                     Amount:
-                    <input type="number" name="amount" value={paymentData.amount} onChange={handleChange} required />
+                    <input type="number" name="amount" value={paymentData.amount} className='readonly'  />
                 </label>
+                <button type="button" onClick={handlePayment}>
+                    Pay Now
+                </button>
             </form>
 
             {transactionStatus === 'failure' && (

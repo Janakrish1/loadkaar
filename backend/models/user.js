@@ -62,10 +62,17 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: "Active",
         },
     },
-    {
-        freezeTableName: true, // Prevents Sequelize from pluralizing the table name
-        timestamps: true, // Enable createdAt and updatedAt fields
-    });
+        {
+            indexes: [
+                {
+                    name: 'idx_user_role',
+                    fields: ['role']
+                }
+
+            ],
+            freezeTableName: true, // Prevents Sequelize from pluralizing the table name
+            timestamps: true, // Enable createdAt and updatedAt fields
+        });
 
     return User;
 };
