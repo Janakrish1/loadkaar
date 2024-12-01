@@ -56,8 +56,8 @@ module.exports = (sequelize, DataTypes) => {
         {
             indexes: [
                 {
-                    name: 'idx_vehicles_type_status',
-                    fields: ['vehicle_type', 'status']
+                    name: 'idx_vehicles_type',
+                    fields: ['vehicle_type']
                 }
             ],
             freezeTableName: true, // Prevents Sequelize from pluralizing the table name
