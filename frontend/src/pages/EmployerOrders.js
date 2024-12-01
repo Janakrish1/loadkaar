@@ -26,7 +26,7 @@ const EmployerOrders = ({ enrichedOrders }) => {
         <div className="map-container">
           <h3>Status Map for Task ID: {currentMapTask}</h3>
           <div className="map-render">
-            {<CurrentTaskRender  />}
+            {<CurrentTaskRender />}
             <p>Map rendering for task {currentMapTask} will appear here.</p>
           </div>
         </div>
@@ -34,68 +34,72 @@ const EmployerOrders = ({ enrichedOrders }) => {
 
       {/* Task Cards */}
       <div className="task-cards-container">
-        {enrichedOrders.map((order) => (
+        {enrichedOrders.map((order, index) => (
           <div
-            key={order.task.task_id}
-            className={`review-card ${expandedOrder === order.task.task_id ? "expanded" : ""}`}
-            onClick={() => handleExpand(order.task.task_id)}
+            key={index}
+            className={`review-card ${expandedOrder === index ? "expanded" : ""}`}
+            onClick={() => handleExpand(index)}
           >
-            <h3>Task ID: {order.task.task_id}</h3>
+            <p>
+              <strong>Employee Name:</strong> {order.employeeName}
+            </p>
             <p>
               <strong>Status:</strong>{" "}
-              <span className="status-highlight">{order.taskDetails[0].taskStatus}</span>
+              <span className="status-highlight">{order.taskStatus}</span>
             </p>
             <p>
-              <strong>Payment:</strong> {order.paymentDetails[0].amount} ({order.paymentDetails[0].status})
+              <strong>Payment:</strong> {order.payment}
             </p>
             <p>
-              <strong>Vehicle Type:</strong> {order.taskDetails[0].vehicleType}
+              <strong>Vehicle Type:</strong> {order.vehicleType}
             </p>
             <p>
-              <strong>Source:</strong> {order.taskDetails[0].pickupLocation}
+              <strong>Source:</strong> {order.source}
             </p>
             <p>
-              <strong>Destination:</strong> {order.taskDetails[0].dropLocation}
+              <strong>Destination:</strong> {order.destination}
             </p>
             <p>
-              <strong>Item Description:</strong> {order.taskDetails[0].itemDescription}
+              <strong>Item Description:</strong> {order.itemDescription}
+            </p>
+            <p>
+              <strong>Employee Name:</strong> {order.employeeName}
             </p>
           </div>
         ))}
       </div>
 
       {/* Expanded Order View */}
-      {expandedOrder && (
+      {expandedOrder !== null && (
         <div className="popup-overlay">
           <div className="popup-card">
             <h3>Task Details</h3>
-            {enrichedOrders
-              .filter((order) => order.task.task_id === expandedOrder)
-              .map((order) => (
-                <div key={order.task.task_id}>
-                  <p>
-                    <strong>Task ID:</strong> {order.task.task_id}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {order.taskDetails[0].taskStatus}
-                  </p>
-                  <p>
-                    <strong>Payment:</strong> {order.paymentDetails[0].amount} ({order.paymentDetails[0].status})
-                  </p>
-                  <p>
-                    <strong>Vehicle Type:</strong> {order.taskDetails[0].vehicleType}
-                  </p>
-                  <p>
-                    <strong>Source:</strong> {order.taskDetails[0].pickupLocation}
-                  </p>
-                  <p>
-                    <strong>Destination:</strong> {order.taskDetails[0].dropLocation}
-                  </p>
-                  <p>
-                    <strong>Item Description:</strong> {order.taskDetails[0].itemDescription}
-                  </p>
-                </div>
-              ))}
+            <div>
+              <p>
+                <strong>Task ID:</strong> {expandedOrder + 1}
+              </p>
+              <p>
+                <strong>Status:</strong> {enrichedOrders[expandedOrder].taskStatus}
+              </p>
+              <p>
+                <strong>Payment:</strong> {enrichedOrders[expandedOrder].payment}
+              </p>
+              <p>
+                <strong>Vehicle Type:</strong> {enrichedOrders[expandedOrder].vehicleType}
+              </p>
+              <p>
+                <strong>Source:</strong> {enrichedOrders[expandedOrder].source}
+              </p>
+              <p>
+                <strong>Destination:</strong> {enrichedOrders[expandedOrder].destination}
+              </p>
+              <p>
+                <strong>Item Description:</strong> {enrichedOrders[expandedOrder].itemDescription}
+              </p>
+              <p>
+                <strong>Employee Name:</strong> {enrichedOrders[expandedOrder].employeeName}
+              </p>
+            </div>
             <div className="button-group">
               <button
                 onClick={() => handleViewMap(expandedOrder)}

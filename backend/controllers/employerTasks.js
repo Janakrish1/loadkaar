@@ -41,21 +41,38 @@ module.exports = {
         }
     },
 
-    employerGetTasks: async (req, res) => {
-        const {userID} = req.body;
-        if (!userID) {
-            return res.status(400).json({ error: 'User is not registered' });
+    getTasks: async (req, res) => {
+        const {userID, role, taskStatus} = req.body;
+        if (!userID || !role || !taskStatus) {
+            return res.status(400).json({ error: 'Internal Server Error!' });
         }
 
         try {
             selectQuery = `
-                SELECT task_id AS task_id, payment_id AS payment_id, employer_id AS employer_id, employee_id AS employee_id
-                FROM Tasks
-                WHERE employer_id = :userID
+                SELECT 
+                    td.vehicleType AS vehicleType, 
+                    td.pickupLocation AS source, 
+                    td.dropLocation AS destination, 
+                    td.itemDescription AS itemDescription,
+                    p.amount AS payment,
+                    td.taskStatus AS taskStatus,
+                    CONCAT(u.firstName, ' ', u.lastName) AS employeeName
+                FROM 
+                    TaskDetails td
+                JOIN 
+                    Tasks t ON td.task_id = t.task_id
+                JOIN 
+                    Payment p ON t.payment_id = p.payment_id
+                JOIN 
+                    User u ON t.employee_id = u.user_id
+                WHERE 
+                    u.role = :role
+                AND td.taskStatus = :taskStatus
+                AND t.employer_id = :userID
             `;
 
             const results = await sequelize.query(selectQuery, {
-                replacements: { userID },
+                replacements: { userID, role, taskStatus },
                 type: sequelize.QueryTypes.SELECT,
             });
 

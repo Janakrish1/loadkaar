@@ -27,26 +27,9 @@ function Employer_HomePage() {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.post("http://localhost:5001/api/employer-get-tasks", { userID });
+        const response = await axios.post("http://localhost:5001/api/get-tasks", { userID, role: 'Employee', taskStatus: 'inprogress' });
         const tasks = response.data.results;
-
-        // Enrich tasks with additional details
-        const enrichedOrders = await Promise.all(
-          tasks.map(async (task) => {
-            const [taskDetails, paymentDetails] = await Promise.all([
-              axios.post("http://localhost:5001/api/employer-get-task-details", { task_id: task.task_id }),
-              axios.post("http://localhost:5001/api/employer-get-payment-details", { payment_id: task.payment_id }),
-            ]);
-
-            return {
-              task,
-              taskDetails: taskDetails.data.results,
-              paymentDetails: paymentDetails.data.results,
-            };
-          })
-        );
-
-        setEnrichedOrders(enrichedOrders);
+        setEnrichedOrders(tasks);
         setCurrentOrders(enrichedOrders.length > 0); // Boolean flag to check if there are orders
       } catch (err) {
         console.error("Error fetching details:", err);
@@ -87,6 +70,7 @@ function Employer_HomePage() {
     handleMenuClick("", "findDelivery");
   };
 
+
   // Render View Based on State
   const renderView = () => {
     switch (currentView) {
@@ -102,13 +86,13 @@ function Employer_HomePage() {
       case "findDelivery":
         return <FindDeliveryPartnerUsingMap />;
       case "tasksReview": // Add case for tasks review
-      return <TaskReview type="Tasks Review" />;
-        case "recReview": // Add case for tasks review
+        return <TaskReview type="Tasks Review" />;
+      case "recReview": // Add case for tasks review
         return <TaskReview type="Received Review" />;
-        case "payments": // Added case for payments
-      return <ReviewPayments type="Employer" />; 
+      case "payments": // Added case for payments
+        return <ReviewPayments type="Employer" />;
       case "profile": // Added case for payments
-      return <ProfileSettings />; 
+        return <ProfileSettings />;
       default:
         return <div>Select a menu item to view details</div>;
     }
@@ -124,11 +108,11 @@ function Employer_HomePage() {
         <h1 className="website-name">LoadKaar</h1>
         <div className="profile-container">
           <div className="profile" onClick={() => {
-              handleMenuClick("profilePage","profile")
-            }}
+            handleMenuClick("profilePage", "profile")
+          }}
             style={{ cursor: "pointer" }} // Adds a pointer cursor for better UX
-            >
-            
+          >
+
             <img src={profile_pic} alt="profile_pic" className="profile-icon" />
             <span>Profile</span>
           </div>
@@ -156,7 +140,7 @@ function Employer_HomePage() {
           </div>
           <div
             className={`menu-item ${activeMenu === "Payments" ? "active" : ""}`}
-            onClick={() => handleMenuClick("Payments","payments")}
+            onClick={() => handleMenuClick("Payments", "payments")}
           >
             Payments
           </div>
