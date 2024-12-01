@@ -3,7 +3,7 @@ import "../styles/TaskReview.css";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
-const ReviewPayments = () => {
+const ReviewPayments = ({ type }) => {
   const { userID } = useSelector((state) => state.user);
   const [payments, setPayments] = useState([]);
   const [tasks, setTasks] = useState({}); // Store tasks as an object {payment_id: task_id}
@@ -16,7 +16,7 @@ const ReviewPayments = () => {
     const fetchPayments = async () => {
       try {
         setLoading(true);
-        const response = await axios.post("http://localhost:5001/api/get-payment-details", { user_id: userID });
+        const response = await axios.post("http://localhost:5001/api/get-payment-details", { user_id: userID,type });
         setPayments(response.data);
 
         // Fetch task IDs for each payment in a batch call

@@ -7,6 +7,8 @@ import { clearUser } from "../redux/userSlice";
 import axios from "axios";
 import VehiclesPage from "./Vehicles"; // Import your VehiclesPage component
 import ProfileSettingsPage from "./Profile_Settings";
+import ReviewPayments from "./ReviewPayments";
+import TaskReview from "./TaskReview";
 
 function Employee_HomePage() {
   const { userID } = useSelector((state) => state.user); // Using userID from Redux
@@ -14,12 +16,32 @@ function Employee_HomePage() {
 
   const [currentView, setCurrentView] = useState("default"); // Manage different views (default or vehicles)
   const [isActive, setIsActive] = useState(true); // State to manage active/inactive status
-  const [vehiclesActive, setVehiclesActive] = useState(false); // Initially assume vehicles are not active
+  const [vehiclesActive, setVehiclesActive] = useState(true); // Initially assume vehicles are not active
 
   // Logout function
   const handleLogout = () => {
     dispatch(clearUser());
     window.location.href = "/"; // Redirect to login page after logout
+  };
+
+  const fetchUserStatus = async () => {
+    try{
+      const userData = {user_id: userID};
+      const responseMessage = await axios.post("http://localhost:5001/api/isactive", userData);
+
+      if(responseMessage.data.message === "The User is active")
+      {
+        setIsActive(true);
+      }
+      else
+      {
+        setIsActive(false);
+      }
+    }
+    catch (error) {
+      setIsActive(false);
+      console.error("Error fetching vehicle status:", error);
+    }
   };
 
   // Fetch vehicle status to check if it's active
@@ -30,23 +52,26 @@ function Employee_HomePage() {
       if (response.data.message === "User has at least one active vehicle.") {
         setVehiclesActive(true);
         setIsActive(true);
+        updateUserStatus(true);
       } else {
         setVehiclesActive(false);
         setIsActive(false);
+        updateUserStatus(true);
       }
       
     } catch (error) {
       setVehiclesActive(false);
       setIsActive(false);
+      updateUserStatus(false);
       console.error("Error fetching vehicle status:", error);
     }
   };
-
+  
 // Check if any vehicle is active
-
   const updateToggleStatus = (vehiclesList) => {
   const hasActiveVehicle = vehiclesList.some((vehicle) => vehicle.status === "Active");
   setIsActive(hasActiveVehicle);
+  updateUserStatus(hasActiveVehicle);
   };
 
   useEffect(() => {
@@ -71,8 +96,27 @@ function Employee_HomePage() {
 
   //Fetch vehicle status on component mount
   useEffect(() => {
-    fetchVehicleStatus();
+    fetchUserStatus();
   }, [userID]);
+
+  const updateUserStatus = async (newStatus) => {
+    try {
+      const userStatus = {
+        user_id: userID,
+        status: newStatus ? "Active" : "Inactive", // Set status based on new isActive value
+      };
+      const response = await axios.post("http://localhost:5001/api/users/updateStatus", userStatus);
+  
+      if (response.status === 200) {
+        console.log("User status updated successfully:", response.data);
+      } else {
+        console.error("Failed to update user status:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating user status:", error);
+    }
+  };
+
 
   // Function to store the location in the database
   const storeLocationInDatabase = async (location) => {
@@ -116,6 +160,7 @@ function Employee_HomePage() {
       }
       
     setIsActive(!isActive);
+    updateUserStatus(!isActive);
   };
 
   // Function to load the "Vehicles" section in the same page
@@ -127,6 +172,18 @@ function Employee_HomePage() {
     {
       setCurrentView("profilePage");
     }
+    else if(view === "payments")
+    {
+     setCurrentView("payments"); 
+    }
+    else if(view === "yreviews")
+      {
+       setCurrentView("yreviews"); 
+      }
+      else if(view === "recreviews")
+        {
+         setCurrentView("recreviews"); 
+        }
     else {
       setCurrentView("default");
     }
@@ -184,8 +241,8 @@ function Employee_HomePage() {
           <div className="menu-item" onClick={() => handleMenuClick("payments")}>
             Payments
           </div>
-          <div className="menu-item" onClick={() => handleMenuClick("reviews")}>
-            Your Reviews
+          <div className="menu-item" onClick={() => handleMenuClick("yreviews")}>
+            Task Reviews
           </div>
           <div className="menu-item" onClick={() => handleMenuClick("recreviews")}>
             Received Reviews
@@ -208,12 +265,19 @@ function Employee_HomePage() {
             )} {/* Display VehiclesPage here */}
           {currentView === "profilePage" && (
             <ProfileSettingsPage/>
-            )} {/* Display ProfileSettingsPage here */}
+            )} 
+            {/* Display ProfileSettingsPage here */}
           {currentView === "tasks" && <div>Current Tasks Section Here</div>}
           {currentView === "pastTasks" && <div>Past Tasks Section Here</div>}
-          {currentView === "payments" && <div>Payments Section Here</div>}
-          {currentView === "yreviews" && <div>Your Tasks Review Section Here</div>}
-          {currentView === "recreviews" && <div>Received Tasks Review Section Here</div>}
+          {currentView === "payments" && (
+            <ReviewPayments type="Employee"/>
+            )}
+          {currentView === "yreviews" && (
+            <TaskReview type="Tasks Review"/>
+            )}
+          {currentView === "recreviews" && (
+            <TaskReview type="Received Review"/>
+            )}
         </main>
       </div>
 
