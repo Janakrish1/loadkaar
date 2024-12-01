@@ -100,7 +100,7 @@ function Employer_HomePage() {
         ) : (
           <div>
             <br />
-            <h1>No Current Orders!</h1>
+            <h1>No Past Orders!</h1>
           </div>
         );
       case "findDelivery":
