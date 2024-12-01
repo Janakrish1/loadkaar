@@ -10,12 +10,14 @@ import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView
 import FindDeliveryPartnerUsingMap from "./FindDeliveryPartnerUsingMap";
 import TaskReview from "./TaskReview";
 import axios from "axios";
-import EmployerOrders from "./EmployerOrders";
+import CurrentOrders from "./CurrentOrders";
+import PastOrders from "./PastOrders";
 import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
 import ProfileSettings from "./Profile_Settings";
 
 function Employer_HomePage() {
-  const { userID } = useSelector((state) => state.user); // Assuming userID is in the Redux state
+  const { userID, role } = useSelector((state) => state.user); // Assuming userID is in the Redux state
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentOrders, setCurrentOrders] = useState(null);
@@ -23,40 +25,31 @@ function Employer_HomePage() {
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
 
-  // Fetch user details when userID changes
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.post("http://localhost:5001/api/employer-get-tasks", { userID });
+        const checkRole = role === "Employer" ? "Employee" : "Employer";
+        const checkStatus = currentView === "pastOrders" ? "completed" : "inprogress";
+  
+        const response = await axios.post("http://localhost:5001/api/get-tasks", {
+          userID,
+          role: checkRole,
+          taskStatus: checkStatus,
+        });
+  
         const tasks = response.data.results;
-
-        // Enrich tasks with additional details
-        const enrichedOrders = await Promise.all(
-          tasks.map(async (task) => {
-            const [taskDetails, paymentDetails] = await Promise.all([
-              axios.post("http://localhost:5001/api/employer-get-task-details", { task_id: task.task_id }),
-              axios.post("http://localhost:5001/api/employer-get-payment-details", { payment_id: task.payment_id }),
-            ]);
-
-            return {
-              task,
-              taskDetails: taskDetails.data.results,
-              paymentDetails: paymentDetails.data.results,
-            };
-          })
-        );
-
-        setEnrichedOrders(enrichedOrders);
-        setCurrentOrders(enrichedOrders.length > 0); // Boolean flag to check if there are orders
+        setEnrichedOrders(tasks);
+        setCurrentOrders(tasks.length > 0); // Boolean flag to check if there are orders
       } catch (err) {
         console.error("Error fetching details:", err);
       }
     };
-
-    if (userID) {
+  
+    if (userID && currentView) {
       fetchDetails();
     }
-  }, [userID]);
+  }, [userID, role, currentView]); // Trigger when any of these change
+  
 
   // Handle Menu Click
   const handleMenuClick = (menuItem, view = "default") => {
@@ -64,14 +57,15 @@ function Employer_HomePage() {
     if (view === "default") {
       dispatch(clearDeliveryFormData());
     }
+    
   };
 
   // Logout Functionality
   const handleLogout = () => {
     dispatch(clearUser());
     dispatch(clearDeliveryPartnerView());
-    localStorage.removeItem(`payments_${userID}`);
-    localStorage.removeItem(`tasks_${userID}`);
+    // localStorage.removeItem(`payments_${userID}`);
+    // localStorage.removeItem(`tasks_${userID}`);
 
     navigate("/");
   };
@@ -87,28 +81,38 @@ function Employer_HomePage() {
     handleMenuClick("", "findDelivery");
   };
 
+
   // Render View Based on State
   const renderView = () => {
     switch (currentView) {
       case "default":
         return enrichedOrders.length > 0 ? (
-          <EmployerOrders enrichedOrders={enrichedOrders} />
+          <CurrentOrders enrichedOrders={enrichedOrders} />
         ) : (
           <div>
             <br />
             <h1>No Current Orders!</h1>
           </div>
         );
+      case "pastOrders":
+        return enrichedOrders.length > 0 ? (
+          <PastOrders enrichedOrders={enrichedOrders} />
+        ) : (
+          <div>
+            <br />
+            <h1>No Past Orders!</h1>
+          </div>
+        );
       case "findDelivery":
         return <FindDeliveryPartnerUsingMap />;
       case "tasksReview": // Add case for tasks review
-      return <TaskReview type="Tasks Review" />;
-        case "recReview": // Add case for tasks review
+        return <TaskReview type="Tasks Review" />;
+      case "recReview": // Add case for tasks review
         return <TaskReview type="Received Review" />;
-        case "payments": // Added case for payments
-      return <ReviewPayments type="Employer" />; 
+      case "payments": // Added case for payments
+        return <ReviewPayments type="Employer" />;
       case "profile": // Added case for payments
-      return <ProfileSettings />; 
+        return <ProfileSettings />;
       default:
         return <div>Select a menu item to view details</div>;
     }
@@ -124,11 +128,11 @@ function Employer_HomePage() {
         <h1 className="website-name">LoadKaar</h1>
         <div className="profile-container">
           <div className="profile" onClick={() => {
-              handleMenuClick("profilePage","profile")
-            }}
+            handleMenuClick("profilePage", "profile")
+          }}
             style={{ cursor: "pointer" }} // Adds a pointer cursor for better UX
-            >
-            
+          >
+
             <img src={profile_pic} alt="profile_pic" className="profile-icon" />
             <span>Profile</span>
           </div>
@@ -150,13 +154,13 @@ function Employer_HomePage() {
           </div>
           <div
             className={`menu-item ${activeMenu === "Past Orders" ? "active" : ""}`}
-            onClick={() => handleMenuClick("Past Orders")}
+            onClick={() => handleMenuClick("Past Orders", "pastOrders")}
           >
             Past Orders
           </div>
           <div
             className={`menu-item ${activeMenu === "Payments" ? "active" : ""}`}
-            onClick={() => handleMenuClick("Payments","payments")}
+            onClick={() => handleMenuClick("Payments", "payments")}
           >
             Payments
           </div>

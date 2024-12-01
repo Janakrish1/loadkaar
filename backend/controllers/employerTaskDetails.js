@@ -76,35 +76,4 @@ module.exports = {
             res.status(500).json({ error: 'An error occurred while saving the task details.' });
         }
     },
-    employerGetTaskDetails: async (req, res) => {
-        const { task_id } = req.body;
-        if (!task_id) {
-            return res.status(400).json({ error: 'Task is not added to DB' });
-        }
-
-        try {
-            selectQuery = `
-                SELECT *
-                FROM TaskDetails
-                WHERE task_id = :task_id
-            `;
-
-            const results = await sequelize.query(selectQuery, {
-                replacements: { task_id },
-                type: sequelize.QueryTypes.SELECT,
-            });
-
-            if (!results || results.length === 0) {
-                return res.status(200).json({ 
-                    message: 'No tasks found for this employer.', 
-                    results: [] 
-                });
-            }
-
-            res.status(200).json({message: 'Fetched details successfully', results});
-
-        } catch (error) {
-            res.status(500).json({ error: 'An error occurred while fetching the details' });
-        }
-    },
 };
