@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { clearDeliveryFormData, clearDeliveryPartnerView, setDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 import TaskReview from "./TaskReview";
 import axios from "axios";
-import EmployerOrders from "./EmployerOrders";
+import CurrentOrders from "./CurrentOrders";
 import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
 import ProfileSettings from "./Profile_Settings";
 
@@ -79,7 +79,7 @@ function Warehouse_HomePage() {
     switch (currentView) {
       case "default":
         return enrichedOrders.length > 0 ? (
-          <EmployerOrders enrichedOrders={enrichedOrders} />
+          <CurrentOrders enrichedOrders={enrichedOrders} />
         ) : (
           <div>
             <br />
