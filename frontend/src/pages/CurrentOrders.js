@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../styles/EmployerOrders.css"; // CSS for styling
 import CurrentTaskRender from "./CurrentTaskRender";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 const EmployerOrders = ({ enrichedOrders }) => {
   const { role } = useSelector((state) => state.user);
@@ -21,6 +22,25 @@ const EmployerOrders = ({ enrichedOrders }) => {
     setExpandedOrderIndex(null);
     setCurrentMapOrderIndex(index);
   };
+
+  const completeTask = async (task_id) => {
+    try {
+      axios.post("http://localhost:5001/api/complete-task", { task_id, status: 'completed' })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((err) => {
+          alert(err.response?.data?.err || "An error occurred during task completion.")
+        })
+    } catch (error) {
+
+    }
+  }
+
+  const handleCompleteTask = (index) => {
+    const task_id = enrichedOrders[index].task_id;
+    completeTask(task_id);
+  }
 
   useEffect(() => {
     const setTypes = () => {
@@ -69,6 +89,9 @@ const EmployerOrders = ({ enrichedOrders }) => {
               <strong>{role === "Employee" ? "Employer" : "Employee"} Name:</strong> {order.employeeName}
             </p>
             <p>
+              <strong>Task ID: </strong> <span className="status-highlight">{order.task_id}</span>
+            </p>
+            <p>
               <strong>Status:</strong> <span className="status-highlight">{order.taskStatus}</span>
             </p>
             <p>
@@ -96,7 +119,10 @@ const EmployerOrders = ({ enrichedOrders }) => {
           <div className="popup-card">
             <div>
               <p>
-                <strong>Employee Name:</strong> {enrichedOrders[expandedOrderIndex].employeeName}
+                <strong>{role === "Employee" ? "Employer" : "Employee"} Name:</strong> {enrichedOrders[expandedOrderIndex].employeeName}
+              </p>
+              <p>
+                <strong>Task ID: </strong> <span className="status-highlight">{enrichedOrders[expandedOrderIndex].task_id}</span>
               </p>
               <p>
                 <strong>Status:</strong> {enrichedOrders[expandedOrderIndex].taskStatus}
@@ -125,8 +151,8 @@ const EmployerOrders = ({ enrichedOrders }) => {
                 View Map
               </button>
 
-            {role === 'Employee' &&  <button
-                
+              {role === 'Employee' && <button
+                onClick={() => handleCompleteTask(expandedOrderIndex)}
                 className="complete-button"
               >
                 Complete Task
