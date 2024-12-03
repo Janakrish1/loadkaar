@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/EmployerOrders.css"; // CSS for styling
 import CurrentTaskRender from "./CurrentTaskRender";
+import { useSelector } from "react-redux";
 
 const EmployerOrders = ({ enrichedOrders }) => {
+  const { role } = useSelector((state) => state.user);
   const [expandedOrderIndex, setExpandedOrderIndex] = useState(null); // Tracks the currently expanded order by index
   const [currentMapOrderIndex, setCurrentMapOrderIndex] = useState(null); // Tracks the order index for which the map is displayed
+  const [vehicleTypes, setVehicleTypes] = useState([]); // Stores formatted vehicle types for each order
 
   const handleExpand = (index) => {
     setExpandedOrderIndex(index);
@@ -18,6 +21,32 @@ const EmployerOrders = ({ enrichedOrders }) => {
     setExpandedOrderIndex(null);
     setCurrentMapOrderIndex(index);
   };
+
+  const handleCompleteTask = (index) => {
+    // updateTask()
+  }
+
+  useEffect(() => {
+    const setTypes = () => {
+      const formattedVehicleTypes = enrichedOrders.map((order) => {
+        switch (order.vehicleType) {
+          case "2wheeler":
+            return "Two Wheeler";
+          case "3wheeler":
+            return "Three Wheeler";
+          case "4wheeler":
+            return "Four Wheeler";
+          case "truck":
+            return "Truck";
+          default:
+            return "Unknown Vehicle";
+        }
+      });
+      setVehicleTypes(formattedVehicleTypes);
+    };
+
+    setTypes();
+  }, [enrichedOrders]); // Run whenever enrichedOrders changes
 
   return (
     <div className="task-review-container">
@@ -41,7 +70,10 @@ const EmployerOrders = ({ enrichedOrders }) => {
             onClick={() => handleExpand(index)}
           >
             <p>
-              <strong>Employee Name:</strong> {order.employeeName}
+              <strong>{role === "Employee" ? "Employer" : "Employee"} Name:</strong> {order.employeeName}
+            </p>
+            <p>
+              <strong>Task ID: </strong> <span className="status-highlight">{order.task_id}</span>
             </p>
             <p>
               <strong>Status:</strong> <span className="status-highlight">{order.taskStatus}</span>
@@ -50,7 +82,7 @@ const EmployerOrders = ({ enrichedOrders }) => {
               <strong>Payment:</strong> {order.payment}
             </p>
             <p>
-              <strong>Vehicle Type:</strong> {order.vehicleType}
+              <strong>Vehicle Type:</strong> {vehicleTypes[index]}
             </p>
             <p>
               <strong>Source:</strong> {order.source}
@@ -80,7 +112,7 @@ const EmployerOrders = ({ enrichedOrders }) => {
                 <strong>Payment:</strong> {enrichedOrders[expandedOrderIndex].payment}
               </p>
               <p>
-                <strong>Vehicle Type:</strong> {enrichedOrders[expandedOrderIndex].vehicleType}
+                <strong>Vehicle Type:</strong> {vehicleTypes[expandedOrderIndex]}
               </p>
               <p>
                 <strong>Source:</strong> {enrichedOrders[expandedOrderIndex].source}
@@ -99,6 +131,14 @@ const EmployerOrders = ({ enrichedOrders }) => {
               >
                 View Map
               </button>
+
+            {role === 'Employee' &&  <button
+                onClick={handleCompleteTask(expandedOrderIndex)}
+                className="complete-button"
+              >
+                Complete Task
+              </button>}
+
               <button onClick={handleBack} className="back-button">
                 Back
               </button>
