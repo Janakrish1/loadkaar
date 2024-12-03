@@ -97,7 +97,7 @@ function Warehouse_HomePage() {
       case "recReview": // Add case for tasks review
         return <TaskReview type="Received Review" />;
       case "payments": // Added case for payments
-        return <ReviewPayments type="Employee" />;
+        return <ReviewPayments type="Owner" />;
       case "profile": // Added case for payments
         return <ProfileSettings />;
       default:
