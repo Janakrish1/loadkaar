@@ -4,11 +4,13 @@ import storage from 'redux-persist/lib/storage';
 import { combineReducers } from 'redux';
 import userReducer from './userSlice';
 import deliveryPartnerReducer from './deliveryPartnerViewSlice';
+import employeeViewReducer from './employeeViewSlice';
 
 // Combine reducers
 const rootReducer = combineReducers({
     user: userReducer, // Key "user" aligns with userSlice
     deliveryPartnerView: deliveryPartnerReducer,
+    employeeView: employeeViewReducer,
 });
 
 // Persist configuration

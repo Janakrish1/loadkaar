@@ -50,6 +50,7 @@ module.exports = {
         try {
             selectQuery = `
                 SELECT 
+                    t.employee_id AS employee_id,
                     td.vehicleType AS vehicleType, 
                     td.pickupLocation AS source, 
                     td.dropLocation AS destination, 
