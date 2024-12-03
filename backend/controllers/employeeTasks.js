@@ -18,7 +18,7 @@ module.exports = {
                     td.itemDescription AS itemDescription,
                     p.amount AS payment,
                     td.taskStatus AS taskStatus,
-                    CONCAT(u.firstName, ' ', u.lastName) AS employerName
+                    CONCAT(u.firstName, ' ', u.lastName) AS employeeName
                 FROM 
                     TaskDetails td
                 JOIN 
@@ -26,11 +26,10 @@ module.exports = {
                 JOIN 
                     Payment p ON t.payment_id = p.payment_id
                 JOIN 
-                    User u ON t.employer_id = u.user_id
+                    User u ON t.employee_id = u.user_id
                 WHERE 
-                    u.role = :role
-                AND td.taskStatus = :taskStatus
-                AND t.employer_id = :userID
+					td.taskStatus = :taskStatus
+				AND t.employee_id = :userID;
             `;
 
             const results = await sequelize.query(selectQuery, {
