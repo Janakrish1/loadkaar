@@ -22,6 +22,10 @@ const EmployerOrders = ({ enrichedOrders }) => {
     setCurrentMapOrderIndex(index);
   };
 
+  const handleCompleteTask = (index) => {
+    // updateTask()
+  }
+
   useEffect(() => {
     const setTypes = () => {
       const formattedVehicleTypes = enrichedOrders.map((order) => {
@@ -67,6 +71,9 @@ const EmployerOrders = ({ enrichedOrders }) => {
           >
             <p>
               <strong>{role === "Employee" ? "Employer" : "Employee"} Name:</strong> {order.employeeName}
+            </p>
+            <p>
+              <strong>Task ID: </strong> <span className="status-highlight">{order.task_id}</span>
             </p>
             <p>
               <strong>Status:</strong> <span className="status-highlight">{order.taskStatus}</span>
@@ -126,7 +133,7 @@ const EmployerOrders = ({ enrichedOrders }) => {
               </button>
 
             {role === 'Employee' &&  <button
-                
+                onClick={handleCompleteTask(expandedOrderIndex)}
                 className="complete-button"
               >
                 Complete Task
