@@ -131,7 +131,7 @@ module.exports = {
                   
             // Execute the query
             const [results] = await sequelize.query(statusQuery, {
-              replacements: { user_id }, // Pass userId as a replacement parameter
+              replacements: {user_id}, // Pass userId as a replacement parameter
               type: sequelize.QueryTypes.SELECT, // Specify query type
             });
             // Check if the result has any active vehicles
@@ -140,7 +140,7 @@ module.exports = {
             if (activeVehicleCount > 0) {
               return res.status(200).json({ message: "User has at least one active vehicle." });
             } else {
-              return res.status(400).json({ message: "User does not have any active vehicles." });
+              return res.status(200).json({ message: "User does not have any active vehicles." });
             }
           } catch (error) {
             console.error("Error checking active vehicle status:", error);

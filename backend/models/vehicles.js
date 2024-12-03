@@ -54,6 +54,12 @@ module.exports = (sequelize, DataTypes) => {
             },
         },
         {
+            indexes: [
+                {
+                    name: 'idx_vehicles_type',
+                    fields: ['vehicle_type']
+                }
+            ],
             freezeTableName: true, // Prevents Sequelize from pluralizing the table name
             timestamps: true, // Enables createdAt and updatedAt
         }

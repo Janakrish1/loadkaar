@@ -41,9 +41,6 @@ function Register({ role, onClose }) {
         };
 
         await axios.post("http://localhost:5001/api/register", formData)
-        .then(() => {
-            return axios.post("http://localhost:5001/api/get-user-id", userData);
-        })
         .then((response) => {
             const userID = response.data.userID;
             
