@@ -11,7 +11,8 @@ module.exports = {
         try {
             selectQuery = `
                 SELECT 
-                    t.employer_id AS employer_id,
+                    t.employer_id AS role_id,
+                    t.task_id AS task_id,
                     td.vehicleType AS vehicleType, 
                     td.pickupLocation AS source, 
                     td.dropLocation AS destination, 
