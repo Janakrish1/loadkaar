@@ -72,22 +72,30 @@ module.exports = {
 
     // Get Warehouse Pricing for a user
     getUserWarehousePricing: async (req, res) => {
-        const { user_id } = req.body; // Get the user ID from request params
         try {
-            const selectQuery = `SELECT * FROM Warehouse WHERE user_id = :user_id`;
-            // Fetch the Warehouses of a user from the database
-            const warehouse = await sequelize.query(
+            const { warehouse_ids } = req.body;
+
+            if (!Array.isArray(warehouse_ids) || warehouse_ids.length === 0) {
+                return res.status(400).json({ message: "Invalid or missing warehouse_ids" });
+            }
+            const selectQuery = `SELECT warehouse_id, price_per_hour 
+                         FROM WarehousePricing 
+                         WHERE warehouse_id IN (:warehouse_ids)`;
+                         
+            const prices = await sequelize.query(
                 selectQuery,
                 {
-                    replacements: {user_id},
+                    replacements: {warehouse_ids: warehouse_ids},
                     type: sequelize.QueryTypes.SELECT
                 }
             );
 
-            if (warehouse.length === 0) {
-                return res.status(200).json({ message: 'No warehouse found for this user' });
-            }
-            res.status(200).json(warehouse);
+            if (prices.length === 0) {
+                return res.status(404).json({ message: "No prices found for the provided warehouses" });
+              }
+          
+              // Return the result as a response
+              res.status(200).json(prices);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal Server Error' });

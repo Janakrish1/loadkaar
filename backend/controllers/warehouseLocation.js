@@ -81,22 +81,30 @@ module.exports = {
 
     // Get Warehouse Location for a user
     getUserWarehouseLocation: async (req, res) => {
-        const { user_id } = req.body; // Get the user ID from request params
         try {
-            const selectQuery = `SELECT * FROM Warehouse WHERE user_id = :user_id`;
-            // Fetch the Warehouses of a user from the database
-            const warehouse = await sequelize.query(
-                selectQuery,
-                {
-                    replacements: {user_id},
-                    type: sequelize.QueryTypes.SELECT
-                }
+            const { warehouse_ids } = req.body;
+
+            if (!Array.isArray(warehouse_ids) || warehouse_ids.length === 0) {
+                return res.status(400).json({ message: "Invalid or missing warehouse_ids" });
+            }
+            const selectQuery = `SELECT warehouse_id, address, location 
+            FROM WarehouseLocation 
+            WHERE warehouse_id IN (:warehouse_ids)`;
+            
+            const locations = await sequelize.query(
+            selectQuery,
+            {
+                replacements: {warehouse_ids: warehouse_ids},
+                type: sequelize.QueryTypes.SELECT
+            }
             );
 
-            if (warehouse.length === 0) {
-                return res.status(200).json({ message: 'No warehouse found for this user' });
+            if (locations.length === 0) {
+                return res.status(404).json({ message: "No location found for the provided warehouses" });
             }
-            res.status(200).json(warehouse);
+
+            // Return the result as a response
+            res.status(200).json(locations);        
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal Server Error' });

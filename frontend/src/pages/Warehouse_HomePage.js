@@ -11,6 +11,7 @@ import axios from "axios";
 import CurrentOrders from "./CurrentOrders";
 import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
 import ProfileSettings from "./Profile_Settings";
+import Warehouse from "./Warehouse";
 
 function Warehouse_HomePage() {
   const { userID } = useSelector((state) => state.user); // Assuming userID is in the Redux state
@@ -87,7 +88,7 @@ function Warehouse_HomePage() {
           </div>
         );
       case "addwarehouse":
-        return
+        return <Warehouse/>;
       case "currentholdings":
         return
       case "pastfulfillment":
