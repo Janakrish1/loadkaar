@@ -20,7 +20,7 @@ module.exports = {
 
             if (rows.length > 0) {
                 // If a record exists, update the location
-                const updateQuery = `UPDATE Location SET latitude = :latitude, longitude = :longitude WHERE user_id = :user_id`;
+                const updateQuery = `UPDATE Location SET latitude = :latitude, longitude = :longitude, updatedAt = NOW() WHERE user_id = :user_id`;
                 await sequelize.query(updateQuery, { 
                     replacements: {
                     user_id,
@@ -32,7 +32,7 @@ module.exports = {
             }
 
             // SQL query to insert the location into the database
-            const insertQuery = `INSERT INTO Location (user_id, latitude, longitude) VALUES (:user_id, :latitude, :longitude)`;
+            const insertQuery = `INSERT INTO Location (user_id, latitude, longitude, createdAt, updatedAt) VALUES (:user_id, :latitude, :longitude, NOW(), NOW())`;
             await sequelize.query(
                 insertQuery,
                 {

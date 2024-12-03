@@ -231,6 +231,7 @@ const FindDeliveryPartnerUsingMap = () => {
 
       {showDriverPopup && selectedDriver && (
         <div className="popup-overlay">
+          {/* {console.log(showDriverPopup, selectedDriver)} */}
           <div className="popup-content">
             <h3>Driver Details</h3>
             <p>Name: {selectedDriver.name}</p>
