@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/EmployerOrders.css"; // CSS for styling
 import CurrentTaskRender from "./CurrentTaskRender";
+import { useSelector } from "react-redux";
 
 const EmployerOrders = ({ enrichedOrders }) => {
+  const { role } = useSelector((state) => (state.user));
   const [expandedOrderIndex, setExpandedOrderIndex] = useState(null); // Tracks the currently expanded order by index
   const [currentMapOrderIndex, setCurrentMapOrderIndex] = useState(null); // Tracks the order index for which the map is displayed
+  const [vehicleType, setVehicleType] = useState();
 
   const handleExpand = (index) => {
     setExpandedOrderIndex(index);
@@ -18,6 +21,30 @@ const EmployerOrders = ({ enrichedOrders }) => {
     setExpandedOrderIndex(null);
     setCurrentMapOrderIndex(index);
   };
+
+
+  useEffect(() => {
+    const setType = async () => {
+      if (enrichedOrders.vehicleType) {
+        switch (enrichedOrders.vehicleType) {
+          case "2wheeler":
+            setVehicleType("Two Wheeler");
+            break;
+          case "3wheeler":
+            setVehicleType("Three Wheeler");
+            break;
+          case "4wheeler":
+            setVehicleType("Four Wheeler");
+            break;
+          case "truck":
+            setVehicleType("Truck");
+            break;
+          default:
+            setVehicleType("Unknown Vehicle");
+        }
+      }
+    }
+  });
 
   return (
     <div className="task-review-container">
@@ -41,7 +68,7 @@ const EmployerOrders = ({ enrichedOrders }) => {
             onClick={() => handleExpand(index)}
           >
             <p>
-              <strong>Employee Name:</strong> {order.employeeName}
+              <strong>{`${role}` == 'Employee' ? 'Employer' : 'Employee'} Name:</strong> {order.employeeName}
             </p>
             <p>
               <strong>Status:</strong> <span className="status-highlight">{order.taskStatus}</span>

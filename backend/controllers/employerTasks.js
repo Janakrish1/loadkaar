@@ -29,7 +29,6 @@ module.exports = {
             // Extract the task_id from the result
             const taskID = taskIDResult[0].task_id;
 
-            console.log('Task ID:', taskID);
 
             // Send a success response with the task ID
             res.status(201).json({
@@ -50,6 +49,7 @@ module.exports = {
         try {
             selectQuery = `
                 SELECT 
+                    t.employee_id AS employee_id,
                     td.vehicleType AS vehicleType, 
                     td.pickupLocation AS source, 
                     td.dropLocation AS destination, 

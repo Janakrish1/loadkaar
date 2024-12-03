@@ -25,25 +25,24 @@ const VehiclesPage = ({ updateToggleStatus }) => {
       return activeVehicle ? false : true;
     }
   };
-  
+
 
   const fetchVehicles = async (updateToggle = true) => {
     try {
-      const vehicleDetails = {user_id: userID};
+      const vehicleDetails = { user_id: userID };
       const response = await axios.post("http://localhost:5001/api/vehicles/user", vehicleDetails);
-      if(response.data.message === "No vehicles found for this user") 
-      {
+      if (response.data.message === "No vehicles found for this user") {
         setVehicles([]);
-        if(updateToggle)
+        if (updateToggle)
           updateToggleStatus([]);
       }
-      else{
-      if (Array.isArray(response.data)) {
-        setVehicles(response.data);
-        if(updateToggle)
-          updateToggleStatus(response.data); // Check if any vehicle is active
+      else {
+        if (Array.isArray(response.data)) {
+          setVehicles(response.data);
+          if (updateToggle)
+            updateToggleStatus(response.data); // Check if any vehicle is active
+        }
       }
-    }      
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     }
@@ -55,21 +54,21 @@ const VehiclesPage = ({ updateToggleStatus }) => {
 
   const handleAddVehicle = async () => {
     // Validate mandatory fields
-  if (
-    !newVehicle.vehicle_name.trim() || // Check if vehicle_name is empty
-    newVehicle.benchmark_price <= 0 || // Check if benchmark_price is valid
-    newVehicle.capacity <= 0 // Check if capacity is valid
-  ) {
-    alert("Please fill out all fields with valid values.");
-    return;
-  }
-  // Check if the new vehicle has status "Active" and another vehicle is already active
-  if (newVehicle.status === "Active" && !isActiveStatusAllowed(vehicles)) {
-    alert("Only one vehicle can be set to Active at a time.");
-    return; // Stop further execution
-  }
+    if (
+      !newVehicle.vehicle_name.trim() || // Check if vehicle_name is empty
+      newVehicle.benchmark_price <= 0 || // Check if benchmark_price is valid
+      newVehicle.capacity <= 0 // Check if capacity is valid
+    ) {
+      alert("Please fill out all fields with valid values.");
+      return;
+    }
+    // Check if the new vehicle has status "Active" and another vehicle is already active
+    if (newVehicle.status === "Active" && !isActiveStatusAllowed(vehicles)) {
+      alert("Only one vehicle can be set to Active at a time.");
+      return; // Stop further execution
+    }
     try {
-      const vehicleData = {...newVehicle, user_id: userID};
+      const vehicleData = { ...newVehicle, user_id: userID };
 
       await axios.post("http://localhost:5001/api/addVehicle", vehicleData);
       alert("Vehicle added successfully");
@@ -90,7 +89,7 @@ const VehiclesPage = ({ updateToggleStatus }) => {
 
   const handleRemoveVehicle = async (vehicle_id) => {
     try {
-      const vehicleId = {vehicle_id: vehicle_id};
+      const vehicleId = { vehicle_id: vehicle_id };
       await axios.post("http://localhost:5001/api/vehicles/remove", vehicleId);
       fetchVehicles();
       alert("Vehicle removed successfully");
@@ -107,7 +106,7 @@ const VehiclesPage = ({ updateToggleStatus }) => {
       return; // Stop further execution
     }
     try {
-      const vehicleStatus = {vehicle_id: vehicle_id, status: status};
+      const vehicleStatus = { vehicle_id: vehicle_id, status: status };
       await axios.put("http://localhost:5001/api/vehicles/update-status", vehicleStatus);
       fetchVehicles();
       alert("Vehicle status updated successfully");
@@ -127,17 +126,17 @@ const VehiclesPage = ({ updateToggleStatus }) => {
           value={newVehicle.vehicle_type}
           onChange={(e) => setNewVehicle({ ...newVehicle, vehicle_type: e.target.value })}
         >
-          <option value="2wheeler">2wheeler</option>
-          <option value="3wheeler">3wheeler</option>
-          <option value="4wheeler">4wheeler</option>
-          <option value="truck">truck</option>
+          <option value="2wheeler">2 Wheeler</option>
+          <option value="3wheeler">3 Wheeler</option>
+          <option value="4wheeler">4 Wheeler</option>
+          <option value="truck">Truck</option>
         </select>
         <input
           type="text"
           placeholder="Vehicle Name"
           value={newVehicle.vehicle_name}
           onChange={(e) => setNewVehicle({ ...newVehicle, vehicle_name: e.target.value })}
-          
+
         />
         <select
           value={newVehicle.status}
@@ -163,47 +162,47 @@ const VehiclesPage = ({ updateToggleStatus }) => {
       </div>
 
       <h2>Your Vehicles</h2>
-<table>
-  <thead>
-    <tr>
-      <th>Type</th>
-      <th>Name</th>
-      <th>Status</th>
-      <th>Benchmark Price</th>
-      <th>Capacity</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {vehicles.length === 0 ? (
-      <tr>
-        <td colSpan="6">No vehicles available</td>
-      </tr>
-    ) : (
-      vehicles.map((vehicle) => (
-        <tr key={vehicle.vehicle_id}>
-          <td>{vehicle.vehicle_type}</td>
-          <td>{vehicle.vehicle_name}</td>
-          <td>
-            <select
-              value={vehicle.status}
-              onChange={(e) => handleStatusUpdate(vehicle.vehicle_id, e.target.value)}
-            >
-              <option value="Active">Active</option>
-              <option value="In Use">In Use</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </td>
-          <td>{vehicle.benchmark_price}</td>
-          <td>{vehicle.capacity}</td>
-          <td>
-            <button onClick={() => handleRemoveVehicle(vehicle.vehicle_id)}>Remove</button>
-          </td>
-        </tr>
-      ))
-    )}
-  </tbody>
-</table>
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Benchmark Price</th>
+            <th>Capacity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {vehicles.length === 0 ? (
+            <tr>
+              <td colSpan="6">No vehicles available</td>
+            </tr>
+          ) : (
+            vehicles.map((vehicle) => (
+              <tr key={vehicle.vehicle_id}>
+                <td>{vehicle.vehicle_type}</td>
+                <td>{vehicle.vehicle_name}</td>
+                <td>
+                  <select
+                    value={vehicle.status}
+                    onChange={(e) => handleStatusUpdate(vehicle.vehicle_id, e.target.value)}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="In Use">In Use</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </td>
+                <td>{vehicle.benchmark_price}</td>
+                <td>{vehicle.capacity}</td>
+                <td>
+                  <button onClick={() => handleRemoveVehicle(vehicle.vehicle_id)}>Remove</button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };

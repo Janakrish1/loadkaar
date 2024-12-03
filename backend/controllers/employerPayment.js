@@ -52,7 +52,6 @@ module.exports = {
     },
     getPaymentDetails: async (req, res) => {
         const { user_id, type } = req.body;
-        console.log("asd", user_id);
         try {
 
             let selectQuery;

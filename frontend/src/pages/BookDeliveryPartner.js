@@ -207,7 +207,6 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
     
     useEffect(() => {
         if (distance && duration) {
-            console.log("Updated formData:", { ...formData, distance, duration });
             dispatch(setDeliveryFormData({ ...formData, distance, duration }));
         }
     }, [distance, duration, formData]);
