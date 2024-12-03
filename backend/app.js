@@ -27,11 +27,12 @@ db.sequelize.authenticate()
 const dbRoute = require("./routes/connectDB");
 const { saveTaskDetails } = require("./controllers/employerTaskDetails");
 const { saveTasks, getTasks, getTasksByPaymentIds } = require("./controllers/employerTasks");
-const { registerUser, getUser, getUserID, getProfileDetails, updateProfileDetails, checkActiveUser, findDrivers, getUserDetailsforPayment, updateUserStatus } = require("./controllers/user");
+const { registerUser, getUser, getProfileDetails, updateProfileDetails, checkActiveUser, findDrivers, getUserDetailsforPayment, updateUserStatus } = require("./controllers/user");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus } = require("./controllers/vehicles");
 const { savePaymentSuccess, getPaymentDetails } = require("./controllers/employerPayment");
 const { getReviewsByReviewerId, getReviewsByRevieweeId } = require("./controllers/taskReviews");
 const { storeEmployeeLocation } = require("./controllers/userLocation");
+const { employeeTasks } = require("./controllers/employeeTasks");
 
 app.use("/api", dbRoute);
 
@@ -40,7 +41,6 @@ app.use('/api/register', registerUser);
 app.use('/api/login', getUser);
 
 // User 
-app.use('/api/get-user-id', getUserID);
 app.use('/api/get-username', getUserDetailsforPayment);
 app.use('/api/find-drivers', findDrivers);
 
@@ -48,6 +48,7 @@ app.use('/api/find-drivers', findDrivers);
 // Tasks
 app.use('/api/save-tasks', saveTasks);
 app.use('/api/get-tasks', getTasks);
+app.use('/api/employee-tasks', employeeTasks);
 app.use('/api/get-taskbypayment', getTasksByPaymentIds);
 
 // Task Details

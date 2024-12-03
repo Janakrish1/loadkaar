@@ -69,8 +69,20 @@ module.exports = {
                 type: sequelize.QueryTypes.INSERT
             });
 
-            // Send a success response after inserting the user
-            res.status(201).json({ message: 'User registered successfully. Please login.' });
+
+            // Fetch the last inserted task_id using LAST_INSERT_ID()
+            const [userIDResult] = await sequelize.query('SELECT LAST_INSERT_ID() AS user_id');
+
+            // Extract the task_id from the result
+            const userID = userIDResult[0].user_id;
+
+            console.log('User ID:', userID);
+
+            // Send a success response with the task ID
+            res.status(201).json({
+                message: 'User registered successfully.',
+                userID: userID,
+            });
         } catch (error) {
             res.status(500).json({ error: 'An error occurred while registering the user' });
         }
@@ -81,44 +93,27 @@ module.exports = {
         
         try {
             const { email, password, role } = req.body;
-
+            console.log(email, password, role);
             if (!email || !password || !role) {
                 return res.status(400).json({ error: 'Email, password, and role are required' });
             }
 
-            const findQuery = `
-                SELECT COUNT(*) AS count
-                FROM User
+            const findUser = `
+                SELECT user_id as userID
+                from User
                 WHERE email = :email AND password = :password AND role = :role
             `;
 
-            const [queryResult] = await sequelize.query(findQuery, {
+            const result = await sequelize.query(findUser, {
                 replacements: { email, password, role },
                 type: sequelize.QueryTypes.SELECT
             });
 
-            if (queryResult.count != 1) {
+            if (!result || result.length === 0) {
                 return res.status(400).json({ error: 'User not registered with this email and role. Please Register.' });
             }
-
-            const query = `
-                SELECT * 
-                FROM User 
-                WHERE email = :email AND password = :password AND role = :role
-            `;
-
-            const [results] = await sequelize.query(query, {
-                replacements: { email, password, role },
-                type: sequelize.QueryTypes.SELECT
-            });
-
-            console.log(results);
-
-            if (results && results.length === 0) {
-                return res.status(404).json({ error: 'Invalid credentials or user not found' });
-            }
-
-            res.status(200).json({ message: 'Login successful', user: results[0] });
+            
+            res.status(200).json({ message: 'Login successful', userID: result.userID });
         } catch (error) {
             console.error('Error logging in user:', error);
             res.status(500).json({ error: 'An error occurred while logging in the user' });

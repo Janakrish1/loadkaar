@@ -22,10 +22,8 @@ function Login({ role, onClose }) {
         event.preventDefault(); // Prevent default form submission behavior
         if (userData.email && userData.password) {
             try {
+                console.log(userData);
                 await axios.post("http://localhost:5001/api/login", userData)
-                .then(() => {
-                    return axios.post("http://localhost:5001/api/get-user-id", userData);
-                })
                 .then((response) => {
                     const userID = response.data.userID;
 

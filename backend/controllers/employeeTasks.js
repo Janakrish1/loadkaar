@@ -1,8 +1,9 @@
 const { sequelize } = require("../models");
 
 module.exports = {
-    getTasks: async (req, res) => {
+    employeeTasks: async (req, res) => {
         const {userID, role, taskStatus} = req.body;
+        console.log("HERE-> ", userID, role, taskStatus);
         if (!userID || !role || !taskStatus) {
             return res.status(400).json({ error: 'Internal Server Error!' });
         }

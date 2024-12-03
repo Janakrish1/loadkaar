@@ -88,7 +88,7 @@ function Employee_HomePage() {
         const checkRole = role === "Employer" ? "Employee" : "Employer";
         const checkStatus = currentView === "pastTasks" ? "completed" : "inprogress";
   
-        const response = await axios.post("http://localhost:5001/api/get-tasks", {
+        const response = await axios.post("http://localhost:5001/api/employee-tasks", {
           userID,
           role: checkRole,
           taskStatus: checkStatus,
@@ -236,7 +236,7 @@ function Employee_HomePage() {
       case "recReview": // Add case for tasks review
         return <TaskReview type="Received Review" />;
       case "payments": // Added case for payments
-        return <ReviewPayments type="Employer" />;
+        return <ReviewPayments type="Employee" />;
       case "profile": // Added case for payments
         return <ProfileSettings />;
       default:
