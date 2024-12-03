@@ -76,7 +76,6 @@ module.exports = {
             // Extract the task_id from the result
             const userID = userIDResult[0].user_id;
 
-            console.log('User ID:', userID);
 
             // Send a success response with the task ID
             res.status(201).json({
@@ -112,8 +111,7 @@ module.exports = {
             if (!result || result.length === 0) {
                 return res.status(400).json({ error: 'User not registered with this email and role. Please Register.' });
             }
-            
-            res.status(200).json({ message: 'Login successful', userID: result.userID });
+            res.status(200).json({ message: 'Login successful', userID: result[0].userID });
         } catch (error) {
             console.error('Error logging in user:', error);
             res.status(500).json({ error: 'An error occurred while logging in the user' });
@@ -298,7 +296,8 @@ module.exports = {
 
 
     checkActiveUser: async (req, res) => {
-        const { user_id } = req.body;
+        const { user_id: user_id } = req.body;
+        console.log(user_id);
         try {
 
             if (!user_id) {

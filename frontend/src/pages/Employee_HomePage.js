@@ -83,6 +83,7 @@ function Employee_HomePage() {
   };
 
   useEffect(() => {
+    
     const fetchDetails = async () => {
       try {
         const checkRole = role === "Employer" ? "Employee" : "Employer";
@@ -160,14 +161,17 @@ function Employee_HomePage() {
 
   // Function to store the location in the database
   const storeLocationInDatabase = async (location) => {
+
     try {
       const payload = {
         user_id: userID,
         latitude: location.lat,
         longitude: location.lng
       };
-      const userVal = { user_id: userID };
-      const responseMessage = await axios.post("http://localhost:5001/api/isactive", userVal);
+      // const userVal = { user_id: userID };
+      console.log(userID);
+
+      const responseMessage = await axios.post("http://localhost:5001/api/isactive", {user_id: userID});
       if (responseMessage.data.message === "The User is active") {
         const response = await axios.post("http://localhost:5001/api/location", payload);
 
