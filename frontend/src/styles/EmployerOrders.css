@@ -83,6 +83,18 @@
   color: #fff;
 }
 
+.complete-button {
+  background-color: green;
+  transform: scale(1.05);
+  color: white;
+}
+
+.complete-button:hover {
+  background-color: lightgreen;
+  transform: scale(1.05);
+  color: black;
+}
+
 .back-button:hover {
   background-color: #a71d2a;
   transform: scale(1.05);
@@ -118,6 +130,8 @@
   flex-wrap: wrap;
   gap: 20px;
 }
+
+
 
 @media (max-width: 768px) {
   .task-cards-container {

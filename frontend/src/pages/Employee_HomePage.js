@@ -236,9 +236,9 @@ function Employee_HomePage() {
         updateToggleStatus={updateToggleStatus}
       />;
       case "tasksReview": // Add case for tasks review
-        return <TaskReview type="Tasks Review" />;
+        return <TaskReview type="Tasks Review" enrichedOrders={enrichedOrders} />;
       case "recReview": // Add case for tasks review
-        return <TaskReview type="Received Review" />;
+        return <TaskReview type="Received Review" enrichedOrders={enrichedOrders} />;
       case "payments": // Added case for payments
         return <ReviewPayments type="Employee" />;
       case "profile": // Added case for payments
