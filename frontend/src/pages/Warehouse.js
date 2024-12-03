@@ -113,6 +113,7 @@ function WarehousePage() {
         <input
           type="text"
           name="warehouse_name"
+          
           value={formData.warehouse_name}
           onChange={handleInputChange}
           required
