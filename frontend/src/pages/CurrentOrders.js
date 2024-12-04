@@ -33,10 +33,6 @@ const EmployerOrders = ({ enrichedOrders }) => {
       axios.put("http://localhost:5001/api/complete-task", { task_id, status: 'completed' })
         .then((response) => {
           console.log(response);
-          setTimeout(() => {
-            window.location.href = '/employee-home';
-          }, 1000);
-          alert("Task completed successfully.");
           dispatch(clearView());
         })
         .catch((err) => {
@@ -52,10 +48,11 @@ const EmployerOrders = ({ enrichedOrders }) => {
     const role_id = enrichedOrders[index].role_id;
     console.log(task_id,role_id);
 
+    completeTask(task_id);
     // Show the review form with necessary data
     setReviewFormData({ task_id: task_id, role_id: role_id });
     setShowReviewForm(true);
-    completeTask(task_id);
+    
   }
   useEffect(() => {
     const setTypes = () => {
