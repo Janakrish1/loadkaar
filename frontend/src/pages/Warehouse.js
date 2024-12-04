@@ -271,7 +271,13 @@ function WarehousePage() {
                 type="number"
                 name="available_sqft"
                 value={formData.available_sqft}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  // Ensure no negative values can be entered
+                  const value = e.target.value;
+                  if (value >= 0 || value === "") {
+                    handleInputChange(e); // Call the change handler only for valid input
+                  }
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
                     e.preventDefault();
@@ -304,7 +310,13 @@ function WarehousePage() {
                 type="number"
                 name="price_per_hour"
                 value={formData.price_per_hour}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  // Ensure no negative values can be entered
+                  const value = e.target.value;
+                  if (value >= 0 || value === "") {
+                    handleInputChange(e); // Call the change handler only for valid input
+                  }
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
                     e.preventDefault();
