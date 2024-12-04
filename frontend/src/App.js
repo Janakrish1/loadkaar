@@ -9,6 +9,7 @@ import PaymentCheckout from "./pages/PaymentCheckout";
 import Vehicles from "./pages/Vehicles"
 import CurrentTaskRender from "./pages/CurrentTaskRender";
 import Reviews from "./pages/TaskReview";
+import ReviewForm from "./pages/ReviewForm";
 
 
 function App() {
@@ -40,6 +41,10 @@ function App() {
                 <Route
                     path="/render-task"
                     element={<ProtectedRoute element={<CurrentTaskRender />} />}
+                />
+                 <Route
+                    path="/review-form"
+                    element={<ProtectedRoute element={<ReviewForm />} />}
                 />
                 
             </Routes>
