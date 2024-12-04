@@ -131,19 +131,17 @@ const PaymentCheckout = () => {
                                         console.log(response.data.message);
                                     })
                             })
-
-                            setTimeout(() => {
-                                window.location.href = '/employer-home';
-                            }, 2000);
-                        dispatch(clearDeliveryFormData());
-                        dispatch(clearDeliveryPartnerView());
-                        
+                            
+                            window.location.href = '/employer-home';
                     })
                     .catch(error => {
                         console.error("Error occurred while saving details:", error.response?.data || error.message);
                         alert("Error occurred while saving details. Please try again.");
                     });
                     
+
+                    dispatch(clearDeliveryFormData());
+                    dispatch(clearDeliveryPartnerView());
             }
 
 
