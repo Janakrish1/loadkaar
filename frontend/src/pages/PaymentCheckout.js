@@ -138,7 +138,6 @@ const PaymentCheckout = () => {
                         console.error("Error occurred while saving details:", error.response?.data || error.message);
                         alert("Error occurred while saving details. Please try again.");
                     });
-                    
 
                     dispatch(clearDeliveryFormData());
                     dispatch(clearDeliveryPartnerView());

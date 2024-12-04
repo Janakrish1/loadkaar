@@ -126,8 +126,6 @@ module.exports = {
                 return acc;
             }, {});
     
-            console.log("Tasks Map:", tasksMap);
-    
             // Send the response with the tasks mapping
             res.status(200).json({
                 message: 'Tasks retrieved successfully.',
