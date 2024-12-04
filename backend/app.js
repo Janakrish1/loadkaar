@@ -30,7 +30,7 @@ const { saveTasks, getTasks, getTasksByPaymentIds } = require("./controllers/emp
 const { registerUser, getUser, getProfileDetails, updateProfileDetails, checkActiveUser, findDrivers, getUserDetailsforPayment, updateUserStatus } = require("./controllers/user");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus } = require("./controllers/vehicles");
 const { savePaymentSuccess, getPaymentDetails } = require("./controllers/employerPayment");
-const { getReviewsByReviewerId, getReviewsByRevieweeId,insertReview } = require("./controllers/taskReviews");
+const { getReviewsByReviewerId, getReviewsByRevieweeId,insertReview,getAverageRating } = require("./controllers/taskReviews");
 const { storeEmployeeLocation } = require("./controllers/userLocation");
 const { employeeTasks } = require("./controllers/employeeTasks");
 
@@ -70,6 +70,7 @@ app.use('/api/get-payment-details', getPaymentDetails);
 app.use('/api/get-reviewbyreviewer', getReviewsByReviewerId);
 app.use('/api/get-reviewbyreviewee', getReviewsByRevieweeId);
 app.use('/api/insert-review',insertReview);
+app.use('/api/get-rating',getAverageRating);
 
 
 //Profile Settings

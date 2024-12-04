@@ -17,17 +17,18 @@ const ProfileSettings = () => {
     email: "",
     password: "",
   });
-
   const [isLoading, setIsLoading] = useState(true);
+  const [initialData, setInitialData] = useState({});
 
   // Fetch user profile data from backend
   const fetchProfileData = async () => {
-    const profileDetails = {user_id: userID};
+    const profileDetails = { user_id: userID };
     console.log("The profile user's id is:", profileDetails);
     try {
       const response = await axios.post("http://localhost:5001/api/user", profileDetails);
       console.log(response.data);
       setProfileData(response.data);
+      setInitialData(response.data);  // Store initial data for comparison
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching profile data:", error);
@@ -48,8 +49,19 @@ const ProfileSettings = () => {
   // Handle form submission to update profile
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+
+    // Check if any data has changed by comparing with the initial data
+    const isDataChanged = Object.keys(profileData).some(
+      (key) => profileData[key] !== initialData[key]
+    );
+
+    if (!isDataChanged) {
+      alert("No changes detected.");
+      return; // Prevent submitting if no changes are made
+    }
+
     try {
-      const data = {...profileData, user_id: userID};
+      const data = { ...profileData, user_id: userID };
       console.log("The data before updating is:", data);
       await axios.put("http://localhost:5001/api/updateProfile", data);
       alert("Profile updated successfully!");

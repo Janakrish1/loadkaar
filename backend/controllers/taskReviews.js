@@ -97,5 +97,39 @@ module.exports = {
             console.error(error);
             res.status(500).json({ error: 'An error occurred while inserting the review.' });
         }
-    }    
+    }   ,
+    getAverageRating: async (req, res) => {
+        const { user_id: user_id } = req.body;
+        console.log(user_id);
+        try {
+            // Validate input
+            if (!user_id) {
+                return res.status(400).json({ message: 'Missing required parameter: reviewee_id.' });
+            }
+
+            // Raw SQL query to calculate average rating
+            const avgRatingQuery = `
+                SELECT AVG(rating) AS avg_rating
+                FROM Review
+                WHERE reviewee_id = :user_id
+            `;
+
+            // Execute the query
+            const [results] = await sequelize.query(avgRatingQuery, {
+                replacements: { user_id },
+                type: sequelize.QueryTypes.SELECT,
+            });
+
+            // Handle case where no reviews are found
+            if (!results.avg_rating) {
+                return res.status(404).json({ message: 'No reviews found for the specified reviewee_id.' });
+            }
+
+            // Return the average rating
+            res.status(200).json({ averageRating: parseFloat(results.avg_rating).toFixed(2) });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'An error occurred while calculating the average rating.' });
+        }
+    } 
 };
