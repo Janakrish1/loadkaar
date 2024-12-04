@@ -36,13 +36,13 @@ const VehiclesPage = ({ updateToggleStatus }) => {
         if (updateToggle)
           updateToggleStatus([]);
       }
-      else {
-        if (Array.isArray(response.data)) {
-          setVehicles(response.data);
-          if (updateToggle)
-            updateToggleStatus(response.data); // Check if any vehicle is active
-        }
+      else{
+      if (Array.isArray(response.data)) {
+        setVehicles(response.data);
+        if(updateToggle)
+          updateToggleStatus(response.data);
       }
+    }      
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     }
