@@ -14,6 +14,7 @@ import CurrentOrders from "./CurrentOrders";
 import PastOrders from "./PastOrders";
 import { useNavigate } from "react-router-dom";
 
+
 function Employee_HomePage() {
   const { userID, role } = useSelector((state) => state.user); // Using userID from Redux
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ function Employee_HomePage() {
   const [isActive, setIsActive] = useState(true); // State to manage active/inactive status
   const [vehiclesActive, setVehiclesActive] = useState(true); // Initially assume vehicles are not active
   const [enrichedOrders, setEnrichedOrders] = useState([]); // New state to handle enriched orders
+  const [rating, setRating] = useState(5); // Default rating is 5
   const [notOccupied, setNotOccupied] = useState(true);
 
   // Logout Functionality
@@ -114,9 +116,26 @@ function Employee_HomePage() {
       }
     };
 
-    if (userID) {
+    const fetchRating = async () => {
+      try {
+        const response = await axios.post("http://localhost:5001/api/get-rating", { user_id: userID });
+        console.log(response);
+        if (response.status === 200) {
+          setRating(parseFloat(response.data.averageRating)); // Set the rating from the response
+        } else {
+          console.error("Failed to fetch rating, defaulting to 5.");
+          setRating(5); // Default to 5 if no rating is received
+        }
+      } catch (error) {
+        console.error("Error fetching rating:", error);
+        setRating(5); // Default to 5 in case of an error
+      }
+    };
+
+    if(userID) {
       fetchUserStatus();
-      if (currentView === "vehicles") {
+      fetchRating();
+      if(currentView === "vehicles") {
         fetchVehicleStatus();
       }
       else {
@@ -261,6 +280,13 @@ function Employee_HomePage() {
         <div className="logo-container">
           <img src={logo} alt="LoadKaar Logo" className="logo" />
         </div>
+        <div className="notification-container">
+          <button className="notification-button" onClick={() => alert("Show Notifications!")}>
+            <span className="notification-icon">🔔</span>
+            {/* Optional - Notification count */}
+            <span className="notification-count">2</span>
+          </button>
+        </div>
         <h1 className="website-name">LoadKaar</h1>
         <div className="profile-container">
           {/* Toggle Button for Active/Inactive */}
@@ -341,8 +367,10 @@ function Employee_HomePage() {
 
           <div className="rating">
             <h3>Rating</h3>
-            <div className="stars">⭐⭐⭐⭐</div>
-            <div>4.0</div>
+            <div className="stars">
+              {"⭐".repeat(Math.round(rating))} {/* Show stars dynamically */}
+            </div>
+            <div>{rating.toFixed(1)}</div> {/* Display rating as a number */}
           </div>
         </aside>
 

@@ -4,6 +4,7 @@ import CurrentTaskRender from "./CurrentTaskRender";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { clearView } from "../redux/employeeViewSlice";
+import ReviewForm from "./ReviewForm"; // Import the ReviewForm component
 
 const EmployerOrders = ({ enrichedOrders }) => {
   const dispatch = useDispatch();
@@ -11,6 +12,8 @@ const EmployerOrders = ({ enrichedOrders }) => {
   const [expandedOrderIndex, setExpandedOrderIndex] = useState(null); // Tracks the currently expanded order by index
   const [currentMapOrderIndex, setCurrentMapOrderIndex] = useState(null); // Tracks the order index for which the map is displayed
   const [vehicleTypes, setVehicleTypes] = useState([]); // Stores formatted vehicle types for each order
+  const [showReviewForm, setShowReviewForm] = useState(false); // Tracks whether to show the review form
+  const [reviewFormData, setReviewFormData] = useState({}); // Stores data for the review form
 
   const handleExpand = (index) => {
     setExpandedOrderIndex(index);
@@ -30,10 +33,6 @@ const EmployerOrders = ({ enrichedOrders }) => {
       axios.put("http://localhost:5001/api/complete-task", { task_id, status: 'completed' })
         .then((response) => {
           console.log(response);
-          setTimeout(() => {
-            window.location.href = '/employee-home';
-          }, 1000);
-          alert("Task completed successfully.");
           dispatch(clearView());
         })
         .catch((err) => {
@@ -67,7 +66,12 @@ const EmployerOrders = ({ enrichedOrders }) => {
 
   const handleCompleteTask = (index) => {
     const task_id = enrichedOrders[index].task_id;
+    const role_id = enrichedOrders[index].role_id;
+    console.log(task_id,role_id);
     completeTask(task_id);
+    // Show the review form with necessary data
+    setReviewFormData({ task_id: task_id, role_id: role_id });
+    setShowReviewForm(true);
 
     updateUserStatus(userID);
   }
@@ -93,6 +97,15 @@ const EmployerOrders = ({ enrichedOrders }) => {
 
     setTypes();
   }, [enrichedOrders]); // Run whenever enrichedOrders changes
+  if (showReviewForm) {
+    // Render ReviewForm if showReviewForm is true
+    return (
+      <ReviewForm
+        taskId={reviewFormData.task_id}
+        revieweeId={reviewFormData.role_id}
+      />
+    );
+  }
 
   return (
     <div className="task-review-container">
