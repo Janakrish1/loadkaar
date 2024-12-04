@@ -17,11 +17,11 @@ const VehiclesPage = ({ updateToggleStatus }) => {
   const isActiveStatusAllowed = (vehicles, newStatusVehicleId = null) => {
     if (newStatusVehicleId) {
       const activeVehicle = vehicles.find(
-        (vehicle) => vehicle.status === "Active" && vehicle.vehicle_id !== newStatusVehicleId
+        (vehicle) => vehicle.status === "Active" || vehicle.status === "In Use" && vehicle.vehicle_id !== newStatusVehicleId
       );
       return activeVehicle ? false : true;
     } else {
-      const activeVehicle = vehicles.find((vehicle) => vehicle.status === "Active");
+      const activeVehicle = vehicles.find((vehicle) => vehicle.status === "Active" || vehicle.status === "In Use");
       return activeVehicle ? false : true;
     }
   };
@@ -64,7 +64,7 @@ const VehiclesPage = ({ updateToggleStatus }) => {
     }
     // Check if the new vehicle has status "Active" and another vehicle is already active
     if (newVehicle.status === "Active" && !isActiveStatusAllowed(vehicles)) {
-      alert("Only one vehicle can be set to Active at a time.");
+      alert("Only one vehicle can be set to Active or In Use at a time.");
       return; // Stop further execution
     }
     try {
@@ -102,7 +102,7 @@ const VehiclesPage = ({ updateToggleStatus }) => {
   const handleStatusUpdate = async (vehicle_id, status) => {
     // Check if the new status is "Active" and another vehicle is already active
     if (status === "Active" && !isActiveStatusAllowed(vehicles, vehicle_id)) {
-      alert("Only one vehicle can be set to Active at a time.");
+      alert("Only one vehicle can be set to Active or In Use at a time.");
       return; // Stop further execution
     }
     try {
