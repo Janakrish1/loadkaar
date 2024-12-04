@@ -5,8 +5,7 @@ module.exports = {
     addWarehouseLocation: async (req, res) => {
         const {
             warehouse_id,
-            latitude,
-            longitude,
+            location,
             address
         } = req.body;
         
@@ -14,10 +13,10 @@ module.exports = {
         try {
             const insertQuery = `
                 INSERT INTO WarehouseLocation (
-                    warehouse_id, latitude, longitude, address, createdAt, updatedAt
+                    warehouse_id, location, address, createdAt, updatedAt
                 )
                 VALUES (
-                    :warehouse_id, :latitude, :longitude, :address, NOW(), NOW()
+                    :warehouse_id, :location, :address, NOW(), NOW()
                 )
             `;
 
@@ -27,8 +26,7 @@ module.exports = {
                 {
                     replacements: {
                         warehouse_id,
-                        latitude,
-                        longitude,
+                        location,
                         address
                     },
                     type: sequelize.QueryTypes.INSERT
@@ -47,18 +45,16 @@ module.exports = {
     // Update Warehouse Location
     updateWarehouseLocation: async (req, res) => {
         const { warehouse_id,
-            latitude,
-            longitude,
+            location,
             address } = req.body; // Vehicle ID and new status from the request body
         try {
-            const updateQuery = `UPDATE WarehouseLocation SET latitude = ?, longitude = ?, address = ? WHERE warehouse_id = ?`;
+            const updateQuery = `UPDATE WarehouseLocation SET location = :location, address = :address WHERE warehouse_id = :warehouse_id`;
             // Update the Warehouse Location in the database
             const result = await sequelize.query(
                 updateQuery,
                 {
                     replacements: {
-                        latitude,
-                        longitude,
+                        location,
                         address,
                         warehouse_id
                     },

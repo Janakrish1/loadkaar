@@ -18,12 +18,8 @@ module.exports = (sequelize, DataTypes) => {
             onUpdate: 'CASCADE', // Update task warehouse_id if the warehouse id changes
             onDelete: 'CASCADE', // Delete tasks if the warehouse_id is deleted
         },
-        latitude: {
-            type: DataTypes.DECIMAL(10, 8), // Precise representation for latitude
-            allowNull: false,
-        },
-        longitude: {
-            type: DataTypes.DECIMAL(11, 8), // Precise representation for longitude
+        location: {
+            type: DataTypes.STRING,
             allowNull: false,
         },
         address: {

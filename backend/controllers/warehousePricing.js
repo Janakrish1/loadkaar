@@ -44,7 +44,7 @@ module.exports = {
         const { warehouse_id,
             price_per_hour } = req.body;
         try {
-            const updateQuery = `UPDATE WarehousePricing SET price_per_hour = ? WHERE warehouse_id = ?`;
+            const updateQuery = `UPDATE WarehousePricing SET price_per_hour = :price_per_hour WHERE warehouse_id = :warehouse_id`;
             // Update the Warehouse Pricing in the database
             const result = await sequelize.query(
                 updateQuery,
@@ -94,6 +94,7 @@ module.exports = {
                 return res.status(404).json({ message: "No prices found for the provided warehouses" });
               }
           
+              console.log(prices);
               // Return the result as a response
               res.status(200).json(prices);
         } catch (err) {

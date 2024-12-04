@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
@@ -14,8 +14,12 @@ function WarehousePage() {
     amenities: "",
     price_per_hour: "",
   });
+  const [origin, setOrigin] = useState("");
+  const [originSuggestions, setOriginSuggestions] = useState([]);
   const [editingId, setEditingId] = useState(null); // Track which warehouse is being edited
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility
+
+  const originInputRef = useRef(null);
 
   // Function to fetch details for price and location
   const fetchAdditionalDetails = async (warehouseIds) => {
@@ -40,13 +44,41 @@ function WarehousePage() {
     }
   };
 
+  // Function to handle changes and fetch suggestions
+  const handleOriginChange = async (e) => {
+    const value = e.target.value;
+    setOrigin(value);
+
+    if (window.google && value) {
+        const autocompleteService = new window.google.maps.places.AutocompleteService();
+        autocompleteService.getPlacePredictions(
+            { input: value, types: ["address"] },
+            (predictions, status) => {
+                if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                    setOriginSuggestions(predictions);
+                }
+            }
+        );
+    } else {
+        setOriginSuggestions([]);
+    }
+};
+ // Handle selecting a suggestion
+ const handleSuggestionSelect = (place, field) => {
+  setFormData((prevData) => ({ ...prevData, [field]: place.description }));
+  if (field === "location") {
+      setOrigin(place.description);
+      setOriginSuggestions([]);
+  } 
+};
 
   // Fetch warehouses from the server
   const fetchWarehouses = async () => {
     try {
       const warehouseDetails = { user_id: userID };
-      const response = await axios.get("http://localhost:5001/api/fetchWarehouses", warehouseDetails);
-      if (response.data.message === "No Warehouses found for this user") {
+      console.log(warehouseDetails);
+      const response = await axios.post("http://localhost:5001/api/fetchWarehouse", warehouseDetails);
+      if (response.data.message === "No warehouse found for this user") {
         setWarehouses([]);
       } else {
         if (Array.isArray(response.data)) {
@@ -73,11 +105,13 @@ function WarehousePage() {
             console.log(combinedData);
           }
           catch (error) {
+            setWarehouses([]);
             console.error("Failed to fetch additional details.");
           }
         }
       }
     } catch (error) {
+      setWarehouses([]);
       console.error("Error fetching warehouses:", error);
     }
   };
@@ -99,16 +133,16 @@ function WarehousePage() {
     try {
       if (editingId) {
         // Update warehouse
-        await axios.put("http://localhost:5001/api/updateWarehouse/", {...warehouseData, warehouse_id: editingId});
-        await axios.put("http://localhost:5001/api/updateWarehousePricing/", {...warehousePricingData, warehouse_id: editingId});
-        await axios.put("http://localhost:5001/api/updateWarehouseLocation/", {...warehouseLocationData, warehouse_id: editingId});
+        await axios.put("http://localhost:5001/api/updateWarehouse", {...warehouseData, warehouse_id: editingId});
+        await axios.put("http://localhost:5001/api/updateWarehousePricing", {...warehousePricingData, warehouse_id: editingId});
+        await axios.put("http://localhost:5001/api/updateWarehouseLocation", {...warehouseLocationData, warehouse_id: editingId});
         console.log("Warehouse updated.");
       } else {
         // Add warehouse
         const warehouseResponse = await axios.post("http://localhost:5001/api/addWarehouse", {...warehouseData, user_id: userID});
         const warehouseId = warehouseResponse.data.warehouse_id;
-        await axios.put("http://localhost:5001/api/updateWarehousePricing/", {...warehousePricingData, warehouse_id: warehouseId});
-        await axios.put("http://localhost:5001/api/updateWarehouseLocation/", {...warehouseLocationData, warehouse_id: warehouseId});
+        await axios.post("http://localhost:5001/api/addWarehousePricing", {...warehousePricingData, warehouse_id: warehouseId});
+        await axios.post("http://localhost:5001/api/addWarehouseLocation", {...warehouseLocationData, warehouse_id: warehouseId});
         console.log("Warehouse added.");
       }
       setFormData({
@@ -132,7 +166,7 @@ function WarehousePage() {
   const handleDelete = async (warehouse_id) => {
     const warehouseId = { warehouse_id: warehouse_id };
     try {
-      await axios.delete("http://localhost:5001/api/warehouses", warehouseId);
+      await axios.post("http://localhost:5001/api/warehouse/delete", warehouseId);
       console.log("Warehouse deleted.");
       fetchWarehouses();
     } catch (error) {
@@ -166,6 +200,21 @@ function WarehousePage() {
     fetchWarehouses(); // Fetch warehouses on component mount
   }, []);
 
+  useEffect(() => {
+    if (window.google) {
+        const options = { types: ["address"] };
+        const autocompleteFromInstance = new window.google.maps.places.Autocomplete(originInputRef.current, options);
+        autocompleteFromInstance.addListener("place_changed", () => {
+            const place = autocompleteFromInstance.getPlace();
+            if (place.geometry) {
+                setOrigin(place.formatted_address);
+            }
+        });
+
+        
+    }
+}, []);
+
   return (
     <div>
       <button onClick={handleAdd}>Add Warehouse</button>
@@ -198,10 +247,22 @@ function WarehousePage() {
               <input
                 type="text"
                 name="location"
+                ref={originInputRef}
                 value={formData.location}
-                onChange={handleInputChange}
-                required
+                onChange={handleOriginChange}
+                placeholder="Enter Location"
               />
+              <div className="suggestions">
+                  {originSuggestions.map((suggestion) => (
+                  <div
+                    key={suggestion.place_id}
+                    className="suggestion-item"
+                    onClick={() => handleSuggestionSelect(suggestion, "location")}
+                  >
+                    {suggestion.description}
+                  </div>
+                ))}
+              </div>
 
               <label>Available Sqft</label>
               <input
