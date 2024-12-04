@@ -36,13 +36,13 @@ const VehiclesPage = ({ updateToggleStatus }) => {
         if (updateToggle)
           updateToggleStatus([]);
       }
-      else {
-        if (Array.isArray(response.data)) {
-          setVehicles(response.data);
-          if (updateToggle)
-            updateToggleStatus(response.data); // Check if any vehicle is active
-        }
+      else{
+      if (Array.isArray(response.data)) {
+        setVehicles(response.data);
+        if(updateToggle)
+          updateToggleStatus(response.data);
       }
+    }      
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     }
@@ -148,13 +148,13 @@ const VehiclesPage = ({ updateToggleStatus }) => {
         </select>
         <input
           type="number"
-          placeholder="Benchmark Price"
+          placeholder="Enter Amount in INR per Kilometer"
           value={newVehicle.benchmark_price}
           onChange={(e) => setNewVehicle({ ...newVehicle, benchmark_price: e.target.value })}
         />
         <input
           type="number"
-          placeholder="Capacity"
+          placeholder="Enter the capacity that you can carry in your vehicle"
           value={newVehicle.capacity}
           onChange={(e) => setNewVehicle({ ...newVehicle, capacity: e.target.value })}
         />

@@ -33,6 +33,9 @@ const { savePaymentSuccess, getPaymentDetails } = require("./controllers/employe
 const { getReviewsByReviewerId, getReviewsByRevieweeId,insertReview,getAverageRating } = require("./controllers/taskReviews");
 const { storeEmployeeLocation } = require("./controllers/userLocation");
 const { employeeTasks } = require("./controllers/employeeTasks");
+const {addWarehouse, removeWarehouse, updateWarehouse, getUserWarehouses} = require("./controllers/warehouse");
+const {addWarehouseLocation, updateWarehouseLocation, getUserWarehouseLocation} = require("./controllers/warehouseLocation");
+const {addWarehousePricing, updateWarehousePricing, getUserWarehousePricing} = require("./controllers/warehousePricing");
 
 app.use("/api", dbRoute);
 
@@ -81,6 +84,18 @@ app.use('/api/updateProfile', updateProfileDetails);
 app.use('/api/isactive', checkActiveUser);
 app.use('/api/location', storeEmployeeLocation);
 app.use('/api/users/updateStatus', updateUserStatus);
+
+//Warehouse
+app.use('/api/warehouse/prices', getUserWarehousePricing);
+app.use('/api/warehouse/location', getUserWarehouseLocation);
+app.use('/api/fetchWarehouse', getUserWarehouses);
+app.use('/api/updateWarehouse', updateWarehouse);
+app.use('/api/updateWarehousePricing', updateWarehousePricing);
+app.use('/api/updateWarehouseLocation', updateWarehouseLocation);
+app.use('/api/addWarehouse', addWarehouse);
+app.use('/api/addWarehousePricing', addWarehousePricing);
+app.use('/api/addWarehouseLocation', addWarehouseLocation);
+app.use('/api/warehouse/delete', removeWarehouse);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

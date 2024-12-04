@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "../styles/EmployerOrders.css"; // CSS for styling
 import CurrentTaskRender from "./CurrentTaskRender";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { clearView } from "../redux/employeeViewSlice";
 import ReviewForm from "./ReviewForm"; // Import the ReviewForm component
 
 const EmployerOrders = ({ enrichedOrders }) => {
+  const dispatch = useDispatch();
   const { role } = useSelector((state) => state.user);
   const [expandedOrderIndex, setExpandedOrderIndex] = useState(null); // Tracks the currently expanded order by index
   const [currentMapOrderIndex, setCurrentMapOrderIndex] = useState(null); // Tracks the order index for which the map is displayed
@@ -28,12 +30,17 @@ const EmployerOrders = ({ enrichedOrders }) => {
 
   const completeTask = async (task_id) => {
     try {
-      axios.post("http://localhost:5001/api/complete-task", { task_id, status: 'completed' })
+      axios.put("http://localhost:5001/api/complete-task", { task_id, status: 'completed' })
         .then((response) => {
           console.log(response);
+          setTimeout(() => {
+            window.location.href = '/employee-home';
+          }, 1000);
+          alert("Task completed successfully.");
+          dispatch(clearView());
         })
         .catch((err) => {
-          alert(err.response?.data?.err || "An error occurred during task completion.")
+          alert(err.response?.data?.err || "An error occurred during task completion.");
         })
     } catch (error) {
 
