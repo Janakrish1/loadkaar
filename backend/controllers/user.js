@@ -345,16 +345,14 @@ module.exports = {
                             COS(RADIANS(:lat)) * COS(RADIANS(l.latitude)) *
                             COS(RADIANS(l.longitude) - RADIANS(:lng)) +
                             SIN(RADIANS(:lat)) * SIN(RADIANS(l.latitude))
-                        ),
-                        2
+                        )
                     ) AS distance_km,
                     ROUND(
                         6371 * ACOS(
                             COS(RADIANS(:lat)) * COS(RADIANS(l.latitude)) *
                             COS(RADIANS(l.longitude) - RADIANS(:lng)) +
                             SIN(RADIANS(:lat)) * SIN(RADIANS(l.latitude))
-                        ) * v.benchmark_price,
-                        2
+                        ) * v.benchmark_price
                     ) AS estimated_price
                 FROM User u
                 JOIN Location l ON u.user_id = l.user_id

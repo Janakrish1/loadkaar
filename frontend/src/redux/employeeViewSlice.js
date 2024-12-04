@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const employeeView = createSlice({
     name: "employeeSlice",
     initialState: {
-        curretView: "default",
+        currentView: "default",
         activeMenu: "Current Tasks",
     },
     reducers: {
@@ -12,7 +12,7 @@ const employeeView = createSlice({
             state.activeMenu = typeof action.payload === "string" ? action.payload : action.payload.activeMenu;
         },
         clearView: (state) => {
-            state.curretView = "default";
+            state.currentView = "default";
             state.activeMenu = "Current Tasks";
         },
     },
