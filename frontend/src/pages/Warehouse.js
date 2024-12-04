@@ -77,7 +77,6 @@ function WarehousePage() {
   const fetchWarehouses = async () => {
     try {
       const warehouseDetails = { user_id: userID };
-      console.log(warehouseDetails);
       const response = await axios.post("http://localhost:5001/api/fetchWarehouse", warehouseDetails);
       if (response.data.message === "No warehouse found for this user") {
         setWarehouses([]);
