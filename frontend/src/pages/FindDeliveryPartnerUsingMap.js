@@ -131,9 +131,12 @@ const FindDeliveryPartnerUsingMap = () => {
             const filteredDrivers = response.rows
               .map((row, index) => {
                 const distance = row.elements[0].distance.value / 1000;
+                const duration = row.elements[0].duration.text;
+                console.log(duration);
                   return {
                     ...drivers[index],
                     distance,
+                    duration,
                   };
               })
               .filter((driver) => driver !== null);
@@ -179,8 +182,8 @@ const FindDeliveryPartnerUsingMap = () => {
                 <h3>
                   {partner.firstname} {partner.lastname}
                 </h3>
-                <p>Distance: {partner.distance.toFixed(2)} km</p>
-                <p>Estimated Price: ${partner.estimated_price.toFixed(2)}</p>
+                <h4>Estimated Time: {partner.duration}</h4>
+                <h4>Estimated Price in INR: ₹{partner.estimated_price.toFixed(2)}</h4>
               </div>
             ))
           )}
@@ -219,8 +222,7 @@ const FindDeliveryPartnerUsingMap = () => {
               >
                 <div>
                   <h3>{selectedDriver.firstname} {selectedDriver.lastname}</h3>
-                  <p>Vehicle: {selectedDriver.vehicleType}</p>
-                  <p>Rating: {selectedDriver.rating} ⭐</p>
+                  <h3>{selectedDriver.rating} ⭐ rating </h3>
                 </div>
               </InfoWindow>
             )}
@@ -234,9 +236,12 @@ const FindDeliveryPartnerUsingMap = () => {
           {/* {console.log(showDriverPopup, selectedDriver)} */}
           <div className="popup-content">
             <h3>Driver Details</h3>
-            <p>Name: {selectedDriver.name}</p>
-            <p>Vehicle: {selectedDriver.vehicleType}</p>
-            <p>Rating: {selectedDriver.rating} ⭐</p>
+            {console.log(selectedDriver)}
+            <h2>Name: {`${selectedDriver.firstname} ${selectedDriver.lastname}`}</h2>
+            <h4>Kilometers away: {selectedDriver.distance.toFixed(2)} km</h4>
+            <h4>Estimated Time: {selectedDriver.duration}</h4>
+            <h4>Estimated Price in INR: ₹{selectedDriver.estimated_price.toFixed(2)}</h4>
+            {/* <p>Rating: {selectedDriver.rating} ⭐</p> */}
             <div className="popup-buttons">
               <button onClick={closeDriverPopup}>Back</button>
               <button onClick={handleAssignTask}>Assign Task</button>
