@@ -143,6 +143,13 @@ function Employer_HomePage() {
         <div className="logo-container">
           <img src={logo} alt="LoadKaar Logo" className="logo" />
         </div>
+        <div className="notification-container">
+          <button className="notification-button" onClick={() => alert("Show Notifications!")}>
+            <span className="notification-icon">🔔</span>
+            {/* Optional - Notification count */}
+            <span className="notification-count">2</span>
+          </button>
+        </div>
         <h1 className="website-name">LoadKaar</h1>
         <div className="profile-container">
           <div className="profile" onClick={() => {
