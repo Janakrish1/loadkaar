@@ -8,7 +8,7 @@ import ReviewForm from "./ReviewForm"; // Import the ReviewForm component
 
 const EmployerOrders = ({ enrichedOrders }) => {
   const dispatch = useDispatch();
-  const { role } = useSelector((state) => state.user);
+  const { userID, role } = useSelector((state) => state.user);
   const [expandedOrderIndex, setExpandedOrderIndex] = useState(null); // Tracks the currently expanded order by index
   const [currentMapOrderIndex, setCurrentMapOrderIndex] = useState(null); // Tracks the order index for which the map is displayed
   const [vehicleTypes, setVehicleTypes] = useState([]); // Stores formatted vehicle types for each order
@@ -43,6 +43,27 @@ const EmployerOrders = ({ enrichedOrders }) => {
     }
   }
 
+
+  const updateUserStatus = async (employee_id) => {
+    try {
+      const userStatus = {
+        user_id: employee_id,
+        status: "Active", 
+        fromVehicleStatus: "In Use",
+        toVehicleStatus: "Active"
+      };
+      const response = await axios.post("http://localhost:5001/api/users/update-employee-status", userStatus);
+
+      if (response.status === 200) {
+        console.log("User status updated successfully:", response.data);
+      } else {
+        console.error("Failed to update user status:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating user status:", error);
+    }
+  };
+
   const handleCompleteTask = (index) => {
     const task_id = enrichedOrders[index].task_id;
     const role_id = enrichedOrders[index].role_id;
@@ -51,6 +72,8 @@ const EmployerOrders = ({ enrichedOrders }) => {
     // Show the review form with necessary data
     setReviewFormData({ task_id: task_id, role_id: role_id });
     setShowReviewForm(true);
+
+    updateUserStatus(userID);
   }
 
   useEffect(() => {

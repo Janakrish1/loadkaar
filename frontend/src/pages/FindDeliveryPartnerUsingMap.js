@@ -22,6 +22,9 @@ const FindDeliveryPartnerUsingMap = () => {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [showDriverPopup, setShowDriverPopup] = useState(false);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [noDriversFound, setNoDriversFound] = useState(false);
+
 
   useEffect(() => {
     if (window.google && pickupLocation && dropLocation) {
@@ -63,6 +66,13 @@ const FindDeliveryPartnerUsingMap = () => {
           );
           const data = response.data.results;
 
+          const timeout = setTimeout(() => {
+            if (data.length === 0) {
+              setNoDriversFound(true);
+            }
+            setIsLoading(false);
+          }, 2000);
+      
           setDrivers(data);
 
           const filteredDrivers = await filterDriversByDistance(
@@ -71,6 +81,7 @@ const FindDeliveryPartnerUsingMap = () => {
             5
           );
           setActiveDrivers(filteredDrivers);
+          return () => clearTimeout(timeout);
         } catch (error) {
           console.error("Error fetching drivers:", error);
         }
@@ -204,8 +215,10 @@ const FindDeliveryPartnerUsingMap = () => {
     <div className="container">
       <div className="left-pane">
         <div className="delivery-partners-container">
-          {activeDrivers.length === 0 ? (
-            <p>Loading delivery partners...</p>
+        {isLoading ? (
+            <h2>Loading delivery partners...</h2>
+          ) : noDriversFound ? (
+            <h2>There are no drivers found.</h2>
           ) : (
             activeDrivers.map((partner, index) => (
               <div

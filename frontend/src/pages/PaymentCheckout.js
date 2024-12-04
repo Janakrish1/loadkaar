@@ -19,6 +19,7 @@ const PaymentCheckout = () => {
     const [transactionStatus, setTransactionStatus] = useState('');
     const [vehicleType, setVehicleType] = useState("");
     const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
 
 
     const paymentData = {
@@ -82,9 +83,32 @@ const PaymentCheckout = () => {
         });
     };
 
+    const updateUserStatus = async (employee_id) => {
+        try {
+          const userStatus = {
+            user_id: employee_id,
+            status: "Inactive", 
+            fromVehicleStatus: "Active",
+            toVehicleStatus: "In Use"
+          };
+          const response = await axios.post("http://localhost:5001/api/users/update-employee-status", userStatus);
+    
+          if (response.status === 200) {
+            console.log("User status updated successfully:", response.data);
+          } else {
+            console.error("Failed to update user status:", response.data.message);
+          }
+        } catch (error) {
+          console.error("Error updating user status:", error);
+        }
+      };
+
     const handlePaymentSuccess = () => {
         try {
             if (paymentData && paymentResponse && transactionStatus && deliveryFormData) {
+                
+                updateUserStatus(paymentData.employee_id);
+
                 axios.post("http://localhost:5001/api/save-payment-details", {
                     paymentResponse: paymentResponse,
                     paymentData: paymentData,
@@ -107,17 +131,16 @@ const PaymentCheckout = () => {
                                         console.log(response.data.message);
                                     })
                             })
-
-                            setTimeout(() => {
-                                window.location.href = '/employer-home';
-                            }, 2000);
-                        dispatch(clearDeliveryFormData());
-                        dispatch(clearDeliveryPartnerView());
-                        
+                            
+                            window.location.href = '/employer-home';
                     })
                     .catch(error => {
-                        console.error('There was an error!', error);
+                        console.error("Error occurred while saving details:", error.response?.data || error.message);
+                        alert("Error occurred while saving details. Please try again.");
                     });
+
+                    dispatch(clearDeliveryFormData());
+                    dispatch(clearDeliveryPartnerView());
             }
 
 
@@ -128,6 +151,7 @@ const PaymentCheckout = () => {
     };
 
     const handlePayment = async () => {
+        setIsLoading(true);
         if (!userDetails.FName || !userDetails.LName || !paymentData.employee_name || !paymentData.amount) {
             alert("Please fill in all required fields!");
             return;
@@ -166,6 +190,7 @@ const PaymentCheckout = () => {
             setPaymentResponse(response.error);
             setTransactionStatus('failure');
         });
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -221,9 +246,10 @@ const PaymentCheckout = () => {
                     Amount:
                     <input type="number" name="amount" value={paymentData.amount} className='readonly' />
                 </label>
-                <button type="button" onClick={handlePayment}>
-                    Pay Now
-                </button>
+                <button type="button" onClick={handlePayment} disabled={isLoading}>
+    {isLoading ? "Processing..." : "Pay Now"}
+</button>
+
             </form>
 
             {transactionStatus === 'failure' && (

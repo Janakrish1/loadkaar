@@ -194,7 +194,6 @@ function BookDeliveryPartner({ onClose, onFindDeliveryPartner }) {
                         setDistance(distance);
                         setDuration(duration);
 
-                        console.log(distance, duration);
                         resolve(true); // Resolve the promise when data is set
                     } else {
                         alert("Distance request failed due to " + status);
