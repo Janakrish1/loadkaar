@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import "../styles/Warehouse.css";
 
 function WarehousePage() {
   const { userID } = useSelector((state) => state.user);
@@ -177,6 +178,7 @@ function WarehousePage() {
   // Handle edit
   const handleEdit = (warehouse) => {
     setFormData(warehouse);
+    setOrigin(warehouse.location);
     setEditingId(warehouse.warehouse_id);
     setIsModalOpen(true);
   };
@@ -192,6 +194,7 @@ function WarehousePage() {
       amenities: "",
       price_per_hour: "",
     });
+    setOrigin("");
     setEditingId(null);
     setIsModalOpen(true);
   };
@@ -248,7 +251,7 @@ function WarehousePage() {
                 type="text"
                 name="location"
                 ref={originInputRef}
-                value={formData.location}
+                value={origin}
                 onChange={handleOriginChange}
                 placeholder="Enter Location"
               />
@@ -270,6 +273,11 @@ function WarehousePage() {
                 name="available_sqft"
                 value={formData.available_sqft}
                 onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+                    e.preventDefault();
+                  }
+                }}
                 required
               />
 
@@ -298,6 +306,11 @@ function WarehousePage() {
                 name="price_per_hour"
                 value={formData.price_per_hour}
                 onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+                    e.preventDefault();
+                  }
+                }}
                 required
               />
 
@@ -314,32 +327,42 @@ function WarehousePage() {
       )}
 
       {/* Warehouse Table */}
-      <table>
-        <thead>
-          <tr>
-            <th>Warehouse Name</th>
-            <th>Available Sqft</th>
-            <th>Availability Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {warehouses.map((warehouse) => (
-            <tr key={warehouse.warehouse_id}>
-              <td>{warehouse.warehouse_name}</td>
-              <td>{warehouse.available_sqft}</td>
-              <td>{warehouse.availability_status}</td>
-              <td>
-                <button onClick={() => handleEdit(warehouse)}>Edit</button>
-                <button onClick={() => handleDelete(warehouse.warehouse_id)}>
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+<div className="warehouse-table-container">
+  <table className="warehouse-table">
+    <thead>
+      <tr>
+        <th>Warehouse Name</th>
+        <th>Available Sqft</th>
+        <th>Availability Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {warehouses.map((warehouse) => (
+        <tr key={warehouse.warehouse_id}>
+          <td>{warehouse.warehouse_name}</td>
+          <td>{warehouse.available_sqft}</td>
+          <td>{warehouse.availability_status}</td>
+          <td>
+            <button
+              className="btn edit-btn"
+              onClick={() => handleEdit(warehouse)}
+            >
+              Edit
+            </button>
+            <button
+              className="btn delete-btn"
+              onClick={() => handleDelete(warehouse.warehouse_id)}
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+</div>
   );
 }
 
