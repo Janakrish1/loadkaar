@@ -131,12 +131,9 @@ const FindDeliveryPartnerUsingMap = () => {
             const filteredDrivers = response.rows
               .map((row, index) => {
                 const distance = row.elements[0].distance.value / 1000;
-                const duration = row.elements[0].duration.text;
-                console.log(duration);
                   return {
                     ...drivers[index],
                     distance,
-                    duration,
                   };
               })
               .filter((driver) => driver !== null);
@@ -166,6 +163,41 @@ const FindDeliveryPartnerUsingMap = () => {
     navigate("/payment", { state: { selectedDriver } });
   };
 
+  const [ratings, setRatings] = useState({}); // State to store ratings for each driver
+  const fetchRating = async (userId) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5001/api/get-rating",
+        { user_id: userId }
+      );
+      if (response.status === 200) {
+        return parseFloat(response.data.averageRating); // Return the rating from the response
+      } else {
+        console.error("Failed to fetch rating, defaulting to 5.");
+        return 5; // Default to 5 if no rating is received
+      }
+    } catch (error) {
+      console.error("Error fetching rating:", error);
+      return 5; // Default to 5 in case of an error
+    }
+  };
+
+  useEffect(() => {
+    // Fetch ratings for all active drivers
+    const loadRatings = async () => {
+      const newRatings = {};
+      for (const driver of activeDrivers) {
+        const rating = await fetchRating(driver.user_id);
+        newRatings[driver.user_id] = rating;
+      }
+      setRatings(newRatings); // Update state with fetched ratings
+    };
+
+    if (activeDrivers.length > 0) {
+      loadRatings();
+    }
+  }, [activeDrivers]);
+
   return (
     <div className="container">
       <div className="left-pane">
@@ -182,8 +214,14 @@ const FindDeliveryPartnerUsingMap = () => {
                 <h3>
                   {partner.firstname} {partner.lastname}
                 </h3>
-                <h4>Estimated Time: {partner.duration}</h4>
-                <h4>Estimated Price in INR: ₹{partner.estimated_price.toFixed(2)}</h4>
+                <p>Distance: {partner.distance.toFixed(2)} km</p>
+                <p>Estimated Price: ${partner.estimated_price.toFixed(2)}</p>
+                <p>
+                  Rating:{" "}
+                  {ratings[partner.user_id]
+                    ? `${ratings[partner.user_id]} ⭐`
+                    : "Loading..."}
+                </p>
               </div>
             ))
           )}
@@ -222,7 +260,8 @@ const FindDeliveryPartnerUsingMap = () => {
               >
                 <div>
                   <h3>{selectedDriver.firstname} {selectedDriver.lastname}</h3>
-                  <h3>{selectedDriver.rating} ⭐ rating </h3>
+                  <p>Vehicle: {selectedDriver.vehicleType}</p>
+                  <p>Rating: {selectedDriver.rating} ⭐</p>
                 </div>
               </InfoWindow>
             )}
@@ -236,12 +275,9 @@ const FindDeliveryPartnerUsingMap = () => {
           {/* {console.log(showDriverPopup, selectedDriver)} */}
           <div className="popup-content">
             <h3>Driver Details</h3>
-            {console.log(selectedDriver)}
-            <h2>Name: {`${selectedDriver.firstname} ${selectedDriver.lastname}`}</h2>
-            <h4>Kilometers away: {selectedDriver.distance.toFixed(2)} km</h4>
-            <h4>Estimated Time: {selectedDriver.duration}</h4>
-            <h4>Estimated Price in INR: ₹{selectedDriver.estimated_price.toFixed(2)}</h4>
-            {/* <p>Rating: {selectedDriver.rating} ⭐</p> */}
+            <p>Name: {selectedDriver.name}</p>
+            <p>Vehicle: {selectedDriver.vehicleType}</p>
+            <p>Rating: {selectedDriver.rating} ⭐</p>
             <div className="popup-buttons">
               <button onClick={closeDriverPopup}>Back</button>
               <button onClick={handleAssignTask}>Assign Task</button>
