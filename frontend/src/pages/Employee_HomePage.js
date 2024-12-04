@@ -82,8 +82,7 @@ function Employee_HomePage() {
     updateUserStatus(hasActiveVehicle);
   };
 
-  useEffect(() => {
-    
+  useEffect(() => {    
     const fetchDetails = async () => {
       try {
         const checkRole = role === "Employer" ? "Employee" : "Employer";
