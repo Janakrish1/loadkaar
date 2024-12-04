@@ -376,4 +376,60 @@ module.exports = {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
+
+    updateEmployeeStatus: async (req, res) => {
+        const { 
+            user_id,
+            status,
+            fromVehicleStatus,
+            toVehicleStatus
+        } = req.body;
+    
+        console.log(user_id, status, fromVehicleStatus, toVehicleStatus, "Employeee");
+    
+        // Validate input fields
+        if (!user_id || !status || !fromVehicleStatus || !toVehicleStatus) {
+            return res.status(400).json({ error: 'All fields are required to update the status.' });
+        }
+    
+        try {
+            // Update User status
+            const updateQuery1 = `
+                UPDATE User
+                SET status = :status
+                WHERE user_id = :user_id
+            `;
+    
+            await sequelize.query(updateQuery1, {
+                replacements: { status, user_id },
+                type: sequelize.QueryTypes.UPDATE
+            });
+    
+            // Update Vehicle status
+            const updateQuery2 = `
+                UPDATE Vehicle
+                SET status = :toVehicleStatus
+                WHERE user_id = :user_id
+                AND status = :fromVehicleStatus
+            `;
+    
+            const [updatedVehicleCount] = await sequelize.query(updateQuery2, {
+                replacements: { toVehicleStatus, user_id, fromVehicleStatus },
+                type: sequelize.QueryTypes.UPDATE
+            });
+    
+            // Check if any vehicle record was updated
+            if (updatedVehicleCount === 0) {
+                return res.status(404).json({ error: 'No matching vehicle found to update.' });
+            }
+    
+            // Respond with success
+            return res.status(200).json({
+                message: 'Employee and vehicle statuses updated successfully.'
+            });
+        } catch (error) {
+            console.error('Error updating employee status:', error);
+            return res.status(500).json({ error: 'An error occurred while updating the status.' });
+        }
+    },    
 };
