@@ -14,6 +14,7 @@ import CurrentOrders from "./CurrentOrders";
 import PastOrders from "./PastOrders";
 import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
 import ProfileSettings from "./Profile_Settings";
+import BookWarehouse from "./BookWarehouse";
 
 function Employer_HomePage() {
   const { userID, role } = useSelector((state) => state.user); // Assuming userID is in the Redux state
@@ -23,6 +24,7 @@ function Employer_HomePage() {
   const [currentOrders, setCurrentOrders] = useState(null);
   const [enrichedOrders, setEnrichedOrders] = useState([]); // New state to handle enriched orders
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
+  const [showBookWarehouse, setBookWarehouse] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
 
   useEffect(() => {
@@ -75,10 +77,21 @@ function Employer_HomePage() {
     setBookDeliveryPartner(true);
   };
 
+   // Book Warehouse
+   const handleWarehouseBooking = () => {
+    setBookWarehouse(true);
+  };
+
   // Find Delivery Partner
   const handleFindDeliveryPartner = () => {
     setBookDeliveryPartner(false);
     handleMenuClick("", "findDelivery");
+  };
+
+  // Find Warehouse
+  const handleFindWarehouse = () => {
+    setBookWarehouse(false);
+    handleMenuClick("", "findWarehouse");
   };
 
 
@@ -105,6 +118,8 @@ function Employer_HomePage() {
         );
       case "findDelivery":
         return <FindDeliveryPartnerUsingMap />;
+      case "findWarehouse":
+          return <FindDeliveryPartnerUsingMap />;
       case "tasksReview": // Add case for tasks review
         return <TaskReview type="Tasks Review" />;
       case "recReview": // Add case for tasks review
@@ -185,7 +200,7 @@ function Employer_HomePage() {
             <button onClick={handleDeliveryBooking} className="theme-button">
               Book Delivery Partner
             </button>
-            <button className="theme-button">Book Warehouse</button>
+            <button onClick={handleWarehouseBooking} className="theme-button">Book Warehouse</button>
           </div>
 
           {/* Dynamic View Rendering */}
@@ -196,6 +211,14 @@ function Employer_HomePage() {
             <BookDeliveryPartner
               onFindDeliveryPartner={handleFindDeliveryPartner}
               onClose={() => setBookDeliveryPartner(false)}
+            />
+          )}
+
+          {/* Book Warehouse Component */}
+          {showBookWarehouse && (
+            <BookWarehouse
+              onFindWarehouse={handleFindWarehouse}
+              onClose={() => setBookWarehouse(false)}
             />
           )}
         </main>
