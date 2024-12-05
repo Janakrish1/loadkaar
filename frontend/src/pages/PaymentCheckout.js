@@ -85,28 +85,28 @@ const PaymentCheckout = () => {
 
     const updateUserStatus = async (employee_id) => {
         try {
-          const userStatus = {
-            user_id: employee_id,
-            status: "Inactive", 
-            fromVehicleStatus: "Active",
-            toVehicleStatus: "In Use"
-          };
-          const response = await axios.post("http://localhost:5001/api/users/update-employee-status", userStatus);
-    
-          if (response.status === 200) {
-            console.log("User status updated successfully:", response.data);
-          } else {
-            console.error("Failed to update user status:", response.data.message);
-          }
+            const userStatus = {
+                user_id: employee_id,
+                status: "Inactive",
+                fromVehicleStatus: "Active",
+                toVehicleStatus: "In Use"
+            };
+            const response = await axios.post("http://localhost:5001/api/users/update-employee-status", userStatus);
+
+            if (response.status === 200) {
+                console.log("User status updated successfully:", response.data);
+            } else {
+                console.error("Failed to update user status:", response.data.message);
+            }
         } catch (error) {
-          console.error("Error updating user status:", error);
+            console.error("Error updating user status:", error);
         }
-      };
+    };
 
     const handlePaymentSuccess = () => {
         try {
             if (paymentData && paymentResponse && transactionStatus && deliveryFormData) {
-                
+
                 updateUserStatus(paymentData.employee_id);
 
                 axios.post("http://localhost:5001/api/save-payment-details", {
@@ -131,16 +131,21 @@ const PaymentCheckout = () => {
                                         console.log(response.data.message);
                                     })
                             })
-                            
-                            window.location.href = '/employer-home';
+
+                            const timeout = setTimeout(() => {
+                                window.location.href = '/employer-home';
+                                dispatch(clearDeliveryFormData());
+                                dispatch(clearDeliveryPartnerView());
+                            }, 1000);
+
+                            return (() => clearTimeout(timeout));
+                        
                     })
                     .catch(error => {
                         console.error("Error occurred while saving details:", error.response?.data || error.message);
                         alert("Error occurred while saving details. Please try again.");
                     });
 
-                    dispatch(clearDeliveryFormData());
-                    dispatch(clearDeliveryPartnerView());
             }
 
 
@@ -247,8 +252,8 @@ const PaymentCheckout = () => {
                     <input type="number" name="amount" value={paymentData.amount} className='readonly' />
                 </label>
                 <button type="button" onClick={handlePayment} disabled={isLoading}>
-    {isLoading ? "Processing..." : "Pay Now"}
-</button>
+                    {isLoading ? "Processing..." : "Pay Now"}
+                </button>
 
             </form>
 

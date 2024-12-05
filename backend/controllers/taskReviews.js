@@ -99,7 +99,6 @@ module.exports = {
     }   ,
     getAverageRating: async (req, res) => {
         const { user_id: user_id } = req.body;
-        console.log(user_id);
         try {
             // Validate input
             if (!user_id) {
