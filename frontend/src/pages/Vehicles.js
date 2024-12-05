@@ -63,7 +63,7 @@ const VehiclesPage = ({ updateToggleStatus }) => {
       return;
     }
     // Check if the new vehicle has status "Active" and another vehicle is already active
-    if (newVehicle.status === "Active" || newVehicle.status === "In Use"  && !isActiveStatusAllowed(vehicles)) {
+    if (newVehicle.status === "Active"  && !isActiveStatusAllowed(vehicles)) {
       alert("Only one vehicle can be set to Active or In Use at a time.");
       return; // Stop further execution
     }
@@ -101,7 +101,7 @@ const VehiclesPage = ({ updateToggleStatus }) => {
 
   const handleStatusUpdate = async (vehicle_id, status) => {
     // Check if the new status is "Active" and another vehicle is already active
-    if (status === "Active" || status === "In Use"  && !isActiveStatusAllowed(vehicles, vehicle_id)) {
+    if (status === "Active"  && !isActiveStatusAllowed(vehicles, vehicle_id)) {
       alert("Only one vehicle can be set to Active or In Use at a time.");
       return; // Stop further execution
     }
