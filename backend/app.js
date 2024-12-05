@@ -27,10 +27,10 @@ db.sequelize.authenticate()
 const dbRoute = require("./routes/connectDB");
 const { saveTaskDetails, completeTask } = require("./controllers/employerTaskDetails");
 const { saveTasks, getTasks, getTasksByPaymentIds } = require("./controllers/employerTasks");
-const { registerUser, getUser, getProfileDetails, updateProfileDetails, checkActiveUser, findDrivers, getUserDetailsforPayment, updateUserStatus } = require("./controllers/user");
+const { registerUser, getUser, getProfileDetails, updateProfileDetails, checkActiveUser, findDrivers, getUserDetailsforPayment, updateUserStatus, updateEmployeeStatus } = require("./controllers/user");
 const { getUserVehicles, updateVehicleStatus, removeVehicle, addVehicle, getVehicleStatus } = require("./controllers/vehicles");
 const { savePaymentSuccess, getPaymentDetails } = require("./controllers/employerPayment");
-const { getReviewsByReviewerId, getReviewsByRevieweeId } = require("./controllers/taskReviews");
+const { getReviewsByReviewerId, getReviewsByRevieweeId,insertReview,getAverageRating } = require("./controllers/taskReviews");
 const { storeEmployeeLocation } = require("./controllers/userLocation");
 const { employeeTasks } = require("./controllers/employeeTasks");
 const {addWarehouse, removeWarehouse, updateWarehouse, getUserWarehouses} = require("./controllers/warehouse");
@@ -72,6 +72,8 @@ app.use('/api/get-payment-details', getPaymentDetails);
 // reviews
 app.use('/api/get-reviewbyreviewer', getReviewsByReviewerId);
 app.use('/api/get-reviewbyreviewee', getReviewsByRevieweeId);
+app.use('/api/insert-review',insertReview);
+app.use('/api/get-rating',getAverageRating);
 
 
 //Profile Settings
@@ -82,6 +84,7 @@ app.use('/api/updateProfile', updateProfileDetails);
 app.use('/api/isactive', checkActiveUser);
 app.use('/api/location', storeEmployeeLocation);
 app.use('/api/users/updateStatus', updateUserStatus);
+app.use('/api/users/update-employee-status', updateEmployeeStatus);
 
 //Warehouse
 app.use('/api/warehouse/prices', getUserWarehousePricing);

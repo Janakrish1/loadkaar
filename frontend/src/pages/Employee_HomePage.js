@@ -14,6 +14,7 @@ import CurrentOrders from "./CurrentOrders";
 import PastOrders from "./PastOrders";
 import { useNavigate } from "react-router-dom";
 
+
 function Employee_HomePage() {
   const { userID, role } = useSelector((state) => state.user); // Using userID from Redux
   const dispatch = useDispatch();
@@ -25,6 +26,8 @@ function Employee_HomePage() {
   const [isActive, setIsActive] = useState(true); // State to manage active/inactive status
   const [vehiclesActive, setVehiclesActive] = useState(true); // Initially assume vehicles are not active
   const [enrichedOrders, setEnrichedOrders] = useState([]); // New state to handle enriched orders
+  const [rating, setRating] = useState(5); // Default rating is 5
+  const [notOccupied, setNotOccupied] = useState(true);
 
   // Logout Functionality
   const handleLogout = () => {
@@ -82,28 +85,56 @@ function Employee_HomePage() {
     updateUserStatus(hasActiveVehicle);
   };
 
-  useEffect(() => {    
+  useEffect(() => {
     const fetchDetails = async () => {
       try {
         const checkRole = role === "Employer" ? "Employee" : "Employer";
         const checkStatus = currentView === "pastTasks" ? "completed" : "inprogress";
-  
+
         const response = await axios.post("http://localhost:5001/api/employee-tasks", {
           userID,
           role: checkRole,
           taskStatus: checkStatus,
         });
-  
+
         const tasks = response.data.results;
         setEnrichedOrders(tasks);
         setCurrentOrders(tasks.length > 0); // Boolean flag to check if there are orders
+
+
+        const resCheckStatus = await axios.post("http://localhost:5001/api/employee-tasks", {
+          userID,
+          role: checkRole,
+          taskStatus: "inprogress",
+        });
+
+        if(role === "Employee" && resCheckStatus.data.results.length > 0) {
+          setNotOccupied(false);
+        }
       } catch (err) {
         console.error("Error fetching details:", err);
       }
     };
-  
+
+    const fetchRating = async () => {
+      try {
+        const response = await axios.post("http://localhost:5001/api/get-rating", { user_id: userID });
+        console.log(response);
+        if (response.status === 200) {
+          setRating(parseFloat(response.data.averageRating)); // Set the rating from the response
+        } else {
+          console.error("Failed to fetch rating, defaulting to 5.");
+          setRating(5); // Default to 5 if no rating is received
+        }
+      } catch (error) {
+        console.error("Error fetching rating:", error);
+        setRating(5); // Default to 5 in case of an error
+      }
+    };
+
     if(userID) {
       fetchUserStatus();
+      fetchRating();
       if(currentView === "vehicles") {
         fetchVehicleStatus();
       }
@@ -133,11 +164,6 @@ function Employee_HomePage() {
 
 
   }, [userID, role, currentView]);
-
-  //Fetch vehicle status on component mount
-  // useEffect(() => {
-  //   fetchUserStatus();
-  // }, [userID]);
 
   const updateUserStatus = async (newStatus) => {
     try {
@@ -170,7 +196,7 @@ function Employee_HomePage() {
       // const userVal = { user_id: userID };
       console.log(userID);
 
-      const responseMessage = await axios.post("http://localhost:5001/api/isactive", {user_id: userID});
+      const responseMessage = await axios.post("http://localhost:5001/api/isactive", { user_id: userID });
       if (responseMessage.data.message === "The User is active") {
         const response = await axios.post("http://localhost:5001/api/location", payload);
 
@@ -208,7 +234,6 @@ function Employee_HomePage() {
     dispatch(setView({ activeMenu: menuItem, currentView: view }));
   };
 
-
   // Render View Based on State
   const renderView = () => {
     switch (currentView) {
@@ -232,8 +257,8 @@ function Employee_HomePage() {
         );
       case "vehicles":
         return <VehiclesPage
-        updateToggleStatus={updateToggleStatus}
-      />;
+          updateToggleStatus={updateToggleStatus}
+        />;
       case "tasksReview": // Add case for tasks review
         return <TaskReview type="Tasks Review" enrichedOrders={enrichedOrders} />;
       case "recReview": // Add case for tasks review
@@ -255,18 +280,33 @@ function Employee_HomePage() {
         <div className="logo-container">
           <img src={logo} alt="LoadKaar Logo" className="logo" />
         </div>
+        <div className="notification-container">
+          <button className="notification-button" onClick={() => alert("Show Notifications!")}>
+            <span className="notification-icon">🔔</span>
+            {/* Optional - Notification count */}
+            <span className="notification-count">2</span>
+          </button>
+        </div>
         <h1 className="website-name">LoadKaar</h1>
         <div className="profile-container">
           {/* Toggle Button for Active/Inactive */}
-          <div className="status-toggle">
-            <label className="switch">
-              <input type="checkbox" checked={isActive} onChange={toggleStatus} />
-              <span className="slider"></span>
-            </label>
-            <div className={`status ${isActive ? "Active" : "Inactive"}`}>
-              {isActive ? "ACTIVE" : "INACTIVE"}
+
+          {notOccupied ?
+
+            <div className="status-toggle">
+              <label className="switch">
+                <input type="checkbox" checked={isActive} onChange={toggleStatus} />
+                <span className="slider"></span>
+              </label>
+              <div className={`status ${isActive ? "Active" : "Inactive"}`}>
+                {isActive ? "ACTIVE" : "INACTIVE"}
+              </div>
             </div>
-          </div>
+            :
+            <div>
+              {<h3>Delivery Inprogress</h3>}
+            </div>
+          }
           <div
             className="profile"
             onClick={() => {
@@ -288,7 +328,7 @@ function Employee_HomePage() {
       <div style={{ display: "flex", flex: 1 }}>
         {/* Sidebar Section */}
         <aside className="sidebar">
-        <div
+          <div
             className={`menu-item ${activeMenu === "Current Tasks" ? "active" : ""}`}
             onClick={() => handleMenuClick("Current Tasks")}
           >
@@ -327,8 +367,10 @@ function Employee_HomePage() {
 
           <div className="rating">
             <h3>Rating</h3>
-            <div className="stars">⭐⭐⭐⭐</div>
-            <div>4.0</div>
+            <div className="stars">
+              {"⭐".repeat(Math.round(rating))} {/* Show stars dynamically */}
+            </div>
+            <div>{rating.toFixed(1)}</div> {/* Display rating as a number */}
           </div>
         </aside>
 

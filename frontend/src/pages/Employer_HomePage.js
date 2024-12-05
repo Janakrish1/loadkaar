@@ -26,6 +26,7 @@ function Employer_HomePage() {
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
   const [showBookWarehouse, setBookWarehouse] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
+  const [rating, setRating] = useState(5); // Default rating is 5
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -46,9 +47,26 @@ function Employer_HomePage() {
         console.error("Error fetching details:", err);
       }
     };
-  
+
+    const fetchRating = async () => {
+      try {
+        const response = await axios.post("http://localhost:5001/api/get-rating", { user_id: userID });
+        console.log(response);
+        if (response.status === 200) {
+          setRating(parseFloat(response.data.averageRating)); // Set the rating from the response
+        } else {
+          console.error("Failed to fetch rating, defaulting to 5.");
+          setRating(5); // Default to 5 if no rating is received
+        }
+      } catch (error) {
+        console.error("Error fetching rating:", error);
+        setRating(5); // Default to 5 in case of an error
+      }
+    };
+
     if (userID && currentView) {
       fetchDetails();
+      fetchRating();
     }
   }, [userID, role, currentView]); // Trigger when any of these change
   
@@ -190,6 +208,13 @@ function Employer_HomePage() {
             onClick={() => handleMenuClick("Received Review", "recReview")}
           >
             Received Review
+          </div>
+          <div className="rating">
+            <h3>Rating</h3>
+            <div className="stars">
+              {"⭐".repeat(Math.round(rating))} {/* Show stars dynamically */}
+            </div>
+            <div>{rating.toFixed(1)}</div> {/* Display rating as a number */}
           </div>
         </aside>
 
