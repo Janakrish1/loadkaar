@@ -8,28 +8,6 @@ module.exports = {
             status: status
         } = req.body;
 
-        // Payment Success: { razorpay_payment_id: 'pay_PQrg18rKcPMust' }
-        // Delivery Form Data: {
-        //   vehicleType: '2wheeler',
-        //   itemDescription: 'df',
-        //   pickupLocation: 'dfsdf',
-        //   dropLocation: 'sdf',
-        //   contactPerson: 'sdf',
-        //   contactAddress: 'sdf',
-        //   contactPhoneNumber: 'sdf'
-        // }
-        // User Details: { FName: 'test', LName: 'test', Email: 'test@gmail.com' }
-        // Payment Data: {
-        //   user_id: 1,
-        //   employee_name: 'Driver A',
-        //   employee_id: 1,
-        //   amount: '12',
-        //   payment_date: '2024-11-28'
-        // }
-        // status
-
-
-
         try {
             const insertQuery = `
                 INSERT INTO Payment (payment_id, employer_id, employee_id, amount, status, payment_date, createdAt, updatedAt)
@@ -57,7 +35,7 @@ module.exports = {
             let selectQuery;
             if (type === "Employer") {
                 selectQuery = `
-                SELECT * 
+                SELECT *
                 FROM Payment
                 WHERE employer_id = :user_id;
             `;

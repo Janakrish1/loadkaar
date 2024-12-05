@@ -86,7 +86,8 @@ module.exports = {
 
             const updateQuery = `
                 UPDATE TaskDetails 
-                SET taskStatus = :status
+                SET taskStatus = :status,
+                    updatedAt = NOW()
                 WHERE task_id = :task_id
             `;
 

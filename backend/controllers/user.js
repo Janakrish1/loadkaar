@@ -362,7 +362,6 @@ module.exports = {
                 AND v.status = 'Active'
                 AND v.vehicle_type = :vehicle_type
                 HAVING distance_km <= 5;
-
             `;
 
             const results = await sequelize.query(findQuery, {

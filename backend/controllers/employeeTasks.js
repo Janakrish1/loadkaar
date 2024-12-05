@@ -6,7 +6,7 @@ module.exports = {
         if (!userID || !role || !taskStatus) {
             return res.status(400).json({ error: 'Internal Server Error!' });
         }
-
+        
         try {
             selectQuery = `
                 SELECT 
@@ -18,18 +18,19 @@ module.exports = {
                     td.itemDescription AS itemDescription,
                     p.amount AS payment,
                     td.taskStatus AS taskStatus,
-                    CONCAT(u.firstName, ' ', u.lastName) AS employeeName
+                    CONCAT(u.firstName, ' ', u.lastName) AS employeeName,
+                    COUNT(*) OVER (PARTITION BY t.employee_id, td.taskStatus) AS taskCountPerStatus
                 FROM 
                     TaskDetails td
-                JOIN 
+                INNER JOIN 
                     Tasks t ON td.task_id = t.task_id
-                JOIN 
+                INNER JOIN 
                     Payment p ON t.payment_id = p.payment_id
-                JOIN 
+                INNER JOIN 
                     User u ON t.employee_id = u.user_id
                 WHERE 
-					td.taskStatus = :taskStatus
-				AND t.employee_id = :userID;
+                    td.taskStatus = :taskStatus
+                    AND t.employee_id = :userID;
             `;
 
             const results = await sequelize.query(selectQuery, {
@@ -37,10 +38,10 @@ module.exports = {
                 type: sequelize.QueryTypes.SELECT,
             });
 
-            if (!results || results.length === 0) {
+            if (!results.length) {
                 return res.status(200).json({ 
                     message: 'No tasks found for this employer.', 
-                    results: [] 
+                    results: [],
                 });
             }
             else {
@@ -52,6 +53,5 @@ module.exports = {
         } catch (error) {
             res.status(500).json({ error: 'An error occurred while fetching the details' });
         }
-    }
-
+    },
 };
