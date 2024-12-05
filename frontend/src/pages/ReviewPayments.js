@@ -23,8 +23,7 @@ const ReviewPayments = ({ type }) => {
         const paymentIds = response.data.map(payment => payment.payment_id);
         if (paymentIds.length > 0) {
           const taskResponse = await axios.post("http://localhost:5001/api/get-taskbypayment", { payment_ids: paymentIds });
-          setTasks(taskResponse.data.tasks); // Assuming the response contains { tasks: { payment_id: task_id } }
-          console.log(taskResponse);
+          setTasks(taskResponse.data.tasks); // Assuming the response contains { tasks: { payment_id: task_id }
         }
 
         setLoading(false);
