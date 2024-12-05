@@ -31,31 +31,36 @@ const deliveryPartnerViewSlice = createSlice({
             return state.currentView;
         },
         setDeliveryFormData: (state, action) => {
-            const {
-                vehicleType,
-                itemDescription,
-                pickupLocation,
-                dropLocation,
-                contactPerson,
-                contactAddress,
-                contactPhoneNumber,
-                distance,
-                duration
-            } = action.payload;
+            // const {
+            //     vehicleType,
+            //     itemDescription,
+            //     pickupLocation,
+            //     dropLocation,
+            //     contactPerson,
+            //     contactAddress,
+            //     contactPhoneNumber,
+            //     distance,
+            //     duration
+            // } = action.payload;
 
-            if (vehicleType && itemDescription && pickupLocation && dropLocation && contactPerson && contactAddress && contactPhoneNumber && distance && duration) {
-                state.deliveryForm = {
-                    vehicleType,
-                    itemDescription,
-                    pickupLocation,
-                    dropLocation,
-                    contactPerson,
-                    contactAddress,
-                    contactPhoneNumber,
-                    distance,
-                    duration
-                };
-            }
+            // if (vehicleType && itemDescription && pickupLocation && dropLocation && contactPerson && contactAddress && contactPhoneNumber && distance && duration) {
+            //     state.deliveryForm = {
+            //         vehicleType,
+            //         itemDescription,
+            //         pickupLocation,
+            //         dropLocation,
+            //         contactPerson,
+            //         contactAddress,
+            //         contactPhoneNumber,
+            //         distance,
+            //         duration
+            //     };
+            // }
+
+            state.deliveryForm = {
+                ...state.deliveryForm,
+                ...action.payload,
+            };
         },
         clearDeliveryFormData: (state) => {
             state.deliveryForm = {
