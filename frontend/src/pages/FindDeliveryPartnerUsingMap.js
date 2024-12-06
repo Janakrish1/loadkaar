@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import "../styles/FindDeliveryPartnerUsingMap.css";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { setDeliveryFormData } from "../redux/deliveryPartnerViewSlice";
 
 const GOOGLE_API_KEY = "AIzaSyC0EhlKGTmN0TpCybSrFsJcF-hS6wH-r4Y";
 
@@ -14,6 +15,10 @@ const FindDeliveryPartnerUsingMap = () => {
     dropLocation,
     vehicleType,
   } = useSelector((state) => state.deliveryPartnerView.deliveryForm || {});
+  const deliveryForm = useSelector((state) => state.deliveryPartnerView.deliveryForm || {});
+
+  const [selectedType, setSelectedType] = useState(vehicleType || "");
+  const dispatch = useDispatch();
 
   const [sourceLocation, setSourceLocation] = useState(null);
   const [destinationLocation, setDestinationLocation] = useState(null);
@@ -22,8 +27,11 @@ const FindDeliveryPartnerUsingMap = () => {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [showDriverPopup, setShowDriverPopup] = useState(false);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [noDriversFound, setNoDriversFound] = useState(false);
 
   useEffect(() => {
+    console.log(deliveryForm);
     if (window.google && pickupLocation && dropLocation) {
       const geoCoder = new window.google.maps.Geocoder();
 
@@ -53,59 +61,47 @@ const FindDeliveryPartnerUsingMap = () => {
     }
   }, [pickupLocation, dropLocation]);
 
-  useEffect(() => {
-    const fetchDrivers = async () => {
-      if (sourceLocation && destinationLocation) {
-        try {
-          const response = await axios.post(
-            "http://localhost:5001/api/find-drivers",
-            { sourceLocation, vehicleType }
-          );
-          const data = response.data.results;
+  const fetchDrivers = async (updatedVehicleType = vehicleType) => {
+    if (sourceLocation && destinationLocation) {
+      try {
+        setIsLoading(true);
+        const response = await axios.post(
+          "http://localhost:5001/api/find-drivers",
+          { sourceLocation, vehicleType: updatedVehicleType }
+        );
+        const data = response.data.results;
 
-          setDrivers(data);
+        const timeout = setTimeout(() => {
+          if (data.length === 0) {
+            setNoDriversFound(true);
+          }
+          else {
+            setNoDriversFound(false);
+          }
+          setIsLoading(false);
+        }, 2000);
 
-          const filteredDrivers = await filterDriversByDistance(
-            data,
-            sourceLocation,
-            5
-          );
-          setActiveDrivers(filteredDrivers);
-        } catch (error) {
-          console.error("Error fetching drivers:", error);
-        }
+        setDrivers(data);
+
+        const filteredDrivers = await filterDriversByDistance(
+          data,
+          sourceLocation,
+          5
+        );
+        setActiveDrivers(filteredDrivers);
+        return () => clearTimeout(timeout);
+      } catch (error) {
+        console.error("Error fetching drivers:", error);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchDrivers();
-  }, [sourceLocation, destinationLocation]);
+  }, [sourceLocation, destinationLocation, vehicleType]);
 
   const filterDriversByDistance = (drivers, sourceLocation, maxDistanceKm) => {
     return new Promise((resolve) => {
-      // const distanceService = new window.google.maps.DistanceMatrixService();
-      //       distanceService.getDistanceMatrix(
-      //           {
-      //               origins: [formData.pickupLocation],
-      //               destinations: [formData.dropLocation],
-      //               travelMode: window.google.maps.TravelMode.DRIVING,
-      //           },
-      //           (response, status) => {
-      //               if (status === "OK") {
-      //                   const distance = response.rows[0].elements[0].distance.text;
-      //                   const duration = response.rows[0].elements[0].duration.text;
-      //                   setFormData((prevData) => ({ ...prevData, distance, duration }));
-      //                   setDistance(distance);
-      //                   setDuration(duration);
-
-      //                   console.log(distance, duration);
-      //                   resolve(true); // Resolve the promise when data is set
-      //               } else {
-      //                   alert("Distance request failed due to " + status);
-      //                   reject(false); // Reject the promise on failure
-      //               }
-      //           }
-      //       );
-
       const service = new window.google.maps.DistanceMatrixService();
 
       const origins = drivers.map(
@@ -131,10 +127,13 @@ const FindDeliveryPartnerUsingMap = () => {
             const filteredDrivers = response.rows
               .map((row, index) => {
                 const distance = row.elements[0].distance.value / 1000;
-                  return {
-                    ...drivers[index],
-                    distance,
-                  };
+                const duration = row.elements[0].duration.text;
+                console.log(duration);
+                return {
+                  ...drivers[index],
+                  distance,
+                  duration,
+                };
               })
               .filter((driver) => driver !== null);
 
@@ -146,6 +145,14 @@ const FindDeliveryPartnerUsingMap = () => {
         }
       );
     });
+  };
+
+  const setVehicleType = (event) => {
+    const updatedType = event.target.value;
+    setSelectedType(updatedType);
+    dispatch(setDeliveryFormData({ ...deliveryForm, vehicleType: updatedType })); // Update Redux state
+    
+    fetchDrivers(updatedType); // Fetch drivers for updated vehicle type
   };
 
   const handleCardClick = (driver) => {
@@ -163,12 +170,60 @@ const FindDeliveryPartnerUsingMap = () => {
     navigate("/payment", { state: { selectedDriver } });
   };
 
+  const [ratings, setRatings] = useState({});
+
+  const fetchRating = async (user_id) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5001/api/get-rating",
+        { user_id: user_id }
+      );
+      if (response.status === 200) {
+        return parseFloat(response.data.averageRating);
+      } else {
+        console.error("Failed to fetch rating, defaulting to 5.");
+        return 5;
+      }
+    } catch (error) {
+      console.error("No ratings found for the user", error);
+      return 5;
+    }
+  };
+
+  useEffect(() => {
+    const loadRatings = async () => {
+      const newRatings = {};
+      for (const driver of activeDrivers) {
+        const rating = await fetchRating(driver.user_id);
+        newRatings[driver.user_id] = rating;
+      }
+      setRatings(newRatings);
+    };
+
+    if (activeDrivers.length > 0) {
+      loadRatings();
+    }
+  }, [activeDrivers]);
+
   return (
     <div className="container">
       <div className="left-pane">
+      <h3>Filter by Vehicle Type:</h3>
+        <select
+          value={selectedType}
+          onChange={setVehicleType}
+        >
+          <option value="2wheeler">Two Wheeler</option>
+          <option value="3wheeler">Three Wheeler</option>
+          <option value="4wheeler">Four Wheeler</option>
+          <option value="truck">Truck</option>
+        </select>
+
         <div className="delivery-partners-container">
-          {activeDrivers.length === 0 ? (
-            <p>Loading delivery partners...</p>
+        {isLoading ? (
+            <h2>Loading delivery partners...</h2>
+          ) : noDriversFound ? (
+            <h2>There are no drivers found.</h2>
           ) : (
             activeDrivers.map((partner, index) => (
               <div
@@ -179,8 +234,14 @@ const FindDeliveryPartnerUsingMap = () => {
                 <h3>
                   {partner.firstname} {partner.lastname}
                 </h3>
-                <p>Distance: {partner.distance.toFixed(2)} km</p>
-                <p>Estimated Price: ${partner.estimated_price.toFixed(2)}</p>
+                <h4>Estimated Time: {partner.duration}</h4>
+                <h4>Estimated Price in INR: ₹{partner.estimated_price.toFixed(2)}</h4>
+                <p>
+                  Rating:{" "}
+                  {ratings[partner.user_id]
+                    ? `${ratings[partner.user_id]} ⭐`
+                    : "Loading..."}
+                </p>
               </div>
             ))
           )}
@@ -219,8 +280,12 @@ const FindDeliveryPartnerUsingMap = () => {
               >
                 <div>
                   <h3>{selectedDriver.firstname} {selectedDriver.lastname}</h3>
-                  <p>Vehicle: {selectedDriver.vehicleType}</p>
-                  <p>Rating: {selectedDriver.rating} ⭐</p>
+                  <p>
+                  Rating:{" "}
+                  {ratings[selectedDriver.user_id]
+                    ? `${ratings[selectedDriver.user_id]} ⭐`
+                    : "Loading..."}
+                </p>
                 </div>
               </InfoWindow>
             )}
@@ -234,9 +299,17 @@ const FindDeliveryPartnerUsingMap = () => {
           {/* {console.log(showDriverPopup, selectedDriver)} */}
           <div className="popup-content">
             <h3>Driver Details</h3>
-            <p>Name: {selectedDriver.name}</p>
-            <p>Vehicle: {selectedDriver.vehicleType}</p>
-            <p>Rating: {selectedDriver.rating} ⭐</p>
+            {console.log(selectedDriver)}
+            <h2>Name: {`${selectedDriver.firstname} ${selectedDriver.lastname}`}</h2>
+            <h4>Kilometers away: {selectedDriver.distance.toFixed(2)} km</h4>
+            <h4>Estimated Time: {selectedDriver.duration}</h4>
+            <h4>Estimated Price in INR: ₹{selectedDriver.estimated_price.toFixed(2)}</h4>
+            <h4>
+                  Rating:{" "}
+                  {ratings[selectedDriver.user_id]
+                    ? `${ratings[selectedDriver.user_id]} ⭐`
+                    : "Loading..."}
+                </h4>
             <div className="popup-buttons">
               <button onClick={closeDriverPopup}>Back</button>
               <button onClick={handleAssignTask}>Assign Task</button>

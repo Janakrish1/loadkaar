@@ -11,6 +11,7 @@ import axios from "axios";
 import CurrentOrders from "./CurrentOrders";
 import ReviewPayments from "./ReviewPayments"; // Import the ReviewPayments component
 import ProfileSettings from "./Profile_Settings";
+import Warehouse from "./Warehouse";
 
 function Warehouse_HomePage() {
   const { userID } = useSelector((state) => state.user); // Assuming userID is in the Redux state
@@ -20,6 +21,7 @@ function Warehouse_HomePage() {
   const [enrichedOrders, setEnrichedOrders] = useState([]); // New state to handle enriched orders
   const [showBookDeliveryPartner, setBookDeliveryPartner] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
+  const [rating, setRating] = useState(5); // Default rating is 5
 
   // Fetch user details when userID changes
   useEffect(() => {
@@ -51,8 +53,25 @@ function Warehouse_HomePage() {
       }
     };
 
+    const fetchRating = async () => {
+      try {
+        const response = await axios.post("http://localhost:5001/api/get-rating", { user_id: userID });
+        console.log(response);
+        if (response.status === 200) {
+          setRating(parseFloat(response.data.averageRating)); // Set the rating from the response
+        } else {
+          console.error("Failed to fetch rating, defaulting to 5.");
+          setRating(5); // Default to 5 if no rating is received
+        }
+      } catch (error) {
+        console.error("Error fetching rating:", error);
+        setRating(5); // Default to 5 in case of an error
+      }
+    };
+
     if (userID) {
       fetchDetails();
+      fetchRating();
     }
   }, [userID]);
 
@@ -87,7 +106,7 @@ function Warehouse_HomePage() {
           </div>
         );
       case "addwarehouse":
-        return
+        return <Warehouse/>;
       case "currentholdings":
         return
       case "pastfulfillment":
@@ -97,7 +116,7 @@ function Warehouse_HomePage() {
       case "recReview": // Add case for tasks review
         return <TaskReview type="Received Review" />;
       case "payments": // Added case for payments
-        return <ReviewPayments type="Employee" />;
+        return <ReviewPayments type="Owner" />;
       case "profile": // Added case for payments
         return <ProfileSettings />;
       default:
@@ -111,6 +130,13 @@ function Warehouse_HomePage() {
       <header className="header">
         <div className="logo-container">
           <img src={logo} alt="LoadKaar Logo" className="logo" />
+        </div>
+        <div className="notification-container">
+          <button className="notification-button" onClick={() => alert("Show Notifications!")}>
+            <span className="notification-icon">🔔</span>
+            {/* Optional - Notification count */}
+            <span className="notification-count">2</span>
+          </button>
         </div>
         <h1 className="website-name">LoadKaar</h1>
         <div className="profile-container">
@@ -168,6 +194,13 @@ function Warehouse_HomePage() {
             onClick={() => handleMenuClick("Received Review", "recReview")}
           >
             Received Review
+          </div>
+          <div className="rating">
+            <h3>Rating</h3>
+            <div className="stars">
+              {"⭐".repeat(Math.round(rating))} {/* Show stars dynamically */}
+            </div>
+            <div>{rating.toFixed(1)}</div> {/* Display rating as a number */}
           </div>
         </aside>
 

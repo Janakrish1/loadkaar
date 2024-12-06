@@ -7,6 +7,7 @@ import logo from '../assets/logo.jpeg';
 import { clearDeliveryFormData, clearDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
 
 const PaymentCheckout = () => {
+
     const location = useLocation();
     const { userID } = useSelector((state) => state.user);
     const deliveryFormData = useSelector((state) => state.deliveryPartnerView.deliveryForm || {});
@@ -18,28 +19,23 @@ const PaymentCheckout = () => {
     const [transactionStatus, setTransactionStatus] = useState('');
     const [vehicleType, setVehicleType] = useState("");
     const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
 
 
     const paymentData = {
         user_id: userID,
-        employee_name: `${selectedDriver?.firstname} ${selectedDriver?.lastname}`|| '',
+        employee_name: `${selectedDriver?.firstname} ${selectedDriver?.lastname}` || '',
         employee_id: selectedDriver.user_id || '',
         amount: selectedDriver.estimated_price,
         payment_date: new Date().toISOString().split('T')[0],
     };
-
-    console.log(selectedDriver);
-    console.log(deliveryFormData);
-    console.log(paymentData);
-    console.log(userDetails);
-
 
     // Fetch user details when userID changes
     useEffect(() => {
         const fetchDetails = async () => {
             try {
                 const response = await axios.post("http://localhost:5001/api/get-username", { userID });
-    
+
                 // Set user details
                 setUserDetails({
                     FName: response.data.FName,
@@ -47,7 +43,7 @@ const PaymentCheckout = () => {
                     UserContact: response.data.UserContact,
                     Email: response.data.Email,
                 });
-    
+
                 // Set vehicle type based on deliveryFormData
                 if (deliveryFormData?.vehicleType) {
                     switch (deliveryFormData.vehicleType) {
@@ -71,12 +67,12 @@ const PaymentCheckout = () => {
                 console.error("Error fetching user details:", err);
             }
         };
-    
+
         if (userID) {
             fetchDetails();
         }
     }, [userID, deliveryFormData?.vehicleType]);
-    
+
     const loadRazorpayScript = () => {
         return new Promise((resolve) => {
             const script = document.createElement("script");
@@ -87,50 +83,80 @@ const PaymentCheckout = () => {
         });
     };
 
+    const updateUserStatus = async (employee_id) => {
+        try {
+            const userStatus = {
+                user_id: employee_id,
+                status: "Inactive",
+                fromVehicleStatus: "Active",
+                toVehicleStatus: "In Use"
+            };
+            const response = await axios.post("http://localhost:5001/api/users/update-employee-status", userStatus);
+
+            if (response.status === 200) {
+                console.log("User status updated successfully:", response.data);
+            } else {
+                console.error("Failed to update user status:", response.data.message);
+            }
+        } catch (error) {
+            console.error("Error updating user status:", error);
+        }
+    };
+
     const handlePaymentSuccess = () => {
         try {
-            if(paymentData && paymentResponse && transactionStatus && deliveryFormData) {
-            axios.post("http://localhost:5001/api/save-payment-details", {
-                paymentResponse: paymentResponse,
-                paymentData: paymentData,
-                status: transactionStatus
-                
-            })
-                .then(response => {
+            if (paymentData && paymentResponse && transactionStatus && deliveryFormData) {
 
-                    axios.post("http://localhost:5001/api/save-tasks", {
-                        paymentResponse: paymentResponse,
-                        paymentData: paymentData
-                    })
-                    .then(response => {
-                        const task_id = response.data.taskID;
-                        axios.post("http://localhost:5001/api/save-task-details", { 
-                            task_id: task_id,
-                            deliveryFormData: deliveryFormData
-                        })
-                        .then(response => {
-                            console.log(response.data.message);
-                        })
-                    })
+                updateUserStatus(paymentData.employee_id);
+
+                axios.post("http://localhost:5001/api/save-payment-details", {
+                    paymentResponse: paymentResponse,
+                    paymentData: paymentData,
+                    status: transactionStatus
 
                 })
-                .catch(error => {
-                    console.error('There was an error!', error);
-                });
+                    .then(response => {
+
+                        axios.post("http://localhost:5001/api/save-tasks", {
+                            paymentResponse: paymentResponse,
+                            paymentData: paymentData
+                        })
+                            .then(response => {
+                                const task_id = response.data.taskID;
+                                axios.post("http://localhost:5001/api/save-task-details", {
+                                    task_id: task_id,
+                                    deliveryFormData: deliveryFormData
+                                })
+                                    .then(response => {
+                                        console.log(response.data.message);
+                                    })
+                            })
+
+                            const timeout = setTimeout(() => {
+                                window.location.href = '/employer-home';
+                                dispatch(clearDeliveryFormData());
+                                dispatch(clearDeliveryPartnerView());
+                            }, 1000);
+
+                            return (() => clearTimeout(timeout));
+                        
+                    })
+                    .catch(error => {
+                        console.error("Error occurred while saving details:", error.response?.data || error.message);
+                        alert("Error occurred while saving details. Please try again.");
+                    });
+
             }
+
+
+
         } catch (error) {
             alert(error);
         }
-
-        dispatch(clearDeliveryFormData());
-        dispatch(clearDeliveryPartnerView());
-        setTimeout(() => {
-        }, 2000);
-        navigate('/employer-home', { replace: true });
-        // window.location.reload(); // This will refresh the page
     };
 
     const handlePayment = async () => {
+        setIsLoading(true);
         if (!userDetails.FName || !userDetails.LName || !paymentData.employee_name || !paymentData.amount) {
             alert("Please fill in all required fields!");
             return;
@@ -169,6 +195,7 @@ const PaymentCheckout = () => {
             setPaymentResponse(response.error);
             setTransactionStatus('failure');
         });
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -222,11 +249,12 @@ const PaymentCheckout = () => {
                 </label>
                 <label>
                     Amount:
-                    <input type="number" name="amount" value={paymentData.amount} className='readonly'  />
+                    <input type="number" name="amount" value={paymentData.amount} className='readonly' />
                 </label>
-                <button type="button" onClick={handlePayment}>
-                    Pay Now
+                <button type="button" onClick={handlePayment} disabled={isLoading}>
+                    {isLoading ? "Processing..." : "Pay Now"}
                 </button>
+
             </form>
 
             {transactionStatus === 'failure' && (

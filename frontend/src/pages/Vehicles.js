@@ -17,11 +17,11 @@ const VehiclesPage = ({ updateToggleStatus }) => {
   const isActiveStatusAllowed = (vehicles, newStatusVehicleId = null) => {
     if (newStatusVehicleId) {
       const activeVehicle = vehicles.find(
-        (vehicle) => vehicle.status === "Active" && vehicle.vehicle_id !== newStatusVehicleId
+        (vehicle) => vehicle.status === "Active" || vehicle.status === "In Use" && vehicle.vehicle_id !== newStatusVehicleId
       );
       return activeVehicle ? false : true;
     } else {
-      const activeVehicle = vehicles.find((vehicle) => vehicle.status === "Active");
+      const activeVehicle = vehicles.find((vehicle) => vehicle.status === "Active" || vehicle.status === "In Use");
       return activeVehicle ? false : true;
     }
   };
@@ -36,13 +36,13 @@ const VehiclesPage = ({ updateToggleStatus }) => {
         if (updateToggle)
           updateToggleStatus([]);
       }
-      else {
-        if (Array.isArray(response.data)) {
-          setVehicles(response.data);
-          if (updateToggle)
-            updateToggleStatus(response.data); // Check if any vehicle is active
-        }
+      else{
+      if (Array.isArray(response.data)) {
+        setVehicles(response.data);
+        if(updateToggle)
+          updateToggleStatus(response.data);
       }
+    }      
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     }
@@ -63,8 +63,8 @@ const VehiclesPage = ({ updateToggleStatus }) => {
       return;
     }
     // Check if the new vehicle has status "Active" and another vehicle is already active
-    if (newVehicle.status === "Active" && !isActiveStatusAllowed(vehicles)) {
-      alert("Only one vehicle can be set to Active at a time.");
+    if (newVehicle.status === "Active"  && !isActiveStatusAllowed(vehicles)) {
+      alert("Only one vehicle can be set to Active or In Use at a time.");
       return; // Stop further execution
     }
     try {
@@ -101,8 +101,8 @@ const VehiclesPage = ({ updateToggleStatus }) => {
 
   const handleStatusUpdate = async (vehicle_id, status) => {
     // Check if the new status is "Active" and another vehicle is already active
-    if (status === "Active" && !isActiveStatusAllowed(vehicles, vehicle_id)) {
-      alert("Only one vehicle can be set to Active at a time.");
+    if (status === "Active"  && !isActiveStatusAllowed(vehicles, vehicle_id)) {
+      alert("Only one vehicle can be set to Active or In Use at a time.");
       return; // Stop further execution
     }
     try {
@@ -148,13 +148,13 @@ const VehiclesPage = ({ updateToggleStatus }) => {
         </select>
         <input
           type="number"
-          placeholder="Benchmark Price"
+          placeholder="Enter Amount in INR per Kilometer"
           value={newVehicle.benchmark_price}
           onChange={(e) => setNewVehicle({ ...newVehicle, benchmark_price: e.target.value })}
         />
         <input
           type="number"
-          placeholder="Capacity"
+          placeholder="Enter the capacity that you can carry in your vehicle"
           value={newVehicle.capacity}
           onChange={(e) => setNewVehicle({ ...newVehicle, capacity: e.target.value })}
         />

@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
 import "../styles/EmployerOrders.css"; // CSS for styling
 import CurrentTaskRender from "./CurrentTaskRender";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { clearView } from "../redux/employeeViewSlice";
+import ReviewForm from "./ReviewForm"; // Import the ReviewForm component
 
 const EmployerOrders = ({ enrichedOrders }) => {
-  const { role } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const { userID, role } = useSelector((state) => state.user);
   const [expandedOrderIndex, setExpandedOrderIndex] = useState(null); // Tracks the currently expanded order by index
   const [currentMapOrderIndex, setCurrentMapOrderIndex] = useState(null); // Tracks the order index for which the map is displayed
   const [vehicleTypes, setVehicleTypes] = useState([]); // Stores formatted vehicle types for each order
+  const [showReviewForm, setShowReviewForm] = useState(false); // Tracks whether to show the review form
+  const [reviewFormData, setReviewFormData] = useState({}); // Stores data for the review form
 
   const handleExpand = (index) => {
     setExpandedOrderIndex(index);
@@ -22,8 +28,52 @@ const EmployerOrders = ({ enrichedOrders }) => {
     setCurrentMapOrderIndex(index);
   };
 
+  const completeTask = async (task_id) => {
+    try {
+      axios.put("http://localhost:5001/api/complete-task", { task_id, status: 'completed' })
+        .then((response) => {
+          console.log(response);
+          dispatch(clearView());
+        })
+        .catch((err) => {
+          alert(err.response?.data?.err || "An error occurred during task completion.");
+        })
+    } catch (error) {
+
+    }
+  }
+
+
+  const updateUserStatus = async (employee_id) => {
+    try {
+      const userStatus = {
+        user_id: employee_id,
+        status: "Active", 
+        fromVehicleStatus: "In Use",
+        toVehicleStatus: "Active"
+      };
+      const response = await axios.post("http://localhost:5001/api/users/update-employee-status", userStatus);
+
+      if (response.status === 200) {
+        console.log("User status updated successfully:", response.data);
+      } else {
+        console.error("Failed to update user status:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating user status:", error);
+    }
+  };
+
   const handleCompleteTask = (index) => {
-    // updateTask()
+    const task_id = enrichedOrders[index].task_id;
+    const role_id = enrichedOrders[index].role_id;
+    console.log(task_id,role_id);
+    completeTask(task_id);
+    // Show the review form with necessary data
+    setReviewFormData({ task_id: task_id, role_id: role_id });
+    setShowReviewForm(true);
+
+    updateUserStatus(userID);
   }
 
   useEffect(() => {
@@ -47,6 +97,15 @@ const EmployerOrders = ({ enrichedOrders }) => {
 
     setTypes();
   }, [enrichedOrders]); // Run whenever enrichedOrders changes
+  if (showReviewForm) {
+    // Render ReviewForm if showReviewForm is true
+    return (
+      <ReviewForm
+        taskId={reviewFormData.task_id}
+        revieweeId={reviewFormData.role_id}
+      />
+    );
+  }
 
   return (
     <div className="task-review-container">
@@ -103,7 +162,10 @@ const EmployerOrders = ({ enrichedOrders }) => {
           <div className="popup-card">
             <div>
               <p>
-                <strong>Employee Name:</strong> {enrichedOrders[expandedOrderIndex].employeeName}
+                <strong>{role === "Employee" ? "Employer" : "Employee"} Name:</strong> {enrichedOrders[expandedOrderIndex].employeeName}
+              </p>
+              <p>
+                <strong>Task ID: </strong> <span className="status-highlight">{enrichedOrders[expandedOrderIndex].task_id}</span>
               </p>
               <p>
                 <strong>Status:</strong> {enrichedOrders[expandedOrderIndex].taskStatus}
@@ -132,8 +194,8 @@ const EmployerOrders = ({ enrichedOrders }) => {
                 View Map
               </button>
 
-            {role === 'Employee' &&  <button
-                onClick={handleCompleteTask(expandedOrderIndex)}
+              {role === 'Employee' && <button
+                onClick={() => handleCompleteTask(expandedOrderIndex)}
                 className="complete-button"
               >
                 Complete Task

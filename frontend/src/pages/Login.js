@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import Register from "./Register";
 import axios from "axios";
 import { clearDeliveryFormData, clearDeliveryPartnerView } from "../redux/deliveryPartnerViewSlice";
+import { clearView } from "../redux/employeeViewSlice";
 
 function Login({ role, onClose }) {
     const [userData, setUserData] = useState({ email: "", password: "", role: role });
@@ -30,17 +31,18 @@ function Login({ role, onClose }) {
                     dispatch(setUser({...userData, userID}));
                     dispatch(clearDeliveryFormData());
                     dispatch(clearDeliveryPartnerView());
+                    dispatch(clearView());
 
                         if(role === "Employer")
                         {
-                            navigate('/employer-home');
+                            window.location.href = "/employer-home";
                         }
                         else if(role === "Employee")
                         {
-                            navigate('/employee-home');
+                            window.location.href = "/employee-home";
                         }
                         else{
-                            navigate('/warehouse-home');
+                            window.location.href = "/warehouse-home";
                         }
                 })
                 .catch((error) => alert(error.response?.data?.error || "An error occurred during login."));
