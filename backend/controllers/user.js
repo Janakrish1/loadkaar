@@ -361,7 +361,8 @@ module.exports = {
                 AND u.status = 'Active'
                 AND v.status = 'Active'
                 AND v.vehicle_type = :vehicle_type
-                HAVING distance_km <= 5;
+                HAVING distance_km <= 5
+                ORDER BY estimated_price ASC;
             `;
 
             const results = await sequelize.query(findQuery, {
