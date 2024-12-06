@@ -8,4 +8,5 @@ controllers.employerPayment=require("./employerPayment");
 controllers.taskReviews=require("./taskReviews");
 controllers.userLocation = require('./userLocation');
 controllers.employeeTaks = require('./employeeTasks');
+controllers.notification=require('./notification');
 module.exports = controllers;

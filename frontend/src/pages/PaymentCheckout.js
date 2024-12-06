@@ -127,6 +127,9 @@ const PaymentCheckout = () => {
                                     task_id: task_id,
                                     deliveryFormData: deliveryFormData
                                 })
+                                // adding the notification in first case for aassigmet of case
+                                axios.post("http://localhost:5001/api/save-notification",{user_id:paymentData.employee_id,message:  `Task with TaskID: ${response.data.taskID} is assigned to you!`})
+                                axios.post("http://localhost:5001/api/save-notification",{user_id:paymentData.user_id,message:  `Your Task with TaskID: ${response.data.taskID} is assigned to employee with name : ${paymentData.employee_name}!`})
                                     .then(response => {
                                         console.log(response.data.message);
                                     })

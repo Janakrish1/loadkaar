@@ -27,8 +27,68 @@ function Employer_HomePage() {
   const [showBookWarehouse, setBookWarehouse] = useState(false);
   const { currentView, activeMenu } = useSelector((state) => state.deliveryPartnerView);
   const [rating, setRating] = useState(5); // Default rating is 5
+  const [notOccupied, setNotOccupied] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0); // State to store unread notification count
+  const [showNotificationPopup, setShowNotificationPopup] = useState(false); // State for popup
+  const [notifications, setNotifications] = useState([]); // State for notifications
+  const [hasOpenedPopup, setHasOpenedPopup] = useState(false); // Flag to track if the popup was opened
 
+
+  // Fetch Unread Notification Count
+    const fetchUnreadNotificationsCount = async () => {
+      try {
+        const response = await axios.post("http://localhost:5001/api/count-notification", {
+          user_id: userID,
+        });
+  
+        if (response.status === 200) {
+          setUnreadCount(response.data.count);
+        }
+      } catch (error) {
+        console.error("Error fetching unread notification count:", error);
+      }
+    };
+  
+    // Fetch All Notifications
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.post("http://localhost:5001/api/get-notification", {
+          user_id: userID,
+        });
+  
+        if (response.status === 200) {
+          setNotifications(response.data.notifications);
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+     // Mark Notification as Read
+     const markAsRead = async (notification_id) => {
+      try {
+        const response = await axios.post("http://localhost:5001/api/markread-notification", {
+          notification_id,
+        });
+        if (response.status === 200) {
+          // Update notification locally
+          setNotifications((prevNotifications) =>
+            prevNotifications.map((notif) =>
+              notif.notification_id === notification_id ? { ...notif, is_read: true } : notif
+            )
+          );
+        }
+      } catch (error) {
+        console.error("Error marking notification as read:", error);
+      }
+    };
+
+
+    
   useEffect(() => {
+
+    
+
     const fetchDetails = async () => {
       try {
         const checkRole = role === "Employer" ? "Employee" : "Employer";
@@ -67,6 +127,7 @@ function Employer_HomePage() {
     if (userID && currentView) {
       fetchDetails();
       fetchRating();
+      fetchUnreadNotificationsCount();
     }
   }, [userID, role, currentView]); // Trigger when any of these change
   
@@ -151,6 +212,16 @@ function Employer_HomePage() {
     }
   };
 
+  const handleNotificationIconClick = () => {
+    setShowNotificationPopup(true);
+    if (!hasOpenedPopup) {
+      setHasOpenedPopup(true);  // Ensure unread count is only decremented the first time the popup is opened
+      setUnreadCount(0); // Set unread count to 0 when the popup is opened
+      fetchNotifications(); // Fetch notifications after opening the popup
+    }
+  };
+
+
   return (
     <div className="homepage-container">
       {/* Header Section */}
@@ -158,6 +229,43 @@ function Employer_HomePage() {
         <div className="logo-container">
           <img src={logo} alt="LoadKaar Logo" className="logo" />
         </div>
+        {/* Notification Button */}
+      <div className="notification-container">
+        <button
+          className="notification-button"
+          onClick={handleNotificationIconClick}
+        >
+          <span className="notification-icon">🔔</span>
+          <span className="notification-count">{unreadCount}</span>
+        </button>
+      </div>
+
+      {/* Notification Popup */}
+      {showNotificationPopup && (
+        <div className="notification-popup-overlay">
+          <div className="notification-popup">
+            <h2>Notifications</h2>
+            <button className="close-popup" onClick={() => setShowNotificationPopup(false)}>
+              Close
+            </button>
+            <ul className="notification-list">
+              {notifications.map((notification) => (
+                <li
+                  key={notification.notification_id}
+                  className={`notification-item ${
+                    notification.is_read ? "read" : "unread"
+                  }`}
+                  onClick={() => markAsRead(notification.notification_id)}
+                >
+                  {notification.message}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    
+  
         <h1 className="website-name">LoadKaar</h1>
         <div className="profile-container">
           <div className="profile" onClick={() => {

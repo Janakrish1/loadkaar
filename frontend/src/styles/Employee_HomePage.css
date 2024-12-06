@@ -217,17 +217,123 @@
     color: #555;
   }
 
-  .notification-count {
+   /* Overlay for Notification Popup */
+.notification-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* High stacking for visibility */
+}
+
+/* Popup Box */
+.notification-popup {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    padding: 20px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow-y: auto;
+    max-height: 80vh; /* Prevent overflow on small screens */
+    animation: fadeIn 0.3s ease-in-out; /* Subtle entrance animation */
+}
+
+/* Popup Heading */
+.notification-popup h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #004aad;
+    text-align: center;
+}
+
+/* Close Button */
+.close-popup {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    cursor: pointer;
+    color: #333;
+    transition: transform 0.2s ease;
+}
+
+.close-popup:hover {
+    transform: scale(1.2); /* Slight enlarge effect */
+    color: #004aad;
+}
+
+/* Notification List */
+.notification-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0;
+}
+
+.notification-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    border: 1px solid #ddd;
+    background-color: #fdfdfb;
+}
+
+.notification-item:hover {
+    background-color: #f0f8ff; /* Light blue hover effect */
+    transform: translateY(-2px); /* Subtle lift */
+}
+
+.notification-item.unread {
+    background-color: #0a4eea; /* Light yellow for unread notifications */
+    font-weight: bold;
+}
+
+.notification-item.read {
+    background-color: #1fa91f; /* Light green for read notifications */
+    font-weight: normal;
+}
+
+/* Unread Count */
+.notification-count {
     position: absolute;
     top: -5px;
     right: -5px;
     background: red;
     color: white;
     font-size: 12px;
+    font-weight: bold;
     border-radius: 50%;
     width: 20px;
     height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
+}
+
+/* Animation for popup */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+  

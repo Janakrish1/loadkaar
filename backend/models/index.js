@@ -19,5 +19,6 @@ db.models.UserLocation = require('./userLocation')(sequelize, Sequelize.DataType
 db.models.Warehouse = require('./warehouse')(sequelize, Sequelize.DataTypes);
 db.models.WarehousePricing = require('./warehousePricing')(sequelize, Sequelize.DataTypes);
 db.models.WarehouseLocation = require('./warehouseLocation')(sequelize, Sequelize.DataTypes);
+db.models.Notification = require('./notification')(sequelize, Sequelize.DataTypes);
 
 module.exports = db;

@@ -28,6 +28,11 @@ function Employee_HomePage() {
   const [enrichedOrders, setEnrichedOrders] = useState([]); // New state to handle enriched orders
   const [rating, setRating] = useState(5); // Default rating is 5
   const [notOccupied, setNotOccupied] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0); // State to store unread notification count
+  const [showNotificationPopup, setShowNotificationPopup] = useState(false); // State for popup
+  const [notifications, setNotifications] = useState([]); // State for notifications
+  const [hasOpenedPopup, setHasOpenedPopup] = useState(false); // Flag to track if the popup was opened
+
 
   // Logout Functionality
   const handleLogout = () => {
@@ -36,6 +41,56 @@ function Employee_HomePage() {
 
     navigate("/");
   };
+
+  // Fetch Unread Notification Count
+  const fetchUnreadNotificationsCount = async () => {
+    try {
+      const response = await axios.post("http://localhost:5001/api/count-notification", {
+        user_id: userID,
+      });
+
+      if (response.status === 200) {
+        setUnreadCount(response.data.count);
+      }
+    } catch (error) {
+      console.error("Error fetching unread notification count:", error);
+    }
+  };
+
+  // Fetch All Notifications
+  const fetchNotifications = async () => {
+    try {
+      const response = await axios.post("http://localhost:5001/api/get-notification", {
+        user_id: userID,
+      });
+
+      if (response.status === 200) {
+        setNotifications(response.data.notifications);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+   // Mark Notification as Read
+   const markAsRead = async (notification_id) => {
+    try {
+      const response = await axios.post("http://localhost:5001/api/markread-notification", {
+        notification_id,
+      });
+      if (response.status === 200) {
+        // Update notification locally
+        setNotifications((prevNotifications) =>
+          prevNotifications.map((notif) =>
+            notif.notification_id === notification_id ? { ...notif, is_read: true } : notif
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
 
   const fetchUserStatus = async () => {
     try {
@@ -108,7 +163,7 @@ function Employee_HomePage() {
           taskStatus: "inprogress",
         });
 
-        if(role === "Employee" && resCheckStatus.data.results.length > 0) {
+        if (role === "Employee" && resCheckStatus.data.results.length > 0) {
           setNotOccupied(false);
         }
       } catch (err) {
@@ -132,10 +187,11 @@ function Employee_HomePage() {
       }
     };
 
-    if(userID) {
+    if (userID) {
       fetchUserStatus();
       fetchRating();
-      if(currentView === "vehicles") {
+      fetchUnreadNotificationsCount();
+      if (currentView === "vehicles") {
         fetchVehicleStatus();
       }
       else {
@@ -214,6 +270,16 @@ function Employee_HomePage() {
     }
   };
 
+  const handleNotificationIconClick = () => {
+    setShowNotificationPopup(true);
+    if (!hasOpenedPopup) {
+      setHasOpenedPopup(true);  // Ensure unread count is only decremented the first time the popup is opened
+      setUnreadCount(0); // Set unread count to 0 when the popup is opened
+      fetchNotifications(); // Fetch notifications after opening the popup
+    }
+  };
+
+
   // Toggle active status
   const toggleStatus = async () => {
     if (!isActive) {
@@ -280,13 +346,41 @@ function Employee_HomePage() {
         <div className="logo-container">
           <img src={logo} alt="LoadKaar Logo" className="logo" />
         </div>
-        <div className="notification-container">
-          <button className="notification-button" onClick={() => alert("Show Notifications!")}>
-            <span className="notification-icon">🔔</span>
-            {/* Optional - Notification count */}
-            <span className="notification-count">2</span>
-          </button>
+        {/* Notification Button */}
+      <div className="notification-container">
+        <button
+          className="notification-button"
+          onClick={handleNotificationIconClick}
+        >
+          <span className="notification-icon">🔔</span>
+          <span className="notification-count">{unreadCount}</span>
+        </button>
+      </div>
+
+      {/* Notification Popup */}
+      {showNotificationPopup && (
+        <div className="notification-popup-overlay">
+          <div className="notification-popup">
+            <h2>Notifications</h2>
+            <button className="close-popup" onClick={() => setShowNotificationPopup(false)}>
+              Close
+            </button>
+            <ul className="notification-list">
+              {notifications.map((notification) => (
+                <li
+                  key={notification.notification_id}
+                  className={`notification-item ${
+                    notification.is_read ? "read" : "unread"
+                  }`}
+                  onClick={() => markAsRead(notification.notification_id)}
+                >
+                  {notification.message}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
+      )}
         <h1 className="website-name">LoadKaar</h1>
         <div className="profile-container">
           {/* Toggle Button for Active/Inactive */}

@@ -36,6 +36,7 @@ const { employeeTasks } = require("./controllers/employeeTasks");
 const {addWarehouse, removeWarehouse, updateWarehouse, getUserWarehouses} = require("./controllers/warehouse");
 const {addWarehouseLocation, updateWarehouseLocation, getUserWarehouseLocation} = require("./controllers/warehouseLocation");
 const {addWarehousePricing, updateWarehousePricing, getUserWarehousePricing} = require("./controllers/warehousePricing");
+const {saveNotification,countUnreadNotifications,getNotifications,markNotificationAsRead}= require('./controllers/notification');
 
 app.use("/api", dbRoute);
 
@@ -85,6 +86,12 @@ app.use('/api/isactive', checkActiveUser);
 app.use('/api/location', storeEmployeeLocation);
 app.use('/api/users/updateStatus', updateUserStatus);
 app.use('/api/users/update-employee-status', updateEmployeeStatus);
+
+// Notification
+app.use('/api/save-notification',saveNotification);
+app.use('/api/count-notification',countUnreadNotifications);
+app.use('/api/get-notification',getNotifications);
+app.use('/api/markread-notification',markNotificationAsRead);
 
 //Warehouse
 app.use('/api/warehouse/prices', getUserWarehousePricing);

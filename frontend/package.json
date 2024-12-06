@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@googlemaps/react-wrapper": "^1.1.42",
     "@react-google-maps/api": "^2.20.3",
     "@react-oauth/google": "^0.12.1",
     "@reduxjs/toolkit": "^2.3.0",

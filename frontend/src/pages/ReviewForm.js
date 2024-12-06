@@ -11,6 +11,7 @@ const ReviewForm = ({ taskId, revieweeId }) => {
     const [error, setError] = useState(""); // Error message state
 
     // Dynamically generate skipRedirect link based on the role
+    
     const skipRedirect = `/e${role.slice(1)}-home`;
 
     const handleSubmit = async () => {
@@ -30,7 +31,8 @@ const ReviewForm = ({ taskId, revieweeId }) => {
             };
 
             console.log(reviewData);
-
+            axios.post("http://localhost:5001/api/save-notification", { user_id:revieweeId ,message:`Your Task with TaskID: ${taskId} done by the assigned employee.`})
+            axios.post("http://localhost:5001/api/save-notification", { user_id: userID ,message:`Task with TaskID: ${taskId} successfully done by you !`})
             // API call to backend
             axios.post("http://localhost:5001/api/insert-review", { reviewData } )
             .then((response) => {
